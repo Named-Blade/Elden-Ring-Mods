@@ -34,7 +34,6 @@ function(add_asm_source ASM_SRC ASM_OBJ)
         OUTPUT ${ASM_OBJ}
         COMMAND ml64 /c /nologo /Fo ${ASM_OBJ} ${ASM_SRC}
         DEPENDS ${ASM_SRC}
-        COMMENT "Assembling ${ASM_SRC}"
     )
 endfunction()
 
@@ -62,10 +61,3 @@ build_mod(endlessNg endlessNg)
 build_mod(damageMod damageMod damageMod)
 build_mod(barSize barSize)
 build_mod(rallyMod rallyMod)
-
-# Set output directory
-set_target_properties(uncapper PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
-)
