@@ -1,0 +1,80 @@
+on app v1.12.3 steam depot 1245624 manifest 8273892924347236421
+
+//default rally time
+eldenring.exe+437135 - 44 38 74 24 78        - cmp [rsp+78],r14l
+eldenring.exe+43713A - 75 0D                 - jne eldenring.exe+437149
+eldenring.exe+43713C - 0F2F 8B 68010000      - comiss xmm1,[rbx+00000168]
+eldenring.exe+437143 - 0F82 A3000000         - jb eldenring.exe+4371EC
+eldenring.exe+437149 - F3 0F10 05 7F046E03   - movss xmm0,[eldenring.exe+3B175D0] <-- this one
+eldenring.exe+437151 - F3 0F59 44 24 70      - mulss xmm0,[rsp+70]
+eldenring.exe+437157 - F3 0F11 83 68010000   - movss [rbx+00000168],xmm0
+eldenring.exe+43715F - E9 88000000           - jmp eldenring.exe+4371EC
+eldenring.exe+437164 - 8B 07                 - mov eax,[rdi]
+eldenring.exe+437166 - 2B C1                 - sub eax,ecx
+
+44 38 74 24 78 75 0d 0f 2f 8b 68 01 00 00 0f 82 a3 00 00 00 f3 0f 10 05 ? ? ? ? f3 0f 59 44 24 70 f3 0f 11 83 68 01 00 00 e9 88 00 00 00 8b 07 2b c1
++24+4
+
+//rally loss speed (how much of max health bar should be lost per second)
+eldenring.exe+438E82 - F3 0F10 93 64010000   - movss xmm2,[rbx+00000164]
+eldenring.exe+438E8A - 0F2F CA               - comiss xmm1,xmm2
+eldenring.exe+438E8D - 76 4B                 - jna eldenring.exe+438EDA
+eldenring.exe+438E8F - 66 0F6E 83 3C010000   - movd xmm0,[rbx+0000013C]
+eldenring.exe+438E97 - 0F5B C0               - cvtdq2ps xmm0,xmm0
+eldenring.exe+438E9A - F3 0F59 05 32E76D03   - mulss xmm0,[eldenring.exe+3B175D4] <-- this one
+eldenring.exe+438EA2 - F3 0F59 C7            - mulss xmm0,xmm7
+eldenring.exe+438EA6 - F3 0F5C C8            - subss xmm1,xmm0
+eldenring.exe+438EAA - F3 0F5F CA            - maxss xmm1,xmm2
+eldenring.exe+438EAE - 0F2F F1               - comiss xmm6,xmm1
+eldenring.exe+438EB1 - F3 0F11 8B 60010000   - movss [rbx+00000160],xmm1
+eldenring.exe+438EB9 - 76 05                 - jna eldenring.exe+438EC0
+
+f3 0f 10 93 64 01 00 00 0f 2f ca 76 4b 66 0f 6e 83 3c 01 00 00 0f 5b c0 f3 0f 59 05 ? ? ? ? f3 0f 59 c7 f3 0f 5c c8 f3 0f 5f ca 0f 2f f1 f3 0f 11 8b 60 01 00 00 76 05
++28+4
+
+//effective change to rally (rbp subtracts from health)
+eldenring.exe+437073 - E8 68240C00           - call eldenring.exe+4F94E0
+eldenring.exe+437078 - 84 C0                 - test al,al
+eldenring.exe+43707A - 0F84 6C010000         - je eldenring.exe+4371EC
+eldenring.exe+437080 - 8B 8B 38010000        - mov ecx,[rbx+00000138]
+eldenring.exe+437086 - 0F57 C9               - xorps xmm1,xmm1
+eldenring.exe+437089 - 8B C1                 - mov eax,ecx
+eldenring.exe+43708B - 2B C5                 - sub eax,ebp
+eldenring.exe+43708D - 0F2F F1               - comiss xmm6,xmm1
+eldenring.exe+437090 - 0F86 CE000000         - jbe eldenring.exe+437164
+eldenring.exe+437096 - 85 C0                 - test eax,eax
+eldenring.exe+437098 - 0F84 C6000000         - je eldenring.exe+437164
+eldenring.exe+43709E - F7 D8                 - neg eax
+eldenring.exe+4370A0 - 66 0F6E D8            - movd xmm3,eax
+eldenring.exe+4370A4 - 8B 07                 - mov eax,[rdi]
+eldenring.exe+4370A6 - 2B C1                 - sub eax,ecx
+eldenring.exe+4370A8 - 0F5B DB               - cvtdq2ps xmm3,xmm3
+eldenring.exe+4370AB - 66 0F6E D0            - movd xmm2,eax
+eldenring.exe+4370AF - 0F5B D2               - cvtdq2ps xmm2,xmm2
+eldenring.exe+4370B2 - F3 0F59 DE            - mulss xmm3,xmm6
+eldenring.exe+4370B6 - 0F2F CA               - comiss xmm1,xmm2
+eldenring.exe+4370B9 - 0F28 E3               - movaps xmm4,xmm3
+eldenring.exe+4370BC - F3 0F58 A3 60010000   - addss xmm4,[rbx+00000160]
+
+e8 ? ? ? ? 84 c0 0f 84 ? ? ? ? 8b 8b 38 01 00 00 0f 57 c9 8b c1 2b c5 0f 2f f1 0f 86 ? ? ? ? 85 c0 0f 84
+
+//rally on hit
+eldenring.exe+438EF7 - E8 30910E02           - call eldenring.exe+252202C
+eldenring.exe+438EFC - F3 0F10 8B 60010000   - movss xmm1,[rbx+00000160]
+eldenring.exe+438F04 - 0F28 D0               - movaps xmm2,xmm0
+eldenring.exe+438F07 - F3 0F5C CA            - subss xmm1,xmm2
+eldenring.exe+438F0B - 0F2F F1               - comiss xmm6,xmm1
+eldenring.exe+438F0E - F3 0F11 8B 60010000   - movss [rbx+00000160],xmm1
+eldenring.exe+438F16 - 76 0E                 - jna eldenring.exe+438F26
+eldenring.exe+438F18 - F3 0F5D B3 64010000   - minss xmm6,[rbx+00000164]
+eldenring.exe+438F20 - F3 0F5F CE            - maxss xmm1,xmm6
+eldenring.exe+438F24 - EB 12                 - jmp eldenring.exe+438F38
+eldenring.exe+438F26 - 0F28 C1               - movaps xmm0,xmm1
+eldenring.exe+438F29 - 0F28 CE               - movaps xmm1,xmm6
+eldenring.exe+438F2C - F3 0F5D 83 64010000   - minss xmm0,[rbx+00000164]
+eldenring.exe+438F34 - F3 0F5F C8            - maxss xmm1,xmm0
+eldenring.exe+438F38 - F3 0F5C FA            - subss xmm7,xmm2
+eldenring.exe+438F3C - F3 0F11 8B 64010000   - movss [rbx+00000164],xmm1
+eldenring.exe+438F44 - F3 0F58 15 D455E602   - addss xmm2,[eldenring.exe+329E520]
+
+e8 ? ? ? ? f3 0f 10 8b 60 01 00 00 0f 28 d0 f3 0f 5c ca 0f 2f f1 f3 0f 11 8b 60 01 00 00 76 0e f3 0f 5d b3 64 01 00 00
