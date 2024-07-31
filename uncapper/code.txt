@@ -1,0 +1,130 @@
+on app v1.12.3 steam depot 1245624 manifest 8273892924347236421
+
+//???
+eldenring.exe+7C35DB - E8 208BECFF           - call eldenring.exe+68C100
+eldenring.exe+7C35E0 - 03 45 C7              - add eax,[rbp-39]
+eldenring.exe+7C35E3 - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7C35E7 - 83 F8 63              - cmp eax,63 <-- this thing
+eldenring.exe+7C35EA - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7C35ED - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7C35F1 - 48 0F4D CA            - cmovge rcx,rdx <-- nop this
+eldenring.exe+7C35F5 - 8B 01                 - mov eax,[rcx]
+
+//buff preview caps for each stat
+//just nop the cmovges?
+eldenring.exe+7CA417 - E8 F49AD2FF           - call eldenring.exe+4F3F10
+eldenring.exe+7CA41C - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA41F - C7 45 AF 63000000     - mov [rbp-51],00000063
+eldenring.exe+7CA426 - E8 A51CECFF           - call eldenring.exe+68C0D0
+eldenring.exe+7CA42B - 03 45 B7              - add eax,[rbp-49]
+eldenring.exe+7CA42E - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA431 - 89 45 A7              - mov [rbp-59],eax
+eldenring.exe+7CA434 - 48 8D 55 AF           - lea rdx,[rbp-51]
+eldenring.exe+7CA438 - 48 8D 4D A7           - lea rcx,[rbp-59]
+eldenring.exe+7CA43C - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA440 - 8B 01                 - mov eax,[rcx]
+eldenring.exe+7CA442 - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA445 - 41 89 46 38           - mov [r14+38],eax
+eldenring.exe+7CA449 - C7 45 A7 63000000     - mov [rbp-59],00000063
+eldenring.exe+7CA450 - E8 CB1CECFF           - call eldenring.exe+68C120
+eldenring.exe+7CA455 - 03 45 BB              - add eax,[rbp-45]
+eldenring.exe+7CA458 - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7CA45C - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA45F - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7CA462 - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7CA466 - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA46A - 8B 01                 - mov eax,[rcx]
+eldenring.exe+7CA46C - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA46F - 41 89 46 3C           - mov [r14+3C],eax
+eldenring.exe+7CA473 - C7 45 A7 63000000     - mov [rbp-59],00000063
+eldenring.exe+7CA47A - E8 311CECFF           - call eldenring.exe+68C0B0
+eldenring.exe+7CA47F - 03 45 BF              - add eax,[rbp-41]
+eldenring.exe+7CA482 - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7CA486 - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA489 - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7CA48C - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7CA490 - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA494 - 8B 01                 - mov eax,[rcx]
+eldenring.exe+7CA496 - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA499 - 41 89 46 40           - mov [r14+40],eax
+eldenring.exe+7CA49D - C7 45 A7 63000000     - mov [rbp-59],00000063
+eldenring.exe+7CA4A4 - E8 671CECFF           - call eldenring.exe+68C110
+eldenring.exe+7CA4A9 - 03 45 C3              - add eax,[rbp-3D]
+eldenring.exe+7CA4AC - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7CA4B0 - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA4B3 - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7CA4B6 - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7CA4BA - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA4BE - 8B 01                 - mov eax,[rcx]
+eldenring.exe+7CA4C0 - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA4C3 - 41 89 46 44           - mov [r14+44],eax
+eldenring.exe+7CA4C7 - C7 45 A7 63000000     - mov [rbp-59],00000063
+eldenring.exe+7CA4CE - E8 2D1CECFF           - call eldenring.exe+68C100
+eldenring.exe+7CA4D3 - 03 45 C7              - add eax,[rbp-39]
+eldenring.exe+7CA4D6 - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7CA4DA - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA4DD - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7CA4E0 - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7CA4E4 - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA4E8 - 8B 01                 - mov eax,[rcx]
+eldenring.exe+7CA4EA - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA4ED - 41 89 46 48           - mov [r14+48],eax
+eldenring.exe+7CA4F1 - C7 45 A7 63000000     - mov [rbp-59],00000063
+eldenring.exe+7CA4F8 - E8 A31BECFF           - call eldenring.exe+68C0A0
+eldenring.exe+7CA4FD - 03 45 CB              - add eax,[rbp-35]
+eldenring.exe+7CA500 - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7CA504 - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA507 - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7CA50A - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7CA50E - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA512 - 8B 01                 - mov eax,[rcx]
+eldenring.exe+7CA514 - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA517 - 41 89 46 4C           - mov [r14+4C],eax
+eldenring.exe+7CA51B - C7 45 A7 63000000     - mov [rbp-59],00000063
+eldenring.exe+7CA522 - E8 C91BECFF           - call eldenring.exe+68C0F0
+eldenring.exe+7CA527 - 03 45 CF              - add eax,[rbp-31]
+eldenring.exe+7CA52A - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7CA52E - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA531 - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7CA534 - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7CA538 - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA53C - 8B 01                 - mov eax,[rcx]
+eldenring.exe+7CA53E - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA541 - 41 89 46 50           - mov [r14+50],eax
+eldenring.exe+7CA545 - C7 45 A7 63000000     - mov [rbp-59],00000063
+eldenring.exe+7CA54C - E8 6F1BECFF           - call eldenring.exe+68C0C0
+eldenring.exe+7CA551 - 03 45 D3              - add eax,[rbp-2D]
+eldenring.exe+7CA554 - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7CA558 - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7CA55B - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7CA55F - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA562 - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA566 - 8B 01                 - mov eax,[rcx]
+eldenring.exe+7CA568 - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA56B - 41 89 46 54           - mov [r14+54],eax
+eldenring.exe+7CA56F - C7 45 A7 63000000     - mov [rbp-59],00000063
+eldenring.exe+7CA576 - E8 651BECFF           - call eldenring.exe+68C0E0
+eldenring.exe+7CA57B - 03 45 D7              - add eax,[rbp-29]
+eldenring.exe+7CA57E - 48 8D 55 A7           - lea rdx,[rbp-59]
+eldenring.exe+7CA582 - 83 F8 63              - cmp eax,63
+eldenring.exe+7CA585 - 89 45 AF              - mov [rbp-51],eax
+eldenring.exe+7CA588 - 48 8D 4D AF           - lea rcx,[rbp-51]
+eldenring.exe+7CA58C - 4D 8B CC              - mov r9,r12
+eldenring.exe+7CA58F - 48 0F4D CA            - cmovge rcx,rdx
+eldenring.exe+7CA593 - 4C 8B C6              - mov r8,rsi
+eldenring.exe+7CA596 - 33 D2                 - xor edx,edx
+eldenring.exe+7CA598 - 8B 01                 - mov eax,[rcx]
+
+//level cost function start
+eldenring.exe+686100 - 40 53                 		- push rbx
+eldenring.exe+686102 - 48 83 EC 50           		- sub rsp,50
+eldenring.exe+686106 - 8B D9                 		- mov ebx,ecx
+eldenring.exe+686108 - 0F29 74 24 40         		- movaps [rsp+40],xmm6
+eldenring.exe+68610D - 48 8D 4C 24 20        		- lea rcx,[rsp+20]
+eldenring.exe+686112 - 0F29 7C 24 30         		- movaps [rsp+30],xmm7
+eldenring.exe+686117 - BA C8000000           		- mov edx,000000C8
+eldenring.exe+68611C - C7 44 24 20 FFFFFFFF  		- mov [rsp+20],FFFFFFFF
+eldenring.exe+686124 - 48 C7 44 24 28 00000000  - mov qword ptr [rsp+28],00000000
+eldenring.exe+68612D - E8 5ED76A00           		- call eldenring.exe+D33890
+
+
