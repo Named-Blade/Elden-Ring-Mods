@@ -1,0 +1,12 @@
+[submodule "dependencies/libER"]
+	path = dependencies/libER
+	url = https://github.com/Dasaav-dsv/libER
+[submodule "dependencies/CallHook"]
+	path = dependencies/CallHook
+	url = https://github.com/Dasaav-dsv/CallHook
+[submodule "dependencies/Pattern16"]
+	path = dependencies/Pattern16
+	url = https://github.com/Dasaav-dsv/Pattern16
+[submodule "dependencies/inifile-cpp"]
+	path = dependencies/inifile-cpp
+	url = https://github.com/Rookfighter/inifile-cpp
