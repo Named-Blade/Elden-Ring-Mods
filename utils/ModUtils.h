@@ -12,6 +12,7 @@
 #include <map>
 #include <chrono>
 #include <iomanip>
+#include <shlwapi.h>
 
 #include <Pattern16.h>
 
@@ -76,18 +77,21 @@ namespace ModUtils
 		HMODULE hm = NULL;
 
 		if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | 
-						GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-						(LPCSTR) &GetCurrentModName, &hm) == 0)
+							GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+							(LPCSTR) &GetCurrentModName, &hm) == 0)
 		{
-				int ret = GetLastError();
+			return "";
 		}
-		if (GetModuleFileName(hm, path, sizeof(path)) == 0)
+
+		if (GetModuleFileNameA(hm, path, sizeof(path)) == 0)
 		{
-				int ret = GetLastError();
+			return "";
 		}
+
 		std::string pathStr(path);
-		
-		return pathStr.substr(50,pathStr.size());
+		std::string filename = PathFindFileNameA(pathStr.c_str());
+		PathRemoveExtensionA(filename.data());
+		return filename;
 	}
 	
 	template<typename... Types>
