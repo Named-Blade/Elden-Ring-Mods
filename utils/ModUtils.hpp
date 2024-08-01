@@ -364,6 +364,7 @@ namespace ModUtils
 
 				void* address = Pattern16::scan(regionStart, regionSize, aob);
 				if (address != nullptr){
+					Log("Found signature at ", NumberToHexString((uintptr_t)address));
 					return (uintptr_t)address;
 				}
 			}

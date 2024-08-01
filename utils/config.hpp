@@ -8,6 +8,8 @@ using namespace ModUtils;
 
 ini::IniFile myIni;
 
+// use on string literals to allow them to be used in the readConfig function
+// "my string here"_s
 inline std::string operator"" _s(const char* str, std::size_t) {
     return std::string(str);
 }
@@ -57,6 +59,9 @@ void getConfigVal(T& value, std::string section, std::string key) {
     }
 LVALUE_AND_RVALUE_PAIRS
 
+//function to set up ini file
+//pass any number of forwarded tuples
+//for example: std::forward_as_tuple(splitDamageFix,section,"split damage fix"_s)
 template <typename... Args>
 void readConfig(Args&&... args) {
     myIni.load(GetCurrentModPath() + "/" + GetCurrentModName() + ".ini");
