@@ -16,11 +16,31 @@
 
 #include <Pattern16.h>
 
+std::string RemoveExtension(const std::string& filename) {
+    char mutableFilename[MAX_PATH];
+    strcpy_s(mutableFilename, filename.c_str());
+    
+    PathRemoveExtensionA(mutableFilename);
+    
+    return std::string(mutableFilename);
+}
+
+std::string RemoveFileName(const std::string& filepath) {
+    char mutableFilepath[MAX_PATH];
+    strcpy_s(mutableFilepath, filepath.c_str());
+    
+    PathRemoveFileSpecA(mutableFilepath);
+    
+    return std::string(mutableFilepath);
+}
+
 namespace ModUtils
 {
 	static HWND muWindow = NULL;
 	static std::string muGameName = "ELDEN RING";
 	static std::string muExpectedWindowName = "ELDEN RING™";
+	std::string currentModName = "";
+	std::string currentModPath = "";
 	static const std::string muAobMask = "?";
 
 	class Timer
@@ -71,27 +91,58 @@ namespace ModUtils
 		return _GetModuleName(true);
 	}
 
+	static std::string GetCurrentModPath()
+	{
+		if (currentModPath ==""){
+			char path[MAX_PATH];
+			HMODULE hm = NULL;
+
+			if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | 
+								GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+								(LPCSTR) &GetCurrentModPath, &hm) == 0)
+			{
+				return "";
+			}
+
+			if (GetModuleFileNameA(hm, path, sizeof(path)) == 0)
+			{
+				return "";
+			}
+
+			std::string pathStr(path);
+			std::string filePath = RemoveFileName(pathStr.c_str());
+			currentModPath = filePath;
+			return currentModPath;
+		} else {
+			return currentModPath;
+		}
+	}
+
 	static std::string GetCurrentModName()
 	{
-		char path[MAX_PATH];
-		HMODULE hm = NULL;
+		if (currentModName ==""){
+			char path[MAX_PATH];
+			HMODULE hm = NULL;
 
-		if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | 
-							GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-							(LPCSTR) &GetCurrentModName, &hm) == 0)
-		{
-			return "";
+			if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | 
+								GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+								(LPCSTR) &GetCurrentModName, &hm) == 0)
+			{
+				return "";
+			}
+
+			if (GetModuleFileNameA(hm, path, sizeof(path)) == 0)
+			{
+				return "";
+			}
+
+			std::string pathStr(path);
+			std::string filename = PathFindFileNameA(pathStr.c_str());
+			currentModName = RemoveExtension(filename);
+			return currentModName;
+		} else {
+			return currentModName;
 		}
-
-		if (GetModuleFileNameA(hm, path, sizeof(path)) == 0)
-		{
-			return "";
-		}
-
-		std::string pathStr(path);
-		std::string filename = PathFindFileNameA(pathStr.c_str());
-		PathRemoveExtensionA(filename.data());
-		return filename;
 	}
 	
 	template<typename... Types>
@@ -99,7 +150,7 @@ namespace ModUtils
 	{
 		std::stringstream stream;
 		(stream << ... << args) << std::endl;
-		std::cout << stream.str();
+		std::cout << "[" + GetCurrentModName() + "]" + stream.str();
 	}
 
 
