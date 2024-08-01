@@ -11,9 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_definitions(-D_ITERATOR_DEBUG_LEVEL=0)
 
 # Find the required libraries
-set(USER32_LIB User32.lib)
-set(OLE32_LIB ole32.lib)
-set(SHELL32_LIB Shell32.lib)
 set(SHLWAPI_LIB shlwapi.lib)
 set(LIBER_LIB ${CMAKE_BINARY_DIR}/libER/Release/libER.lib)
 set(LIBER_LIB_S ${CMAKE_BINARY_DIR}/libER/Release/libER_STATIC.lib)
@@ -54,7 +51,7 @@ set (MOD_ASM ${ARGN})
     add_library(${MOD_NAME} SHARED ${SRC_FILES})
     add_dependencies(${MOD_NAME} libER)
     add_dependencies(${MOD_NAME} libER_static)
-    target_link_libraries(${MOD_NAME} PRIVATE ${LIBER_LIB} ${LIBER_LIB_S} ${ZYCORE_LIB} ${ZYDIS_LIB} ${SHLWAPI_LIB} ${USER32_LIB} ${OLE32_LIB} ${SHELL32_LIB})
+    target_link_libraries(${MOD_NAME} PRIVATE ${LIBER_LIB} ${LIBER_LIB_S} ${ZYCORE_LIB} ${ZYDIS_LIB} ${SHLWAPI_LIB})
 endfunction()
 
 #build Mods
