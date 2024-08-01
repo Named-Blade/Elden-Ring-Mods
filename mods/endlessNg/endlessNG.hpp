@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <Windows.h>
+#include <utility>
 
 #include <dantelion2/reflection.hpp>
 #include <dantelion2/system.hpp>
@@ -12,9 +13,10 @@
 #include <param/param.hpp>
 
 #include <ModUtils.hpp>
+#include <config.hpp>
 #include <eventFlags.hpp>
 
-bool fixStandardDamage = true;
+int fixStandardDamage = 1;
 
 //event flag handling
 unsigned int flagCheckNewCycle = 1051439330;

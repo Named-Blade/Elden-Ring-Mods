@@ -1,5 +1,4 @@
 #include "endlessNg.hpp"
-#include "config.cpp"
 #include "DLLMain.hpp"
 
 using namespace ModUtils;
@@ -83,7 +82,19 @@ struct set_ng_cycle_task: public from::CS::CSEzTask {
 };
 
 void base() {
-	readConfig();
+	std::string section = "endless cycles";
+	std::vector<std::string> names = {
+		"fix standard damage",
+		"event flag check",
+		"event flag sign",
+		"event flag range start"
+	};
+	readConfig(
+		std::forward_as_tuple(fixStandardDamage,section,names[0]),
+		std::forward_as_tuple(flagCheckNewCycle,section,names[1]),
+		std::forward_as_tuple(flagSignNewCycle,section,names[2]),
+		std::forward_as_tuple(flagStartNewCycle,section,names[3])
+	);
 	
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);
@@ -106,7 +117,7 @@ void base() {
 		gameDataManPtr = baseAddress+instructionSize+gameDataManOffset;
 	}
 	
-	if (fixStandardDamage){
+	if (fixStandardDamage != 0){
 		//without this, the damage gets multiplied twice.
 		 for (auto [id, row] : from::param::ClearCountCorrectParam) {
 			 if (id != 0 && id != 100){
