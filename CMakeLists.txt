@@ -25,7 +25,7 @@ include_directories(${CMAKE_SOURCE_DIR}/dependencies/libER/include)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/libER/symbols)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/CallHook/include)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/Pattern16/include)
-include_directories(${CMAKE_SOURCE_DIR}/dependencies/inifile-cpp/include)
+include_directories(${CMAKE_SOURCE_DIR}/dependencies/mINI/src)
 
 #build asm file
 function(add_asm_source ASM_SRC ASM_OBJ)

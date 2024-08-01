@@ -1,12 +1,14 @@
 #pragma once
 
-#include <inicpp.h>
-#include <modUtils.hpp>
 #include <tuple>
+#include <sstream>
+
+#include <mini/ini.h>
+#include <modUtils.hpp>
 
 using namespace ModUtils;
 
-ini::IniFile myIni;
+mINI::INIStructure ini;
 
 // use on string literals to allow them to be used in the readConfig function
 // "my string here"_s
@@ -15,28 +17,42 @@ inline std::string operator"" _s(const char* str, std::size_t) {
 }
 
 bool hasSectionAndKey(std::string section, std::string key){
-    for(const auto &sectionPair : myIni){
-        if (sectionPair.first == section) {
-            for(const auto &fieldPair : sectionPair.second){
-                if (fieldPair.first == key){
-                    return true;
-                }
-            }
+    if (ini.has(section)) {
+        if (ini[section].has(key)){
+            return true;
         }
     }
     return false;
 }
 
 template <typename T>
+T fromString(const std::string& str) {
+    std::istringstream iss(str);
+    T value;
+    iss >> value;
+    if (iss.fail()) {
+        throw std::exception("Failed to parse Data from string.");
+    }
+    return value;
+}
+
+template <typename T>
+std::string toString(const T& value) {
+    std::ostringstream oss;
+    oss << value;
+    return oss.str();
+}
+
+template <typename T>
 void getConfigVal(T& value, std::string section, std::string key) {
     try {
         if (hasSectionAndKey(section, key)){
-            value = myIni[section][key].as<T>();
+            value = fromString<T>(ini[section][key]);
         } else {
-            myIni[section][key] = value;
+            ini[section][key] = toString<T>(value);
         }
     } catch (std::exception e){
-        myIni[section][key] = value;
+        ini[section][key] = toString<T>(value);
     }
 }
 
@@ -64,7 +80,8 @@ LVALUE_AND_RVALUE_PAIRS
 //for example: std::forward_as_tuple(splitDamageFix,section,"split damage fix"_s)
 template <typename... Args>
 void readConfig(Args&&... args) {
-    myIni.load(GetCurrentModPath() + "/" + GetCurrentModName() + ".ini");
+    mINI::INIFile config(GetCurrentModPath() + "/" + GetCurrentModName() + ".ini");
+    config.read(ini);
     getConfigVals(std::forward<Args>(args)...);
-    myIni.save(GetCurrentModPath() + "/" + GetCurrentModName() + ".ini");
+    config.write(ini,true);
 }
