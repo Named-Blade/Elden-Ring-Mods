@@ -22,6 +22,7 @@ set(ZYDIS_LIB ${CMAKE_BINARY_DIR}/../dependencies/CallHook/thirdparty/zydis/incl
 add_subdirectory(dependencies/libER libER)
 
 # Add include directories
+include_directories(${CMAKE_SOURCE_DIR}/utils)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/libER/include)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/libER/symbols)
 include_directories(${CMAKE_SOURCE_DIR}/dependencies/CallHook/include)

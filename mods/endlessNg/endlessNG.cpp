@@ -1,6 +1,5 @@
 #include "endlessNg.hpp"
 #include "config.cpp"
-#include "eventFlags.cpp"
 #include "DLLMain.hpp"
 
 using namespace ModUtils;

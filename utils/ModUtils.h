@@ -13,6 +13,8 @@
 #include <chrono>
 #include <iomanip>
 
+#include <Pattern16.h>
+
 namespace ModUtils
 {
 	static HWND muWindow = NULL;
@@ -85,7 +87,7 @@ namespace ModUtils
 		}
 		std::string pathStr(path);
 		
-		return pathStr.substr(0,pathStr.size()-4);
+		return pathStr.substr(50,pathStr.size());
 	}
 	
 	template<typename... Types>
@@ -259,19 +261,15 @@ namespace ModUtils
  
 	static uintptr_t AobScan(std::string aob)
 	{
-		std::vector<std::string> aobTokens = TokenifyAobString(aob);
 
 		DWORD processId = GetCurrentProcessId();
-		uintptr_t regionStart = GetProcessBaseAddress(processId);
+		void* regionStart = (void*)GetProcessBaseAddress(processId);
+		size_t regionSize = 0x6400000;
+
 		Log("Process name: ", GetCurrentProcessName());
 		Log("Process ID: ", processId);
-		Log("Process base address: ", NumberToHexString(regionStart));
+		Log("Process base address: ", NumberToHexString((uintptr_t)regionStart));
 		Log("AOB: ", aob);
-
-		if (!VerifyAob(aob))
-		{
-			return 0;
-		};
 
 		size_t numRegionsChecked = 0;
 		size_t maxRegionsToCheck = 10000;
@@ -292,9 +290,8 @@ namespace ModUtils
 				}
 				break;
 			}
-			regionStart = (uintptr_t)memoryInfo.BaseAddress;
-			uintptr_t regionSize = (uintptr_t)memoryInfo.RegionSize;
-			uintptr_t regionEnd = regionStart + regionSize;
+			regionStart = (void*)memoryInfo.BaseAddress;
+			uintptr_t regionSize = (size_t)memoryInfo.RegionSize;
 			uintptr_t protection = (uintptr_t)memoryInfo.Protect;
 			uintptr_t state = (uintptr_t)memoryInfo.State;
 
@@ -308,29 +305,11 @@ namespace ModUtils
 			if (isMemoryReadable)
 			{
 				Log("Checking region: ", NumberToHexString(regionStart));
-				currentAddress = regionStart;
-				while (currentAddress < regionEnd - aobTokens.size())
-				{
-					for (size_t i = 0; i < aobTokens.size(); i++)
-					{
-						if (aobTokens[i] == muAobMask)
-						{
-							currentAddress++;
-							continue;
-						} 
-						else if (*(unsigned char*)currentAddress != (unsigned char)std::stoul(aobTokens[i], nullptr, 16))
-						{
-							currentAddress++;
-							break;
-						}
-						else if (i == aobTokens.size() - 1)
-						{
-							uintptr_t signature = currentAddress - aobTokens.size() + 1;
-							Log("Found signature at ", NumberToHexString(signature));
-							return signature;
-						}
-						currentAddress++;
-					}
+				currentAddress = (uintptr_t)regionStart;
+
+				void* address = Pattern16::scan(regionStart, regionSize, aob);
+				if (address != nullptr){
+					return (uintptr_t)address;
 				}
 			}
 			else
@@ -339,7 +318,7 @@ namespace ModUtils
 			}
 
 			numRegionsChecked++;
-			regionStart += memoryInfo.RegionSize;
+			regionStart = (void*)((uintptr_t)regionStart + memoryInfo.RegionSize);
 		}
 
 		Log("Stopped at: ", NumberToHexString(currentAddress), ", num regions checked: ", numRegionsChecked);
@@ -602,19 +581,4 @@ namespace ModUtils
 		MemCopy((address + 6), (uintptr_t)&destination, 8);
 		Log("Created jump from ", NumberToHexString(address), " to ", NumberToHexString(destination),  " with a clearance of ", clearance);
 	}
-	
-	void PerformPatch(const std::string& aob,
-	const std::string& expectedBytes,
-	const std::string& newBytes,
-	size_t offset)
-{
-	uintptr_t patchAddress = AobScan(aob);
-
-	if (patchAddress != 0)
-	{
-		patchAddress += offset;
-
-		ReplaceExpectedBytesAtAddress(patchAddress, expectedBytes, newBytes);
-	}
-}
 }

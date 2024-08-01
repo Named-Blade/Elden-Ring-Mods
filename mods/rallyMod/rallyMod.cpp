@@ -1,8 +1,6 @@
 #include <Windows.h>
 #include <algorithm>
 
-#include "ModUtils.h"
-
 #include "rallyMod.hpp"
 #include "config.cpp"
 

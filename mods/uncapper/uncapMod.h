@@ -4,6 +4,8 @@
 #include <param/param.hpp>
 #include <dantelion2/system.hpp>
 
+#include <ModUtils.h>
+
 using namespace ModUtils;
 
 enum Stat {vigor,mind,endurance,strength,dexterity,intelligence,faith,arcane};

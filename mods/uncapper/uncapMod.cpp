@@ -1,8 +1,6 @@
 #include <Windows.h>
 #include <algorithm>
 
-#include "ModUtils.h"
-
 #include "uncapMod.h"
 #include "config.cpp"
 #include "capGetters.cpp"

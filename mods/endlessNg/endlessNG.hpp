@@ -11,7 +11,8 @@
 #include <coresystem/task.hpp>
 #include <param/param.hpp>
 
-#include "ModUtils.h"
+#include <ModUtils.h>
+#include <eventFlags.hpp>
 
 bool fixStandardDamage = true;
 
@@ -24,7 +25,7 @@ unsigned int flagEndNewCycle = flagStartNewCycle+31;
 //67350 <-- item id
 
 //aob sourced from erdtools by nordgaren
-std::string gameDataManAob = "48 8b 05 ? ? ? ? 48 85 c0 74 05 48 8b 40 58 c3 c3";
+std::string gameDataManAob = "48 8b 05 ?? ?? ?? ?? 48 85 c0 74 05 48 8b 40 58 c3 c3";
 uintptr_t gameDataManPtr;
 uintptr_t ngCycleOffset = 0x120;
 

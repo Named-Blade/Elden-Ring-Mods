@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "ModUtils.h"
+#include <ModUtils.h>
 #include "config.cpp"
 #include "damageMod.hpp"
 
@@ -134,7 +134,7 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		}
 	}
 	{//get flat defense calculation
-		std::string aob = "48 83 ec 48 f3 0f 10 15 ? ? ? ? 0f 28 e0 f3 0f 11 54 24 50 0f 57 c0 81 64 24 50 ff ff ff 7f 0f 28 d0 f3 0f 10 5c 24 50 f3 0f 5c d3";
+		std::string aob = "48 83 ec 48 f3 0f 10 15 ?? ?? ?? ?? 0f 28 e0 f3 0f 11 54 24 50 0f 57 c0 81 64 24 50 ff ff ff 7f 0f 28 d0 f3 0f 10 5c 24 50 f3 0f 5c d3";
 		uintptr_t funcAddress = AobScan(aob);
 		
 		if (funcAddress != 0)
