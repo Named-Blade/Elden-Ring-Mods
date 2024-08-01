@@ -54,7 +54,7 @@ struct set_ng_cycle_task: public from::CS::CSEzTask {
 		if (getEventFlagState(flagCheckNewCycle)){
 			setEventFlagState(flagCheckNewCycle,false);
 			unsigned int currentCycle = getCurrentCycle();
-			unsigned int cycleChange = (getEventFlagRange(flagStartNewCycle,flagEndNewCycle));
+			unsigned int cycleChange = (getEventFlagRange(flagStartNewCycle,32));
 			bool sign = getEventFlagState(flagSignNewCycle);
 			
 			if (!sign){

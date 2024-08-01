@@ -3,6 +3,8 @@
 #include <cmath> 
 #include <dantelion2/system.hpp>
 
+#include <ModUtils.hpp>
+
 using namespace ModUtils;
 
 using calcFlatDefenseOriginalType = float(*)(float,float);

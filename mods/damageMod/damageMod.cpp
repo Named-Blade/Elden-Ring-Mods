@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <iostream>
 
-#include <ModUtils.h>
 #include "config.cpp"
 #include "damageMod.hpp"
 

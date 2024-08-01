@@ -1,6 +1,7 @@
 #pragma once
+
 #include <cmath>
-#include <ModUtils.h>
+#include <ModUtils.hpp>
 
 using namespace ModUtils;
 
@@ -11,6 +12,7 @@ struct EventFlagMan{
 std::string getEventFlagValueAob = "44 8b 41 1c 44 8b da 33 d2 41 8b c3 41 f7 f0 4c 8b d1 45 33 c9 44 0f af c0 45 2b d8 4c 8b 41 38 49 8b d0 49 8b 48 08 44 38 49 19";
 using eventFlagGetterType = bool(*)(EventFlagMan, unsigned int);
 eventFlagGetterType eventFlagGetter;
+
 std::string setEventFlagValueAob = "48 89 5c 24 08 44 8b 49 1c 44 8b d2 33 d2 41 8b c2 41 f7 f1 41 8b d8 4c 8b d9 4c 8b 41 38 44 0f af c8 49 8b c8 49 8b 50 08";
 using eventFlagSetterType = bool(*)(EventFlagMan, unsigned int, bool);
 eventFlagSetterType eventFlagSetter;
@@ -56,17 +58,16 @@ bool getEventFlagState (unsigned int flag)
 		initFlagHandlers();
 	}
 	
-	if (eventFlagMan != 0 && eventFlagGetter != 0){
+	if (eventFlagMan != nullptr && eventFlagGetter != nullptr){
 		return eventFlagGetter(*eventFlagMan,flag);
 	} else {
 		return false;
 	}
 }
 
-unsigned int getEventFlagRange(unsigned int flagStart,unsigned int flagEnd){
-	int bits = flagEnd-flagStart;
+unsigned int getEventFlagRange(unsigned int flagStart,unsigned int size){
 	unsigned int num = 0;
-	for (int i = 0; i <= bits; i++){
+	for (int i = 0; i < size; i++){
 		num += (unsigned int)getEventFlagState(flagStart+i) * pow(2,i);
 	}
 	return num;
@@ -77,15 +78,14 @@ void setEventFlagState (unsigned int flag, bool state){
 		initFlagHandlers();
 	}
 	
-	if (eventFlagMan != 0 && eventFlagGetter != 0){
+	if (eventFlagMan != nullptr && eventFlagSetter != nullptr){
 		eventFlagSetter(*eventFlagMan,flag,state);
 	}
 }
 
-void setEventFlagRange(unsigned int flagStart,unsigned int flagEnd,unsigned int num){
-	int bits = flagEnd-flagStart;
-	for (int i = 0; i <= bits; i++){
+void setEventFlagRange(unsigned int flagStart,unsigned int size,unsigned int num){
+	for (int i = 0; i < size; i++){
 		setEventFlagState(flagStart+i,(bool)(num & 1<<i));
 	}
-	Log(getEventFlagRange(flagStart,flagEnd));
+	Log(getEventFlagRange(flagStart,size));
 }

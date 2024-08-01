@@ -11,7 +11,7 @@
 #include <coresystem/task.hpp>
 #include <param/param.hpp>
 
-#include <ModUtils.h>
+#include <ModUtils.hpp>
 #include <eventFlags.hpp>
 
 bool fixStandardDamage = true;
@@ -20,8 +20,7 @@ bool fixStandardDamage = true;
 unsigned int flagCheckNewCycle = 1051439330;
 unsigned int flagSignNewCycle = 1051439331;
 unsigned int flagStartNewCycle = 1051439332;
-unsigned int flagEndNewCycle = flagStartNewCycle+31;
-//22021100,1,2 <-- talk id
+//22021100,1,2,3 <-- talk id
 //67350 <-- item id
 
 //aob sourced from erdtools by nordgaren

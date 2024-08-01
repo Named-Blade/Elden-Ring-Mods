@@ -5,7 +5,7 @@
 #include <param/param.hpp>
 #include <CallHook.h>
 
-#include <ModUtils.h>
+#include <ModUtils.hpp>
 
 using namespace ModUtils;
 

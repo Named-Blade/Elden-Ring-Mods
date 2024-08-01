@@ -94,5 +94,4 @@ void readConfig()
 	flagCheckNewCycle = myIni["endless cycles"]["event flag check"].as<unsigned int>();
 	flagSignNewCycle = myIni["endless cycles"]["event flag sign"].as<unsigned int>();
 	flagStartNewCycle = myIni["endless cycles"]["event flag range start"].as<unsigned int>();
-	flagEndNewCycle = flagStartNewCycle+31;
 }

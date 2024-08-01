@@ -4,7 +4,7 @@
 #include <param/param.hpp>
 #include <dantelion2/system.hpp>
 
-#include <ModUtils.h>
+#include <ModUtils.hpp>
 
 using namespace ModUtils;
 
