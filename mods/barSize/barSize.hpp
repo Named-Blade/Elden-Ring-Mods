@@ -11,6 +11,8 @@
 #include <coresystem/task.hpp>
 #include <param/param.hpp>
 
+#include <config.hpp>
+
 uintptr_t worldCharManPtr = (uintptr_t)liber::symbol<"CS::WorldChrMan::instance">::get();
 uintptr_t localPlayerOffset = 0x10EF8;
 uintptr_t playerInstanceOffset = 0x0;
@@ -26,5 +28,5 @@ int maxStaminaParam = 0;
 int maxFocusParam = 0;
 
 bool isLinearFirst = false;
-float maxDisplaySize = 0.7;
+float maxDisplaySize = 1;
 bool squishDisplay = false;

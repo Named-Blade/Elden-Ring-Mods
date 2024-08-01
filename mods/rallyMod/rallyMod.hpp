@@ -6,6 +6,7 @@
 #include <CallHook.h>
 
 #include <ModUtils.hpp>
+#include <config.hpp>
 
 using namespace ModUtils;
 

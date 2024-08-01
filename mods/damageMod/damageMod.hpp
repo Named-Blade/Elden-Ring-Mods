@@ -4,6 +4,7 @@
 #include <dantelion2/system.hpp>
 
 #include <ModUtils.hpp>
+#include <config.hpp>
 
 using namespace ModUtils;
 

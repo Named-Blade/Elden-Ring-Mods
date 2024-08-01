@@ -1,5 +1,4 @@
 #include "barSize.hpp"
-#include "config.cpp"
 #include "DLLMain.hpp"
 
 template <typename T>
@@ -67,7 +66,12 @@ struct set_bar_size_task: public from::CS::CSEzTask {
 };
 
 void base() {
-	ReadConfig();
+	std::string section = "bar size mod";
+	readConfig(
+		std::forward_as_tuple(isLinearFirst,section,"use linear size first"_s),
+		std::forward_as_tuple(maxDisplaySize,section,"max display size"_s),
+		std::forward_as_tuple(squishDisplay,section,"display size squish"_s)
+	);
 	
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);

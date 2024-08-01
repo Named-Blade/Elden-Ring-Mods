@@ -1,4 +1,4 @@
-#include "uncapMod.h"
+#include "uncapMod.hpp"
 
 // the return vavlue of this function is the current level cap
 int getLevelCap(){

@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <iostream>
 
-#include "config.cpp"
 #include "damageMod.hpp"
 
 float calcFlatDefense(float damage,float defense)
@@ -114,7 +113,15 @@ float calcDamage(
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
 	Log("Starting damage calc mod");
-	readConfig();
+	
+	std::string section = "damage mod";
+	readConfig(
+		std::forward_as_tuple(healAbsorb,section,"healing absorption"_s),
+		std::forward_as_tuple(flatterDefenses,section,"flatter defenses"_s),
+		std::forward_as_tuple(chipDamage,section,"chip damage"_s),
+		std::forward_as_tuple(splitDamageFix,section,"split damage fix"_s),
+		std::forward_as_tuple(heavenOrHell,section,"Heaven or Hell"_s)
+	);
 	
 	from::DLSY::wait_for_system(-1);
 	

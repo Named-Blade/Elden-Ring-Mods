@@ -16,7 +16,7 @@
 #include <config.hpp>
 #include <eventFlags.hpp>
 
-int fixStandardDamage = 1;
+bool fixStandardDamage = true;
 
 //event flag handling
 unsigned int flagCheckNewCycle = 1051439330;

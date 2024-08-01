@@ -83,17 +83,11 @@ struct set_ng_cycle_task: public from::CS::CSEzTask {
 
 void base() {
 	std::string section = "endless cycles";
-	std::vector<std::string> names = {
-		"fix standard damage",
-		"event flag check",
-		"event flag sign",
-		"event flag range start"
-	};
 	readConfig(
-		std::forward_as_tuple(fixStandardDamage,section,names[0]),
-		std::forward_as_tuple(flagCheckNewCycle,section,names[1]),
-		std::forward_as_tuple(flagSignNewCycle,section,names[2]),
-		std::forward_as_tuple(flagStartNewCycle,section,names[3])
+		std::forward_as_tuple(fixStandardDamage,section,"fix standard damage"_s),
+		std::forward_as_tuple(flagCheckNewCycle,section,"event flag check"_s),
+		std::forward_as_tuple(flagSignNewCycle,section,"event flag sign"_s),
+		std::forward_as_tuple(flagStartNewCycle,section,"event flag range start"_s)
 	);
 	
 	from::DLSY::wait_for_system(-1);
@@ -117,7 +111,7 @@ void base() {
 		gameDataManPtr = baseAddress+instructionSize+gameDataManOffset;
 	}
 	
-	if (fixStandardDamage != 0){
+	if (fixStandardDamage){
 		//without this, the damage gets multiplied twice.
 		 for (auto [id, row] : from::param::ClearCountCorrectParam) {
 			 if (id != 0 && id != 100){

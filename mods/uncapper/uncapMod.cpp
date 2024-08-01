@@ -1,8 +1,7 @@
 #include <Windows.h>
 #include <algorithm>
 
-#include "uncapMod.h"
-#include "config.cpp"
+#include "uncapMod.hpp"
 #include "capGetters.cpp"
 
 void PerformPatch(const std::string& aob,
@@ -22,7 +21,11 @@ void PerformPatch(const std::string& aob,
 
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
-	ReadConfig();
+	std::string section = "uncapper";
+	readConfig(
+		std::forward_as_tuple(rune_cost_cap,section,"rune level cost cap"_s),
+		std::forward_as_tuple(adjustGraph,section,"adjust calcCorrectGraphs"_s)
+	);
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);
 	

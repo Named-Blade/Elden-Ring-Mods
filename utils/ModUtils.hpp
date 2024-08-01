@@ -636,4 +636,5 @@ namespace ModUtils
 		MemCopy((address + 6), (uintptr_t)&destination, 8);
 		Log("Created jump from ", NumberToHexString(address), " to ", NumberToHexString(destination),  " with a clearance of ", clearance);
 	}
+	
 }

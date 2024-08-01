@@ -2,7 +2,6 @@
 #include <algorithm>
 
 #include "rallyMod.hpp"
-#include "config.cpp"
 
 void rallyHitHook(HookContext* context){
 	RallyData& rallyData = *(RallyData*)((context->rbx)+0x160);
@@ -41,7 +40,14 @@ void rallyChangeHook(HookContext* context){
 
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
-	readConfig();
+	std::string section = "rally mod";
+	readConfig(
+		std::forward_as_tuple(rallyConfigTime,section,"default rally timer"_s),
+		std::forward_as_tuple(rallyConfigDecay,section,"rally decay"_s),
+		std::forward_as_tuple(rallyResetOnHit,section,"reset rally time on hit"_s),
+		std::forward_as_tuple(rallyKeepOnHeal,section,"reset rally time on heal"_s),
+		std::forward_as_tuple(rallyResetOnHeal,section,"keep rally on heal"_s)
+	);
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);
 	if (!CallHook::initialize()) return 0;
