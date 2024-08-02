@@ -73,8 +73,12 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	}
 	
 	
-	*rallyTime = rallyConfigTime;
-	*rallyDecay = 1.0/rallyConfigDecay;
+	if (rallyTime != nullptr){
+		*rallyTime = rallyConfigTime;
+	}
+	if (rallyDecay != nullptr){
+		*rallyDecay = 1.0/rallyConfigDecay;
+	}
 	
 	return 0;
 }
