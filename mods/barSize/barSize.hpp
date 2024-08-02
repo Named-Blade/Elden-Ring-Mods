@@ -11,6 +11,8 @@
 #include <coresystem/task.hpp>
 #include <param/param.hpp>
 
+#include <PointerChain.h>
+
 #include <config.hpp>
 
 uintptr_t worldCharManPtr = (uintptr_t)liber::symbol<"CS::WorldChrMan::instance">::get();

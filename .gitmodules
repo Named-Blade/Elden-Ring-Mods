@@ -10,3 +10,6 @@
 [submodule "dependencies/mINI"]
 	path = dependencies/mINI
 	url = https://github.com/metayeti/mINI
+[submodule "dependencies/PointerChain"]
+	path = dependencies/PointerChain
+	url = https://github.com/Dasaav-dsv/PointerChain

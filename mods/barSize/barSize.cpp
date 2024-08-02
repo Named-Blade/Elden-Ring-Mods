@@ -1,64 +1,48 @@
 #include "barSize.hpp"
 #include "DLLMain.hpp"
 
-template <typename T>
-T ptrChain (std::vector<uintptr_t> ptrs, T defaultArg){
-	if (ptrs.empty()) {
-		return defaultArg;
-	}
-	uintptr_t current = ptrs[0];
-	for (size_t i = 1; i < ptrs.size()-1; ++i){
-		if (current == 0){
-			return defaultArg;
-		}
-		current = *reinterpret_cast<uintptr_t*>(current + ptrs[i]);
-	}
-	if (current == 0){
-		return defaultArg;
-	}
-	T result = *reinterpret_cast<T*>(current + ptrs.back());
-	return result; 
-}
-
-int getMaxHealth()
-{
-	std::vector<uintptr_t> ptrs = {worldCharManPtr,0x0,localPlayerOffset,playerInstanceOffset,playerModulesOffset,playerDataOffset,maxHealthDDOffset};
-	return ptrChain<int>(ptrs,maxHealthParam);
-}
-int getMaxStamina()
-{
-	std::vector<uintptr_t> ptrs = {worldCharManPtr,0x0,localPlayerOffset,playerInstanceOffset,playerModulesOffset,playerDataOffset,maxStaminaOffset};
-	return ptrChain<int>(ptrs,maxStaminaParam);
-}
-int getMaxFocus()
-{
-	std::vector<uintptr_t> ptrs = {worldCharManPtr,0x0,localPlayerOffset,playerInstanceOffset,playerModulesOffset,playerDataOffset,maxFocusOffset};
-	return ptrChain<int>(ptrs,maxFocusParam);
-}
+auto playerMaxHealth = PointerChain::make<int, true>(worldCharManPtr,0x0,localPlayerOffset,playerInstanceOffset,playerModulesOffset,playerDataOffset,maxHealthDDOffset);
+auto playerMaxStamina = PointerChain::make<int, true>(worldCharManPtr,0x0,localPlayerOffset,playerInstanceOffset,playerModulesOffset,playerDataOffset,maxStaminaOffset);
+auto playerMaxFocus = PointerChain::make<int, true>(worldCharManPtr,0x0,localPlayerOffset,playerInstanceOffset,playerModulesOffset,playerDataOffset,maxFocusOffset);
 
 struct set_bar_size_task: public from::CS::CSEzTask {
 	void eztask_execute(from::FD4::FD4TaskData* data) override {
 		for (auto [id, row] : from::param::MenuCommonParam) {
 			
-			int maxHealth = (int)getMaxHealth()/healthConfig.maxDisplaySize;
+			int maxHealth;
+			if (playerMaxHealth != nullptr){
+				maxHealth = std::round(*playerMaxHealth/healthConfig.maxDisplaySize);
+			} else {
+				maxHealth = maxHealthParam;
+			}
 			if (healthConfig.isLinearFirst && maxHealth < maxHealthParam){
 				row.playerMaxHpLimit = maxHealthParam;
 			} else {
 				row.playerMaxHpLimit = maxHealth;
 			}
 			
-			int maxStamina = (int)getMaxStamina()/staminaConfig.maxDisplaySize;
-			if (staminaConfig.isLinearFirst && maxStamina < maxStaminaParam){
-				row.playerMaxSpLimit = maxStaminaParam;
+			int maxFocus;
+			if (playerMaxFocus != nullptr){
+				maxFocus = std::round(*playerMaxFocus/focusConfig.maxDisplaySize);
 			} else {
-				row.playerMaxSpLimit = maxStamina;
+				maxFocus = maxFocusParam;
 			}
-			
-			int maxFocus = (int)getMaxFocus()/focusConfig.maxDisplaySize;
 			if (focusConfig.isLinearFirst && maxFocus < maxFocusParam){
 				row.playerMaxMpLimit = maxFocusParam;
 			} else {
 				row.playerMaxMpLimit = maxFocus;
+			}
+			
+			int maxStamina;
+			if (playerMaxStamina != nullptr){
+				maxStamina = std::round(*playerMaxStamina/staminaConfig.maxDisplaySize);
+			} else {
+				maxStamina = maxStaminaParam;
+			}
+			if (staminaConfig.isLinearFirst && maxStamina < maxStaminaParam){
+				row.playerMaxSpLimit = maxStaminaParam;
+			} else {
+				row.playerMaxSpLimit = maxStamina;
 			}
 			
 		}
