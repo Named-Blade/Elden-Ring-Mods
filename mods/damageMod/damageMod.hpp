@@ -39,7 +39,7 @@ extern "C"
 bool healAbsorb = true;
 bool flatterDefenses = true;
 bool splitDamageFix = true;
-float chipDamageFlat = 0.2;
+float chipDamageFlat = 1.0/1024.0;
 float chipDamageTotal = 1;
 bool heavenOrHell = false;
 
