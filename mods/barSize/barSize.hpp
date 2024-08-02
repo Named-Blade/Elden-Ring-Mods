@@ -27,6 +27,12 @@ int maxHealthParam = 0;
 int maxStaminaParam = 0;
 int maxFocusParam = 0;
 
-bool isLinearFirst = false;
-float maxDisplaySize = 1;
-bool squishDisplay = false;
+struct statBar{
+    bool isLinearFirst = false;
+    float maxDisplaySize = 1;
+    bool squishDisplay = false;
+};
+
+statBar healthConfig;
+statBar focusConfig;
+statBar staminaConfig;
