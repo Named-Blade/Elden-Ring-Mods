@@ -1,4 +1,5 @@
 #include "uncapMod.hpp"
+#include "ds2Levels/ds2Levels.cpp"
 
 // the return vavlue of this function is the current level cap
 int getLevelCap(){
@@ -11,13 +12,41 @@ int getStatCap(Stat stat){
 	return stat_caps[0];
 	
 }
-int levelCost(int level){
-	int runes = levelCostOriginal(level);
-	if (runes >= rune_cost_cap){
-		return rune_cost_cap;
+
+void initLevels(){
+	if (ds2LevelCosts){
+		while (ds2LevelCost(levelMaxGrow) <= 999999999 && levelMaxGrow <= 99999){
+			levelMaxGrow++;
+		}
+	} else {
+		while (levelCostOriginal(levelMaxGrow) <= 999999999 && levelMaxGrow <= 99999){
+			levelMaxGrow++;
+		}
 	}
-	if (level >= levelMaxGrow){
-		return levelCost(levelMaxGrow-1);
+	levelMaxFound = true;
+}
+
+int levelCost(int level){
+	if (!levelMaxFound){
+		initLevels();
+	}
+	int runes;
+	if (ds2LevelCosts){
+		runes = ds2LevelCost(level);
+		if (level >= levelMaxGrow){
+			runes = 999999999;
+		}
+		if (runes >= rune_cost_cap){
+			return rune_cost_cap;
+		}
+	} else {
+		runes = levelCostOriginal(level);
+		if (level >= levelMaxGrow){
+			runes = 999999999;
+		}
+		if (runes >= rune_cost_cap){
+			return rune_cost_cap;
+		}
 	}
 	return runes;
 }

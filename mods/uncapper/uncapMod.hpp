@@ -15,6 +15,7 @@ std::vector<int> stat_caps(8,INT_MAX);
 int level_cap = INT_MAX;
 
 int levelMaxGrow = 0;
+bool levelMaxFound = false;
 
 extern "C"
 {
@@ -34,5 +35,6 @@ extern "C"
 	int getStatCap(Stat);
 }
 
-int rune_cost_cap = 100000;
+int rune_cost_cap = 500'000;
 bool adjustGraph = true;
+bool ds2LevelCosts = true;

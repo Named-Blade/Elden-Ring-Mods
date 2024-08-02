@@ -24,7 +24,8 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	std::string section = "uncapper";
 	readConfig(
 		std::forward_as_tuple(rune_cost_cap,section,"rune level cost cap"_s),
-		std::forward_as_tuple(adjustGraph,section,"adjust calcCorrectGraphs"_s)
+		std::forward_as_tuple(adjustGraph,section,"adjust calcCorrectGraphs"_s),
+		std::forward_as_tuple(ds2LevelCosts,section,"use ds2 level cost curve"_s)
 	);
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);
@@ -89,16 +90,6 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		}
 	}
 	
-	//get last level before level cost is too large to fit.
-	int diff = 0;
-	int diffOld = 0;
-	while (diff >= diffOld){
-		diffOld = diff;
-		levelMaxGrow++;
-		diff = levelCostOriginal(levelMaxGrow+1) - levelCostOriginal(levelMaxGrow);
-	}
-	Log(levelMaxGrow);
-	
 	//add scaling above 99
 	if (adjustGraph){
 		for (auto [id, row] : from::param::CalcCorrectGraph) {
@@ -132,6 +123,7 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		}
 	}
 	
+	initLevels();
 	return 0;
 }
 
