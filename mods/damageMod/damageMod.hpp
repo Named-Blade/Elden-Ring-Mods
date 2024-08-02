@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cmath> 
+#include <algorithm>
+#include <iostream>
 #include <dantelion2/system.hpp>
 
 #include <ModUtils.hpp>
@@ -37,7 +39,7 @@ extern "C"
 bool healAbsorb = true;
 bool flatterDefenses = true;
 bool splitDamageFix = true;
-float chipDamage = 1.0;
+float chipDamage = 0.2;
 bool heavenOrHell = false;
 
 enum DamageType {physical,magic,fire,lightning,holy};

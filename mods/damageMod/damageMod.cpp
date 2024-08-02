@@ -1,8 +1,14 @@
 #include <Windows.h>
-#include <algorithm>
-#include <iostream>
 
 #include "damageMod.hpp"
+
+float setAwayFromZero(float value) {
+    if (value > 0) {
+        return std::ceil(value);  // Use ceil for positive numbers
+    } else {
+        return std::floor(value); // Use floor for negative numbers
+    }
+}
 
 float calcFlatDefense(float damage,float defense)
 {
@@ -106,6 +112,9 @@ float calcDamage(
 		return 0.0;
 	}
 	
+	if (chipDamage > 0){
+		finalDamage = setAwayFromZero(finalDamage);
+	}
 	return finalDamage;
 }
 
