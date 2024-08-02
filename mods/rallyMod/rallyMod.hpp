@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include <dantelion2/system.hpp>
-#include <param/param.hpp>
 #include <CallHook.h>
 
 #include <ModUtils.hpp>

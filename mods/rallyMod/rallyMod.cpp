@@ -49,7 +49,6 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		std::forward_as_tuple(rallyResetOnHeal,section,"keep rally on heal"_s)
 	);
 	from::DLSY::wait_for_system(-1);
-	from::CS::SoloParamRepository::wait_for_params(-1);
 	if (!CallHook::initialize()) return 0;
 	
 	uintptr_t rallyTimeAddress = AobScan(rallyTimeAob);
