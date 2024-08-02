@@ -45,8 +45,8 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		std::forward_as_tuple(rallyConfigTime,section,"default rally timer"_s),
 		std::forward_as_tuple(rallyConfigDecay,section,"rally decay"_s),
 		std::forward_as_tuple(rallyResetOnHit,section,"reset rally time on hit"_s),
-		std::forward_as_tuple(rallyKeepOnHeal,section,"reset rally time on heal"_s),
-		std::forward_as_tuple(rallyResetOnHeal,section,"keep rally on heal"_s)
+		std::forward_as_tuple(rallyResetOnHeal,section,"reset rally time on heal"_s),
+		std::forward_as_tuple(rallyKeepOnHeal,section,"keep rally on heal"_s)
 	);
 	from::DLSY::wait_for_system(-1);
 	if (!CallHook::initialize()) return 0;
