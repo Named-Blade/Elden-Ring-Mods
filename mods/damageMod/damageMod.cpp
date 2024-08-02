@@ -2,21 +2,27 @@
 
 #include "damageMod.hpp"
 
-float setAwayFromZero(float value) {
-    if (value > 0) {
-        return std::ceil(value);  // Use ceil for positive numbers
-    } else {
-        return std::floor(value); // Use floor for negative numbers
-    }
+float handleChipDamage(float value) {
+	float sign =  std::signbit(value) ? -1.0f : 1.0f;
+	value = std::abs(value);
+    if (value > 0){
+		if (value < chipDamageTotal){
+			return chipDamageTotal * sign;
+		} else {
+			return value * sign;
+		}
+	} else {
+		return 0;
+	}
 }
 
 float calcFlatDefense(float damage,float defense)
 {
 	float finalDamage = damage-defense;
 	
-	if (finalDamage < chipDamage){
-		if (damage >= chipDamage) {
-			return chipDamage;
+	if (finalDamage < chipDamageFlat){
+		if (damage >= chipDamageFlat) {
+			return chipDamageFlat;
 		} else {
 			return damage;
 		}
@@ -112,8 +118,8 @@ float calcDamage(
 		return 0.0;
 	}
 	
-	if (chipDamage > 0){
-		finalDamage = setAwayFromZero(finalDamage);
+	if (chipDamageTotal > 0){
+		finalDamage = handleChipDamage(finalDamage);
 	}
 	return finalDamage;
 }
@@ -127,7 +133,8 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	readConfig(
 		std::forward_as_tuple(healAbsorb,section,"healing absorption"_s),
 		std::forward_as_tuple(flatterDefenses,section,"flatter defenses"_s),
-		std::forward_as_tuple(chipDamage,section,"chip damage"_s),
+		std::forward_as_tuple(chipDamageFlat,section,"chip damage (flat)"_s),
+		std::forward_as_tuple(chipDamageTotal,section,"chip damage (total)"_s),
 		std::forward_as_tuple(splitDamageFix,section,"split damage fix"_s),
 		std::forward_as_tuple(heavenOrHell,section,"Heaven or Hell"_s)
 	);

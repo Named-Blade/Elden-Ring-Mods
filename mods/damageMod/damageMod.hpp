@@ -39,7 +39,8 @@ extern "C"
 bool healAbsorb = true;
 bool flatterDefenses = true;
 bool splitDamageFix = true;
-float chipDamage = 0.2;
+float chipDamageFlat = 0.2;
+float chipDamageTotal = 1;
 bool heavenOrHell = false;
 
 enum DamageType {physical,magic,fire,lightning,holy};
