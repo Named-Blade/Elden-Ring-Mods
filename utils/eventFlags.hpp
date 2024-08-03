@@ -45,7 +45,7 @@ void initFlagHandlers(){
 			
 			if (address != 0)
 			{
-				eventFlagMan = (EventFlagMan*)(address + *(std::uint32_t*)(address+eventFlagManAobOffset) + eventFlagManInstructionSize);
+				eventFlagMan = (EventFlagMan*)(address + *(std::int32_t*)(address+eventFlagManAobOffset) + eventFlagManInstructionSize);
 			}
 		}
 		

@@ -13,3 +13,6 @@
 [submodule "dependencies/PointerChain"]
 	path = dependencies/PointerChain
 	url = https://github.com/Dasaav-dsv/PointerChain
+[submodule "dependencies/minhook"]
+	path = dependencies/minhook
+	url = https://github.com/TsudaKageyu/minhook.git

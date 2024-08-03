@@ -102,3 +102,19 @@ eldenring.exe+5100D6 - 83 E3 FE              - and ebx,-02
 
 ba b4 00 00 00 48 8d 0d ? ? ? ? e8 ? ? ? ? 48 8b 0d ? ? ? ? e8 ? ? ? ? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe
 +31  
+
+//get health by stat
+eldenring.exe+7C33F0 - 41 89 4E 08           - mov [r14+08],ecx
+eldenring.exe+7C33F4 - 8B 4E 1C              - mov ecx,[rsi+1C]
+eldenring.exe+7C33F7 - 41 89 4E 10           - mov [r14+10],ecx
+eldenring.exe+7C33FB - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7C33FE - E8 FD3EECFF           - call eldenring.exe+687300
+eldenring.exe+7C3403 - 8B C8                 - mov ecx,eax
+eldenring.exe+7C3405 - 49 8B D4              - mov rdx,r12
+eldenring.exe+7C3408 - E8 933FECFF           - call eldenring.exe+6873A0
+eldenring.exe+7C340D - F3 0F2C C8            - cvttss2si ecx,xmm0
+eldenring.exe+7C3411 - 41 89 4E 0C           - mov [r14+0C],ecx
+eldenring.exe+7C3415 - 48 8B CE              - mov rcx,rsi
+
+41 89 4e 08 8b 4e 1c 41 89 4e 10 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce
++15

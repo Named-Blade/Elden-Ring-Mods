@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "attributeMod.hpp"
+#include "attributeGetters.cpp"
 
 void performPatch(const std::string& aob,
 	const std::string& expectedBytes,
@@ -25,11 +26,20 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		std::forward_as_tuple(outOfCombatStamina,section,"enable out of combat stamina loss"_s)
 	);
 	from::DLSY::wait_for_system(-1);
+	MH_Initialize();
+
+	uintptr_t address = AobScan(getMaxHPByStats);
+	void* funcAddress = (void*)(address + *(std::int32_t*)(address+getMaxHPByStatsOffset) + getMaxHPByStatsSize);
+	auto hook1 = MH_CreateHook(funcAddress, getMaxHPByStatsHook, nullptr);
+	MH_QueueEnableHook(funcAddress);
+	MH_ApplyQueued();
+
 	
 	if (outOfCombatStamina) {
 		performPatch(outOfcombatStaminaAob,"0f 94 c2","b2 00 90",outOfcombatStaminaOffset);
 	}
 	
+	Sleep(INFINITE);
 	return 0;
 }
 
