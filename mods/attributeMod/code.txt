@@ -1,0 +1,104 @@
+on app v1.12.3 steam depot 1245624 manifest 8273892924347236421
+
+//func to calculate change in status resists
+eldenring.exe+43E430 - 48 8B C4              - mov rax,rsp
+eldenring.exe+43E433 - 55                    - push rbp
+eldenring.exe+43E434 - 56                    - push rsi
+eldenring.exe+43E435 - 57                    - push rdi
+eldenring.exe+43E436 - 41 56                 - push r14
+eldenring.exe+43E438 - 41 57                 - push r15
+eldenring.exe+43E43A - 48 83 EC 50           - sub rsp,50
+eldenring.exe+43E43E - 48 C7 40 A8 FEFFFFFF  - mov qword ptr [rax-58],FFFFFFFFFFFFFFFE
+eldenring.exe+43E446 - 48 89 58 08           - mov [rax+08],rbx
+eldenring.exe+43E44A - 48 8B EA              - mov rbp,rdx
+eldenring.exe+43E44D - 48 8B F1              - mov rsi,rcx
+eldenring.exe+43E450 - 33 FF                 - xor edi,edi
+eldenring.exe+43E452 - 89 78 18              - mov [rax+18],edi
+eldenring.exe+43E455 - 48 8D 59 2C           - lea rbx,[rcx+2C]
+eldenring.exe+43E459 - 4C 8D 35 F8A95802     - lea r14,[eldenring.exe+29C8E58]
+
+//calculate status decay rate - pts per second return xmm0
+eldenring.exe+43E730 - 48 89 5C 24 10        - mov [rsp+10],rbx
+eldenring.exe+43E735 - 48 89 7C 24 18        - mov [rsp+18],rdi
+eldenring.exe+43E73A - 55                    - push rbp
+eldenring.exe+43E73B - 48 8B EC              - mov rbp,rsp
+eldenring.exe+43E73E - 48 83 EC 50           - sub rsp,50
+eldenring.exe+43E742 - 48 8B 05 67C68103     - mov rax,[eldenring.exe+3C5ADB0]
+eldenring.exe+43E749 - 48 33 C4              - xor rax,rsp
+eldenring.exe+43E74C - 48 89 45 F8           - mov [rbp-08],rax
+eldenring.exe+43E750 - 8B FA                 - mov edi,edx
+eldenring.exe+43E752 - 48 8B D9              - mov rbx,rcx
+eldenring.exe+43E755 - E8 76E6FFFF           - call eldenring.exe+43CDD0
+eldenring.exe+43E75A - 48 8B C8              - mov rcx,rax
+eldenring.exe+43E75D - E8 DE59FBFF           - call eldenring.exe+3F4140
+eldenring.exe+43E762 - 84 C0                 - test al,al
+eldenring.exe+43E764 - 0F85 41010000         - jne eldenring.exe+43E8AB
+eldenring.exe+43E76A - 48 8B CB              - mov rcx,rbx
+eldenring.exe+43E76D - E8 5EE6FFFF           - call eldenring.exe+43CDD0
+eldenring.exe+43E772 - 48 8B C8              - mov rcx,rax
+
+//stamina regen stuff
+eldenring.exe+40184E - 0FB6 41 14            - movzx eax,byte ptr [rcx+14]
+eldenring.exe+401852 - 66 0F6E F0            - movd xmm6,eax
+eldenring.exe+401856 - 0F5B F6               - cvtdq2ps xmm6,xmm6
+eldenring.exe+401859 - F3 0F5E 35 37CDE902   - divss xmm6,[eldenring.exe+329E598]
+eldenring.exe+401861 - F3 0F59 B7 E8000000   - mulss xmm6,[rdi+000000E8]
+eldenring.exe+401869 - 48 8B 07              - mov rax,[rdi]
+eldenring.exe+40186C - 48 8B CF              - mov rcx,rdi
+eldenring.exe+40186F - FF 90 30030000        - call qword ptr [rax+00000330]
+eldenring.exe+401875 - F3 0F59 C6            - mulss xmm0,xmm6
+eldenring.exe+401879 - F3 0F2C C0            - cvttss2si eax,xmm0
+eldenring.exe+40187D - 89 87 34050000        - mov [rdi+00000534],eax
+
+//default stamina regen per second:
+eldenring.exe+656430 - 40 53                 - push rbx
+eldenring.exe+656432 - 48 83 EC 20           - sub rsp,20
+eldenring.exe+656436 - 48 8B D9              - mov rbx,rcx
+eldenring.exe+656439 - 48 8B 89 78010000     - mov rcx,[rcx+00000178]
+eldenring.exe+656440 - E8 FB0AEAFF           - call eldenring.exe+4F6F40 <-- calcs buffs and debuffs
+eldenring.exe+656445 - 48 8B 83 90010000     - mov rax,[rbx+00000190]
+eldenring.exe+65644C - F3 0F10 15 B4D74D03   - movss xmm2,[eldenring.exe+3B33C08] { (45.00) }
+eldenring.exe+656454 - F3 0F58 D0            - addss xmm2,xmm0
+eldenring.exe+656458 - 48 8B 08              - mov rcx,[rax]
+eldenring.exe+65645B - 8B 91 58010000        - mov edx,[rcx+00000158]
+eldenring.exe+656461 - 8B 89 54010000        - mov ecx,[rcx+00000154]
+eldenring.exe+656467 - 48 83 C4 20           - add rsp,20
+eldenring.exe+65646B - 5B                    - pop rbx
+eldenring.exe+65646C - E9 AF170300           - jmp eldenring.exe+687C20
+eldenring.exe+656471 - 48 89 44 24 20        - mov [rsp+20],rax
+eldenring.exe+656476 - 48 89 7C 24 F8        - mov [rsp-08],rdi
+
+//calculate stamina mult based on weight
+eldenring.exe+660478 - 41 83 EF 03           - sub r15d,03
+eldenring.exe+66047C - 74 1A                 - je eldenring.exe+660498
+eldenring.exe+66047E - 41 83 FF 01           - cmp r15d,01
+eldenring.exe+660482 - 74 0A                 - je eldenring.exe+66048E
+eldenring.exe+660484 - F3 0F10 05 ACE0C302   - movss xmm0,[eldenring.exe+329E538] { (1.00) }
+eldenring.exe+66048C - EB 12                 - jmp eldenring.exe+6604A0
+eldenring.exe+66048E - F3 0F10 05 96E0C302   - movss xmm0,[eldenring.exe+329E52C] { (0.70) }
+eldenring.exe+660496 - EB 08                 - jmp eldenring.exe+6604A0
+eldenring.exe+660498 - F3 0F10 05 24773602   - movss xmm0,[eldenring.exe+29C7BC4] { (0.80) }
+eldenring.exe+6604A0 - 0FB6 05 798F7003      - movzx eax,byte ptr [eldenring.exe+3D69420]
+eldenring.exe+6604A7 - 84 C0                 - test al,al
+eldenring.exe+6604A9 - 74 04                 - je eldenring.exe+6604AF
+eldenring.exe+6604AB - 44 0FB6 F0            - movzx r14d,al
+eldenring.exe+6604AF - 48 8B 46 58           - mov rax,[rsi+58]
+eldenring.exe+6604B3 - 44 89 B0 8C010000     - mov [rax+0000018C],r14d
+eldenring.exe+6604BA - F3 0F11 86 E8000000   - movss [rsi+000000E8],xmm0
+
+//stamina loss disable out of combat
+eldenring.exe+5100AB - BA B4000000           - mov edx,000000B4
+eldenring.exe+5100B0 - 48 8D 0D E9794B02     - lea rcx,[eldenring.exe+29C7AA0]
+eldenring.exe+5100B7 - E8 A48E9A01           - call eldenring.exe+1EB8F60
+eldenring.exe+5100BC - 48 8B 0D 353C8703     - mov rcx,[eldenring.exe+3D83CF8]
+eldenring.exe+5100C3 - E8 68668900           - call eldenring.exe+DA6730
+eldenring.exe+5100C8 - 84 C0                 - test al,al
+eldenring.exe+5100CA - 0F94 C2               - sete dl
+eldenring.exe+5100CD - EB 02                 - jmp eldenring.exe+5100D1
+eldenring.exe+5100CF - 32 D2                 - xor dl,dl
+eldenring.exe+5100D1 - F6 C3 01              - test bl,01
+eldenring.exe+5100D4 - 74 07                 - je eldenring.exe+5100DD
+eldenring.exe+5100D6 - 83 E3 FE              - and ebx,-02
+
+ba b4 00 00 00 48 8d 0d ? ? ? ? e8 ? ? ? ? 48 8b 0d ? ? ? ? e8 ? ? ? ? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe
++31  
