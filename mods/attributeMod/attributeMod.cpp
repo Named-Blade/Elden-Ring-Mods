@@ -28,10 +28,19 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	from::DLSY::wait_for_system(-1);
 	MH_Initialize();
 
-	uintptr_t address = AobScan(getMaxHPByStats);
-	void* funcAddress = (void*)(address + *(std::int32_t*)(address+getMaxHPByStatsOffset) + getMaxHPByStatsSize);
-	auto hook1 = MH_CreateHook(funcAddress, getMaxHPByStatsHook, nullptr);
-	MH_QueueEnableHook(funcAddress);
+	{
+		uintptr_t address = AobScan(getMaxHPByStatsAob);
+		void* funcAddress = (void*)(address + *(std::int32_t*)(address+getMaxHPByStatsOffset) + getMaxHPByStatsSize);
+		auto hook1 = MH_CreateHook(funcAddress, getMaxHPByStatsHook, nullptr);
+		MH_QueueEnableHook(funcAddress);
+	}
+	{
+		uintptr_t address = AobScan(getCalcCorrectGraphAob);
+		void* funcAddress = (void*)(address + *(std::int32_t*)(address+getCalcCorrectGraphOffset) + getCalcCorrectGraphSize);
+		auto hook1 = MH_CreateHook(funcAddress, getCalcCorrectGraphHook, (void**)&getCalcCorrectGraph);
+		MH_QueueEnableHook(funcAddress);
+	}
+
 	MH_ApplyQueued();
 
 	

@@ -100,8 +100,21 @@ eldenring.exe+5100D1 - F6 C3 01              - test bl,01
 eldenring.exe+5100D4 - 74 07                 - je eldenring.exe+5100DD
 eldenring.exe+5100D6 - 83 E3 FE              - and ebx,-02
 
-ba b4 00 00 00 48 8d 0d ? ? ? ? e8 ? ? ? ? 48 8b 0d ? ? ? ? e8 ? ? ? ? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe
+ba b4 00 00 00 48 8d 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 48 8b 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe
 +31  
+
+//call to get calcCorrectGraph
+eldenring.exe+68737D - 66 0F6E 83 88020000   - movd xmm0,[rbx+00000288]
+eldenring.exe+687385 - 0F5B C0               - cvtdq2ps xmm0,xmm0
+eldenring.exe+687388 - BA 64000000           - mov edx,00000064
+eldenring.exe+68738D - E8 0E990000           - call eldenring.exe+690CA0
+eldenring.exe+687392 - F3 0F2C C0            - cvttss2si eax,xmm0
+eldenring.exe+687396 - 48 83 C4 50           - add rsp,50
+eldenring.exe+68739A - 5B                    - pop rbx
+eldenring.exe+68739B - C3                    - ret 
+
+66 0f 6e 83 88 02 00 00 0f 5b c0 ba 64 00 00 00 e8 ?? ?? ?? ?? f3 0f 2c c0 48 83 c4 50 5b c3
++17+4
 
 //get health by stat
 eldenring.exe+7C33F0 - 41 89 4E 08           - mov [r14+08],ecx
