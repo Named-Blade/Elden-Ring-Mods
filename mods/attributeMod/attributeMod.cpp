@@ -35,6 +35,12 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		MH_QueueEnableHook(funcAddress);
 	}
 	{
+		uintptr_t address = AobScan(getMaxFPByStatsAob);
+		void* funcAddress = (void*)getAddressFromMemory(address,getMaxFPByStatsOffset,getMaxFPByStatsSize);
+		auto hook1 = MH_CreateHook(funcAddress, getMaxFPByStatsHook, nullptr);
+		MH_QueueEnableHook(funcAddress);
+	}
+	{
 		uintptr_t address = AobScan(getCalcCorrectGraphAob);
 		void* funcAddress = (void*)getAddressFromMemory(address,getCalcCorrectGraphOffset,getCalcCorrectGraphSize);
 		auto hook1 = MH_CreateHook(funcAddress, getCalcCorrectGraphHook, (void**)&getCalcCorrectGraph);

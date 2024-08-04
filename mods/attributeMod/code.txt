@@ -114,14 +114,14 @@ eldenring.exe+68739A - 5B                    - pop rbx
 eldenring.exe+68739B - C3                    - ret 
 
 66 0f 6e 83 88 02 00 00 0f 5b c0 ba 64 00 00 00 e8 ?? ?? ?? ?? f3 0f 2c c0 48 83 c4 50 5b c3
-+17+4
++17
 
-//get health by stat
+//call to get health by stat
 eldenring.exe+7C33F0 - 41 89 4E 08           - mov [r14+08],ecx
 eldenring.exe+7C33F4 - 8B 4E 1C              - mov ecx,[rsi+1C]
 eldenring.exe+7C33F7 - 41 89 4E 10           - mov [r14+10],ecx
 eldenring.exe+7C33FB - 48 8B CE              - mov rcx,rsi
-eldenring.exe+7C33FE - E8 FD3EECFF           - call eldenring.exe+687300
+eldenring.exe+7C33FE - E8 FD3EECFF           - call eldenring.exe+687300  <--- this one
 eldenring.exe+7C3403 - 8B C8                 - mov ecx,eax
 eldenring.exe+7C3405 - 49 8B D4              - mov rdx,r12
 eldenring.exe+7C3408 - E8 933FECFF           - call eldenring.exe+6873A0
@@ -131,3 +131,20 @@ eldenring.exe+7C3415 - 48 8B CE              - mov rcx,rsi
 
 41 89 4e 08 8b 4e 1c 41 89 4e 10 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce
 +15
+
+//call to get fp by stat
+eldenring.exe+7C3408 - E8 933FECFF           - call eldenring.exe+6873A0
+eldenring.exe+7C340D - F3 0F2C C8            - cvttss2si ecx,xmm0
+eldenring.exe+7C3411 - 41 89 4E 0C           - mov [r14+0C],ecx
+eldenring.exe+7C3415 - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7C3418 - E8 B33FECFF           - call eldenring.exe+6873D0 <--- this one
+eldenring.exe+7C341D - 8B C8                 - mov ecx,eax
+eldenring.exe+7C341F - 49 8B D4              - mov rdx,r12
+eldenring.exe+7C3422 - E8 D93FECFF           - call eldenring.exe+687400
+eldenring.exe+7C3427 - F3 0F2C C0            - cvttss2si eax,xmm0
+eldenring.exe+7C342B - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7C342E - 41 89 46 14           - mov [r14+14],eax
+eldenring.exe+7C3432 - E8 2940ECFF           - call eldenring.exe+687460
+
+e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce
++17

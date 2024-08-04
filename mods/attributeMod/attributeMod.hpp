@@ -22,6 +22,10 @@ std::string getMaxHPByStatsAob = "41 89 4e 08 8b 4e 1c 41 89 4e 10 48 8b ce e8 ?
 int getMaxHPByStatsOffset = 15;
 int getMaxHPByStatsSize = 4;
 
+std::string getMaxFPByStatsAob = "e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce";
+int getMaxFPByStatsOffset = 17;
+int getMaxFPByStatsSize = 4;
+
 int attributeDataOffset = 0x288;
 struct AttributeData{
     int vigor;
