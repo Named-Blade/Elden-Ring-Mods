@@ -12,7 +12,7 @@ using namespace ModUtils;
 
 std::string getCalcCorrectGraphAob = "66 0f 6e 83 88 02 00 00 0f 5b c0 ba 64 00 00 00 e8 ?? ?? ?? ?? f3 0f 2c c0 48 83 c4 50 5b c3";
 int getCalcCorrectGraphOffset = 17;
-int getCalcCorrectGraphSize = getCalcCorrectGraphOffset + 4;
+int getCalcCorrectGraphSize = 4;
 
 typedef float (*getCalcCorrectGraphType)(float, int);
 float getCalcCorrectGraphDummy(float v, int r) {return 0;}
@@ -20,7 +20,7 @@ getCalcCorrectGraphType getCalcCorrectGraph = &getCalcCorrectGraphDummy;
 
 std::string getMaxHPByStatsAob = "41 89 4e 08 8b 4e 1c 41 89 4e 10 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce";
 int getMaxHPByStatsOffset = 15;
-int getMaxHPByStatsSize = getMaxHPByStatsOffset + 4;
+int getMaxHPByStatsSize = 4;
 
 int attributeDataOffset = 0x288;
 struct AttributeData{
