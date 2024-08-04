@@ -19,7 +19,7 @@ eventFlagSetterType eventFlagSetter;
 
 std::string eventFlagManAob = "48 8d 0d 6d c9 44 02 e8 28 de 93 01 48 8b 1d 29 d3 7e 03 48 8b d6 48 8d 4c 24 20 e8 24 ce 05 00";
 int eventFlagManAobOffset = 15;
-int eventFlagManInstructionSize = eventFlagManAobOffset+4;
+int eventFlagManInstructionSize = 4;
 EventFlagMan* eventFlagMan;
 
 bool isEventFlagInit = false;
@@ -45,7 +45,7 @@ void initFlagHandlers(){
 			
 			if (address != 0)
 			{
-				eventFlagMan = (EventFlagMan*)(address + *(std::int32_t*)(address+eventFlagManAobOffset) + eventFlagManInstructionSize);
+				eventFlagMan = (EventFlagMan*)getAddressFromMemory(address,eventFlagManAobOffset,eventFlagManInstructionSize);
 			}
 		}
 		
