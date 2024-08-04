@@ -16,6 +16,7 @@
 
 #include <Pattern16.h>
 
+namespace pathTools {
 std::string RemoveExtension(const std::string& filename) {
     char mutableFilename[MAX_PATH];
     strcpy_s(mutableFilename, filename.c_str());
@@ -32,6 +33,7 @@ std::string RemoveFileName(const std::string& filepath) {
     PathRemoveFileSpecA(mutableFilepath);
     
     return std::string(mutableFilepath);
+}
 }
 
 namespace ModUtils
@@ -110,7 +112,7 @@ namespace ModUtils
 			}
 
 			std::string pathStr(path);
-			std::string filePath = RemoveFileName(pathStr.c_str());
+			std::string filePath = pathTools::RemoveFileName(pathStr.c_str());
 			currentModPath = filePath;
 			return currentModPath;
 		} else {
@@ -138,7 +140,7 @@ namespace ModUtils
 
 			std::string pathStr(path);
 			std::string filename = PathFindFileNameA(pathStr.c_str());
-			currentModName = RemoveExtension(filename);
+			currentModName = pathTools::RemoveExtension(filename);
 			return currentModName;
 		} else {
 			return currentModName;
@@ -638,4 +640,7 @@ namespace ModUtils
 		Log("Created jump from ", NumberToHexString(address), " to ", NumberToHexString(destination),  " with a clearance of ", clearance);
 	}
 	
+	static uintptr_t getAddressFromMemory(uintptr_t address, uintptr_t offset, uintptr_t size){
+		return (address + *(std::int32_t*)(address+offset) + offset + size);
+	}
 }
