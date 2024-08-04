@@ -19,33 +19,32 @@ void performPatch(const std::string& aob,
 	}
 }
 
+void hookFunc(void* hook, std::string aob, int offset, int size, void* trampoline = nullptr){
+	uintptr_t address = AobScan(aob);
+	if (address != 0){
+		void* funcAddress = (void*)getAddressFromMemory(address,offset,size);
+		auto hook1 = MH_CreateHook(funcAddress, hook, (void**)&trampoline);
+		MH_QueueEnableHook(funcAddress);
+	}
+}
+
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
 	std::string section = "attribute mod";
 	readConfig(
 		std::forward_as_tuple(outOfCombatStamina,section,"enable out of combat stamina loss"_s)
 	);
+	
 	from::DLSY::wait_for_system(-1);
 	MH_Initialize();
 
-	{
-		uintptr_t address = AobScan(getMaxHPByStatsAob);
-		void* funcAddress = (void*)getAddressFromMemory(address,getMaxHPByStatsOffset,getMaxHPByStatsSize);
-		auto hook1 = MH_CreateHook(funcAddress, getMaxHPByStatsHook, nullptr);
-		MH_QueueEnableHook(funcAddress);
-	}
-	{
-		uintptr_t address = AobScan(getMaxFPByStatsAob);
-		void* funcAddress = (void*)getAddressFromMemory(address,getMaxFPByStatsOffset,getMaxFPByStatsSize);
-		auto hook1 = MH_CreateHook(funcAddress, getMaxFPByStatsHook, nullptr);
-		MH_QueueEnableHook(funcAddress);
-	}
-	{
-		uintptr_t address = AobScan(getCalcCorrectGraphAob);
-		void* funcAddress = (void*)getAddressFromMemory(address,getCalcCorrectGraphOffset,getCalcCorrectGraphSize);
-		auto hook1 = MH_CreateHook(funcAddress, getCalcCorrectGraphHook, (void**)&getCalcCorrectGraph);
-		MH_QueueEnableHook(funcAddress);
-	}
+	hookFunc(getCalcCorrectGraphHook,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,getCalcCorrectGraph);
+
+	hookFunc(getMaxHPHook,getMaxHPAob,getMaxHPOffset,getMaxHPSize);
+	hookFunc(getMaxMPHook,getMaxMPAob,getMaxMPOffset,getMaxMPSize);
+	hookFunc(getMaxMPHook,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
+
+	hookFunc(getMaxEquipLoadHook,getMaxEquipAob,getMaxEquipOffset,getMaxEquipSize);
 
 	MH_ApplyQueued();
 

@@ -18,13 +18,21 @@ typedef float (*getCalcCorrectGraphType)(float, int);
 float getCalcCorrectGraphDummy(float v, int r) {return 0;}
 getCalcCorrectGraphType getCalcCorrectGraph = &getCalcCorrectGraphDummy;
 
-std::string getMaxHPByStatsAob = "41 89 4e 08 8b 4e 1c 41 89 4e 10 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce";
-int getMaxHPByStatsOffset = 15;
-int getMaxHPByStatsSize = 4;
+std::string getMaxHPAob = "41 89 4e 08 8b 4e 1c 41 89 4e 10 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce";
+int getMaxHPOffset = 15;
+int getMaxHPSize = 4;
 
-std::string getMaxFPByStatsAob = "e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce";
-int getMaxFPByStatsOffset = 17;
-int getMaxFPByStatsSize = 4;
+std::string getMaxMPAob = "e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce";
+int getMaxMPOffset = 17;
+int getMaxMPSize = 4;
+
+std::string getMaxSPAob = "e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce 41 89 46 14 e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c0 ba 73 00 00 00";
+int getMaxSPOffset = 17;
+int getMaxSPSize = 4;
+
+std::string getMaxEquipAob = "f3 41 0f 11 46 1c e8 ?? ?? ?? ?? 48 8b ce 0f 28 f0 e8 ?? ?? ?? ?? f3 0f 59 f0 44 0f b6 cb 44 0f b6 c7 4c 89 7c 24 20 f3 41 0f 10 46 1c";
+int getMaxEquipOffset = 18;
+int getMaxEquipSize = 4;
 
 int attributeDataOffset = 0x288;
 struct AttributeData{

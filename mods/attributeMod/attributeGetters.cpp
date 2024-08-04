@@ -44,7 +44,7 @@ float getCalcCorrectGraphHook(float value, int row){
 }
 
 
-int getMaxHPByStatsHook(uintptr_t playerData){
+int getMaxHPHook(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
     for (auto [attribute,valuePtr] : iterOverAttributes(attributeData)){
         Log(attributeToString(attribute) + ": "+ std::to_string(*valuePtr));
@@ -54,8 +54,17 @@ int getMaxHPByStatsHook(uintptr_t playerData){
 	return finalHp + addHp;
 }
 
-int getMaxFPByStatsHook(uintptr_t playerData){
+int getMaxMPHook(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-    float finalFp =  getCalcCorrectGraph(attributeData.mind,101);
-	return finalFp;
+	return getCalcCorrectGraph(attributeData.mind,101);
+}
+
+int getMaxSPHook(uintptr_t playerData){
+    AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
+	return getCalcCorrectGraph(attributeData.endurance,104);
+}
+
+float getMaxEquipLoadHook(uintptr_t playerData){
+    AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
+	return getCalcCorrectGraph(attributeData.endurance,220);
 }

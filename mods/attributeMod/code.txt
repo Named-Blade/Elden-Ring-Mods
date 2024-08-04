@@ -132,7 +132,7 @@ eldenring.exe+7C3415 - 48 8B CE              - mov rcx,rsi
 41 89 4e 08 8b 4e 1c 41 89 4e 10 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce
 +15
 
-//call to get fp by stat
+//call to get focus points by stat
 eldenring.exe+7C3408 - E8 933FECFF           - call eldenring.exe+6873A0
 eldenring.exe+7C340D - F3 0F2C C8            - cvttss2si ecx,xmm0
 eldenring.exe+7C3411 - 41 89 4E 0C           - mov [r14+0C],ecx
@@ -148,3 +148,33 @@ eldenring.exe+7C3432 - E8 2940ECFF           - call eldenring.exe+687460
 
 e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce
 +17
+
+//call to get stamina
+eldenring.exe+7CA312 - E8 E9D0EBFF           - call eldenring.exe+687400
+eldenring.exe+7CA317 - F3 0F2C C0            - cvttss2si eax,xmm0
+eldenring.exe+7CA31B - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA31E - 41 89 46 14           - mov [r14+14],eax
+eldenring.exe+7CA322 - E8 39D1EBFF           - call eldenring.exe+687460 <--- this one
+eldenring.exe+7CA327 - 8B C8                 - mov ecx,eax
+eldenring.exe+7CA329 - 49 8B D4              - mov rdx,r12
+eldenring.exe+7CA32C - E8 5FD1EBFF           - call eldenring.exe+687490
+eldenring.exe+7CA331 - F3 0F2C C0            - cvttss2si eax,xmm0
+eldenring.exe+7CA335 - BA 73000000           - mov edx,00000073
+
+e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce 41 89 46 14 e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c0 ba 73 00 00 00
++17
+
+//call to get equip load
+eldenring.exe+7CA36B - F3 41 0F11 46 1C      - movss [r14+1C],xmm0
+eldenring.exe+7CA371 - E8 4ADCD2FF           - call eldenring.exe+4F7FC0
+eldenring.exe+7CA376 - 48 8B CE              - mov rcx,rsi
+eldenring.exe+7CA379 - 0F28 F0               - movaps xmm6,xmm0
+eldenring.exe+7CA37C - E8 0F2AECFF           - call eldenring.exe+68CD90 <-- this one
+eldenring.exe+7CA381 - F3 0F59 F0            - mulss xmm6,xmm0
+eldenring.exe+7CA385 - 44 0FB6 CB            - movzx r9d,bl
+eldenring.exe+7CA389 - 44 0FB6 C7            - movzx r8d,dil
+eldenring.exe+7CA38D - 4C 89 7C 24 20        - mov [rsp+20],r15
+eldenring.exe+7CA392 - F3 41 0F10 46 1C      - movss xmm0,[r14+1C]
+
+f3 41 0f 11 46 1c e8 ?? ?? ?? ?? 48 8b ce 0f 28 f0 e8 ?? ?? ?? ?? f3 0f 59 f0 44 0f b6 cb 44 0f b6 c7 4c 89 7c 24 20 f3 41 0f 10 46 1c
++18
