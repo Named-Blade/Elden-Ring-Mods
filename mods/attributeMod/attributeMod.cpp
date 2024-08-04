@@ -19,7 +19,7 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 
 	hookFunc(getMaxHPHook,getMaxHPAob,getMaxHPOffset,getMaxHPSize);
 	hookFunc(getMaxMPHook,getMaxMPAob,getMaxMPOffset,getMaxMPSize);
-	hookFunc(getMaxMPHook,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
+	hookFunc(getMaxSPHook,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
 
 	hookFunc(getMaxEquipLoadHook,getMaxEquipAob,getMaxEquipOffset,getMaxEquipSize);
 	hookFunc(getDiscoveryHook,getDiscoveryAob,getDiscoveryOffset,getDiscoverySize);
