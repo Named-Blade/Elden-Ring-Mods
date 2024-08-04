@@ -3,7 +3,6 @@
 
 #include <dantelion2/system.hpp>
 #include <param/param.hpp>
-#include <MinHook.h>
 
 #include <ModUtils.hpp>
 #include <config.hpp>
@@ -33,6 +32,10 @@ int getMaxSPSize = 4;
 std::string getMaxEquipAob = "f3 41 0f 11 46 1c e8 ?? ?? ?? ?? 48 8b ce 0f 28 f0 e8 ?? ?? ?? ?? f3 0f 59 f0 44 0f b6 cb 44 0f b6 c7 4c 89 7c 24 20 f3 41 0f 10 46 1c";
 int getMaxEquipOffset = 18;
 int getMaxEquipSize = 4;
+
+std::string getDiscoveryAob = "48 8b 48 48 e8 ?? ?? ?? ?? f3 0f 11 87 6c 0a 00 00 48 8b cf 48 8b 96 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 8f 30 05 00 00 4c 8b bc 24 f0 00 00 00";
+int getDiscoveryOffset = 28;
+int getDiscoverySize = 4;
 
 int attributeDataOffset = 0x288;
 struct AttributeData{

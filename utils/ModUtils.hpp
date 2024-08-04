@@ -15,6 +15,7 @@
 #include <shlwapi.h>
 
 #include <Pattern16.h>
+#include <MinHook.h>
 
 namespace pathTools {
 std::string RemoveExtension(const std::string& filename) {
@@ -642,5 +643,40 @@ namespace ModUtils
 	
 	static uintptr_t getAddressFromMemory(uintptr_t address, uintptr_t offset, uintptr_t size){
 		return (address + *(std::int32_t*)(address+offset) + offset + size);
+	}
+
+	void performPatch(const std::string& aob,
+		const std::string& expectedBytes,
+		const std::string& newBytes,
+		size_t offset)
+	{
+		uintptr_t patchAddress = AobScan(aob);
+
+		if (patchAddress != 0)
+		{
+			patchAddress += offset;
+
+			ReplaceExpectedBytesAtAddress(patchAddress, expectedBytes, newBytes);
+		}
+	}
+
+
+	template <typename T>
+	void _hookFunc(void* hook, std::string aob, int offset, int size, T** trampoline){
+		uintptr_t address = AobScan(aob);
+		if (address != 0){
+			void* funcAddress = (void*)getAddressFromMemory(address,offset,size);
+			MH_STATUS hookStatus = MH_CreateHook(funcAddress, hook,(void**)trampoline);
+			Log("Hook ",funcAddress," Status: ",MH_StatusToString(hookStatus));
+			MH_STATUS queueStatus = MH_QueueEnableHook(funcAddress);
+			Log("Queue ",funcAddress," Status: ",MH_StatusToString(queueStatus));
+		}
+	}
+	template <typename T>
+	void hookFunc(void* hook, std::string aob, int offset, int size, T** trampoline){
+		_hookFunc(hook,aob,offset,size,trampoline);
+	}
+	void hookFunc(void* hook, std::string aob, int offset, int size){
+		_hookFunc(hook,aob,offset,size,(void**)nullptr);
 	}
 }

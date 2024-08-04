@@ -50,21 +50,26 @@ int getMaxHPHook(uintptr_t playerData){
         Log(attributeToString(attribute) + ": "+ std::to_string(*valuePtr));
     }
     float addHp = (getPlayerLevel(attributeData) - attributeData.vigor - 70) * (600.0 / (89.0*7.0));
-    float finalHp =  getCalcCorrectGraph(attributeData.vigor,100);
+    float finalHp =  getCalcCorrectGraphHook(attributeData.vigor,100);
 	return finalHp + addHp;
 }
 
 int getMaxMPHook(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-	return getCalcCorrectGraph(attributeData.mind,101);
+	return getCalcCorrectGraphHook(attributeData.mind,101);
 }
 
 int getMaxSPHook(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-	return getCalcCorrectGraph(attributeData.endurance,104);
+	return getCalcCorrectGraphHook(attributeData.endurance,104);
 }
 
 float getMaxEquipLoadHook(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-	return getCalcCorrectGraph(attributeData.endurance,220);
+	return getCalcCorrectGraphHook(attributeData.endurance,220);
+}
+
+int getDiscoveryHook(uintptr_t playerData){
+    AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
+	return getCalcCorrectGraphHook(attributeData.arcane,140)*100;
 }

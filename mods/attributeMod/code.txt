@@ -178,3 +178,20 @@ eldenring.exe+7CA392 - F3 41 0F10 46 1C      - movss xmm0,[r14+1C]
 
 f3 41 0f 11 46 1c e8 ?? ?? ?? ?? 48 8b ce 0f 28 f0 e8 ?? ?? ?? ?? f3 0f 59 f0 44 0f b6 cb 44 0f b6 c7 4c 89 7c 24 20 f3 41 0f 10 46 1c
 +18
+
+//call to get item discovery
+eldenring.exe+659199 - 48 8B 48 48           - mov rcx,[rax+48]
+eldenring.exe+65919D - E8 CED7E2FF           - call eldenring.exe+486970
+eldenring.exe+6591A2 - F3 0F11 87 6C0A0000   - movss [rdi+00000A6C],xmm0
+eldenring.exe+6591AA - 48 8B CF              - mov rcx,rdi
+eldenring.exe+6591AD - 48 8B 96 78010000     - mov rdx,[rsi+00000178]
+eldenring.exe+6591B4 - E8 B7D00200           - call eldenring.exe+686270 <-- this one
+eldenring.exe+6591B9 - 48 8B 8F 30050000     - mov rcx,[rdi+00000530]
+eldenring.exe+6591C0 - 4C 8B BC 24 F0000000  - mov r15,[rsp+000000F0]
+eldenring.exe+6591C8 - 4C 8B B4 24 F8000000  - mov r14,[rsp+000000F8]
+eldenring.exe+6591D0 - 4C 8B A4 24 30010000  - mov r12,[rsp+00000130]
+eldenring.exe+6591D8 - 48 8B 9C 24 28010000  - mov rbx,[rsp+00000128]
+eldenring.exe+6591E0 - 89 87 700A0000        - mov [rdi+00000A70],eax
+
+48 8b 48 48 e8 ?? ?? ?? ?? f3 0f 11 87 6c 0a 00 00 48 8b cf 48 8b 96 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 8f 30 05 00 00 4c 8b bc 24 f0 00 00 00
++28

@@ -4,21 +4,6 @@
 #include "uncapMod.hpp"
 #include "capGetters.cpp"
 
-void PerformPatch(const std::string& aob,
-	const std::string& expectedBytes,
-	const std::string& newBytes,
-	size_t offset)
-{
-	uintptr_t patchAddress = AobScan(aob);
-
-	if (patchAddress != 0)
-	{
-		patchAddress += offset;
-
-		ReplaceExpectedBytesAtAddress(patchAddress, expectedBytes, newBytes);
-	}
-}
-
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
 	std::string section = "uncapper";
@@ -40,10 +25,10 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		buffCapStr.insert(i," ");
 	
 	//uncap stats
-	PerformPatch("01 83 a8 02 00 00 ba 63 00 00 00 8b 83 88 02 00 00","63 00 00 00",buffCapStr,7);
+	performPatch("01 83 a8 02 00 00 ba 63 00 00 00 8b 83 88 02 00 00","63 00 00 00",buffCapStr,7);
 	
 	//uncap the ??? (I'm not sure what this does)
-	PerformPatch("e8 20 8b ec ff 03 45 c7 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca 8b 01","48 0f 4d ca","90 90 90 90",22);
+	performPatch("e8 20 8b ec ff 03 45 c7 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca 8b 01","48 0f 4d ca","90 90 90 90",22);
 	
 	//uncap level-up screen
 	{
@@ -66,15 +51,15 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	}
 	
 	//uncap buff preview
-	PerformPatch("c7 45 af 63 00 00 00 e8 a5 1c ec ff 03 45 b7 83 f8 63 89 45 a7 48 8d 55 af 48 8d 4d a7 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
-	PerformPatch("c7 45 a7 63 00 00 00 e8 cb 1c ec ff 03 45 bb 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
-	PerformPatch("c7 45 a7 63 00 00 00 e8 31 1c ec ff 03 45 bf 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
-	PerformPatch("c7 45 a7 63 00 00 00 e8 67 1c ec ff 03 45 c3 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
-	PerformPatch("c7 45 a7 63 00 00 00 e8 2d 1c ec ff 03 45 c7 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
-	PerformPatch("c7 45 a7 63 00 00 00 e8 a3 1b ec ff 03 45 cb 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
-	PerformPatch("c7 45 a7 63 00 00 00 e8 c9 1b ec ff 03 45 cf 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
-	PerformPatch("c7 45 a7 63 00 00 00 e8 6f 1b ec ff 03 45 d3 48 8d 4d af 89 45 af 48 8d 55 a7 83 f8 63 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
-	PerformPatch("c7 45 a7 63 00 00 00 e8 65 1b ec ff 03 45 d7 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 4d 8b cc 48 0f 4d ca","48 0f 4d ca","90 90 90 90",32);
+	performPatch("c7 45 af 63 00 00 00 e8 a5 1c ec ff 03 45 b7 83 f8 63 89 45 a7 48 8d 55 af 48 8d 4d a7 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
+	performPatch("c7 45 a7 63 00 00 00 e8 cb 1c ec ff 03 45 bb 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
+	performPatch("c7 45 a7 63 00 00 00 e8 31 1c ec ff 03 45 bf 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
+	performPatch("c7 45 a7 63 00 00 00 e8 67 1c ec ff 03 45 c3 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
+	performPatch("c7 45 a7 63 00 00 00 e8 2d 1c ec ff 03 45 c7 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
+	performPatch("c7 45 a7 63 00 00 00 e8 a3 1b ec ff 03 45 cb 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
+	performPatch("c7 45 a7 63 00 00 00 e8 c9 1b ec ff 03 45 cf 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
+	performPatch("c7 45 a7 63 00 00 00 e8 6f 1b ec ff 03 45 d3 48 8d 4d af 89 45 af 48 8d 55 a7 83 f8 63 48 0f 4d ca","48 0f 4d ca","90 90 90 90",29);
+	performPatch("c7 45 a7 63 00 00 00 e8 65 1b ec ff 03 45 d7 48 8d 55 a7 83 f8 63 89 45 af 48 8d 4d af 4d 8b cc 48 0f 4d ca","48 0f 4d ca","90 90 90 90",32);
 	
 	//hook level up function
 	{

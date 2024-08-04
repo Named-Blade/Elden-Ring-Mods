@@ -22,21 +22,6 @@ T ptrChain (std::vector<uintptr_t> ptrs, T defaultArg){
 	return result; 
 }
 
-void performPatch(const std::string& aob,
-	const std::string& expectedBytes,
-	const std::string& newBytes,
-	size_t offset)
-{
-	uintptr_t patchAddress = AobScan(aob);
-
-	if (patchAddress != 0)
-	{
-		patchAddress += offset;
-
-		ReplaceExpectedBytesAtAddress(patchAddress, expectedBytes, newBytes);
-	}
-}
-
 unsigned int getCurrentCycle(){
 	std::vector<uintptr_t> ptrs = {gameDataManPtr,0x0,ngCycleOffset};
 	return ptrChain<unsigned int>(ptrs,0);
