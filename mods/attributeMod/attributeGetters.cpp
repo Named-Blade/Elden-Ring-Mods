@@ -61,6 +61,10 @@ int getMaxSP(uintptr_t playerData){
 	return getCalcCorrectGraph(attributeData.endurance,104);
 }
 
+float calcDamageScale(getWeaponResult* weapon, uintptr_t playerData, uint64_t unk, DamageType damageType){
+    return calcDamageScaleOriginal(weapon,playerData,unk,damageType);
+}
+
 void calcDefense(DefenseData &defenseData, uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
     

@@ -226,6 +226,21 @@ eldenring.exe+68A36A - 4C 8B C5              - mov r8,rbp
 48 8d 48 98 0f 11 40 98 48 c7 40 a8 00 00 00 00 c7 40 b0 00 00 00 00 e8 ?? ?? ?? ?? 45 0f 28 d1 48 85 db 74 1a 44 0f b6 8c 24 b8 00 00 00 4c 8b c5
 +24
 
+//call to calc damage scaling
+eldenring.exe+6832CE - 44 0F28 DE            - movaps xmm11,xmm6
+eldenring.exe+6832D2 - 45 33 C9              - xor r9d,r9d
+eldenring.exe+6832D5 - 48 8D 54 24 78        - lea rdx,[rsp+78]
+eldenring.exe+6832DA - 4C 8B C7              - mov r8,rdi
+eldenring.exe+6832DD - 49 8B CF              - mov rcx,r15
+eldenring.exe+6832E0 - E8 1BCE0000           - call eldenring.exe+690100 <-- this one
+eldenring.exe+6832E5 - 0FB6 4F 44            - movzx ecx,byte ptr [rdi+44]
+eldenring.exe+6832E9 - 44 0F28 E8            - movaps xmm13,xmm0
+eldenring.exe+6832ED - 44 0F28 D6            - movaps xmm10,xmm6
+eldenring.exe+6832F1 - 8B D1                 - mov edx,ecx
+eldenring.exe+6832F3 - 85 C9                 - test ecx,ecx
+
+44 0f 28 de 45 33 c9 48 8d 54 24 78 4c 8b c7 49 8b cf e8 ?? ?? ?? ?? 0f b6 4f 44 44 0f 28 e8 44 0f 28 d6 8b d1 85 c9
++19     
             
 //call to minimum fall damage distance?
 eldenring.exe+44DFC8 - 48 8B CB              - mov rcx,rbx

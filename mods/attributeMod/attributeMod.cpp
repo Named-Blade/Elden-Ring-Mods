@@ -23,6 +23,8 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	hookFunc(getMaxMP,getMaxMPAob,getMaxMPOffset,getMaxMPSize);
 	hookFunc(getMaxSP,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
 
+	hookFunc(calcDamageScale,calcDamageScaleAob,calcDamageScaleOffset,calcDamageScaleSize,&calcDamageScaleOriginal);
+
 	hookFunc(calcDefense,calcDefenseAob,calcDefenseOffset,calcDefenseSize);
 	hookFunc(calcResist,calcResistAob,calcResistOffset,calcResistSize);
 

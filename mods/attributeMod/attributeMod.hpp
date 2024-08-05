@@ -29,21 +29,30 @@ std::string getMaxSPAob = "e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce 41 89 46 14 e8 ??
 int getMaxSPOffset = 17;
 int getMaxSPSize = 4;
 
+std::string calcDamageScaleAob = "44 0f 28 de 45 33 c9 48 8d 54 24 78 4c 8b c7 49 8b cf e8 ?? ?? ?? ?? 0f b6 4f 44 44 0f 28 e8 44 0f 28 d6 8b d1 85 c9";
+int calcDamageScaleOffset = 19;
+int calcDamageScaleSize = 4;
+
+enum DamageType {physical,magic,fire,lightning,holy};
+struct getWeaponResult{
+	unsigned int id;
+	int _1;
+	from::paramdef::EQUIP_PARAM_WEAPON_ST *row;
+	unsigned int baseId;
+	int _2;
+	unsigned int reinforceId;
+	int _3;
+	from::paramdef::REINFORCE_PARAM_WEAPON_ST *reinforceRow;
+	int _4;
+};
+
+typedef float (*calcDamageScaleType)(getWeaponResult*, uintptr_t, uint64_t, DamageType);
+float calcDamageScaleDummy(getWeaponResult* _1, uintptr_t _2, uint64_t _4,DamageType _3) {return 0;}
+calcDamageScaleType calcDamageScaleOriginal = &calcDamageScaleDummy;
+
 std::string calcDefenseAob = "44 0f 29 50 88 4c 8b e2 0f 11 45 87 c7 45 97 00 00 00 00 0f 57 f6 e8 ?? ?? ?? ?? 48 8b 4d 77 0f 28 05 ?? ?? ?? ?? 0f 28 0d ?? ?? ?? ?? 48 c7 45 bf 00 00 00 00";
 int calcDefenseOffset = 23;
 int calcDefenseSize = 4;
-
-std::string calcResistAob = "48 8d 48 98 0f 11 40 98 48 c7 40 a8 00 00 00 00 c7 40 b0 00 00 00 00 e8 ?? ?? ?? ?? 45 0f 28 d1 48 85 db 74 1a 44 0f b6 8c 24 b8 00 00 00 4c 8b c5";
-int calcResistOffset = 24;
-int calcResistSize = 4;
-
-std::string getMaxEquipAob = "f3 41 0f 11 46 1c e8 ?? ?? ?? ?? 48 8b ce 0f 28 f0 e8 ?? ?? ?? ?? f3 0f 59 f0 44 0f b6 cb 44 0f b6 c7 4c 89 7c 24 20 f3 41 0f 10 46 1c";
-int getMaxEquipOffset = 18;
-int getMaxEquipSize = 4;
-
-std::string getDiscoveryAob = "48 8b 48 48 e8 ?? ?? ?? ?? f3 0f 11 87 6c 0a 00 00 48 8b cf 48 8b 96 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 8f 30 05 00 00 4c 8b bc 24 f0 00 00 00";
-int getDiscoveryOffset = 28;
-int getDiscoverySize = 4;
 
 struct DefenseData{
     float physical;
@@ -52,6 +61,10 @@ struct DefenseData{
     float lightning;
     float holy;
 };
+
+std::string calcResistAob = "48 8d 48 98 0f 11 40 98 48 c7 40 a8 00 00 00 00 c7 40 b0 00 00 00 00 e8 ?? ?? ?? ?? 45 0f 28 d1 48 85 db 74 1a 44 0f b6 8c 24 b8 00 00 00 4c 8b c5";
+int calcResistOffset = 24;
+int calcResistSize = 4;
 
 struct ResistanceData{
     float poison;
@@ -62,6 +75,14 @@ struct ResistanceData{
     float sleep;
     float madness;
 };
+
+std::string getMaxEquipAob = "f3 41 0f 11 46 1c e8 ?? ?? ?? ?? 48 8b ce 0f 28 f0 e8 ?? ?? ?? ?? f3 0f 59 f0 44 0f b6 cb 44 0f b6 c7 4c 89 7c 24 20 f3 41 0f 10 46 1c";
+int getMaxEquipOffset = 18;
+int getMaxEquipSize = 4;
+
+std::string getDiscoveryAob = "48 8b 48 48 e8 ?? ?? ?? ?? f3 0f 11 87 6c 0a 00 00 48 8b cf 48 8b 96 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 8f 30 05 00 00 4c 8b bc 24 f0 00 00 00";
+int getDiscoveryOffset = 28;
+int getDiscoverySize = 4;
 
 int attributeDataOffset = 0x288;
 struct AttributeData{
