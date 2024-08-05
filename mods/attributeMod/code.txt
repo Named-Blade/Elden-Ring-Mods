@@ -196,6 +196,21 @@ eldenring.exe+6591E0 - 89 87 700A0000        - mov [rdi+00000A70],eax
 48 8b 48 48 e8 ?? ?? ?? ?? f3 0f 11 87 6c 0a 00 00 48 8b cf 48 8b 96 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 8f 30 05 00 00 4c 8b bc 24 f0 00 00 00
 +28
 
+//call to defense calculation function
+eldenring.exe+68542E - 44 0F29 50 88         - movaps [rax-78],xmm10
+eldenring.exe+685433 - 4C 8B E2              - mov r12,rdx
+eldenring.exe+685436 - 0F11 45 87            - movups [rbp-79],xmm0
+eldenring.exe+68543A - C7 45 97 00000000     - mov [rbp-69],00000000
+eldenring.exe+685441 - 0F57 F6               - xorps xmm6,xmm6
+eldenring.exe+685444 - E8 272D0000           - call eldenring.exe+688170 <-- this one
+eldenring.exe+685449 - 48 8B 4D 77           - mov rcx,[rbp+77]
+eldenring.exe+68544D - 0F28 05 3C9EC102      - movaps xmm0,[eldenring.exe+329F290]
+eldenring.exe+685454 - 0F28 0D B591C102      - movaps xmm1,[eldenring.exe+329E610]
+eldenring.exe+68545B - 48 C7 45 BF 00000000  - mov qword ptr [rbp-41],00000000
+
+44 0f 29 50 88 4c 8b e2 0f 11 45 87 c7 45 97 00 00 00 00 0f 57 f6 e8 ?? ?? ?? ?? 48 8b 4d 77 0f 28 05 ?? ?? ?? ?? 0f 28 0d ?? ?? ?? ?? 48 c7 45 bf 00 00 00 00
++23
+
 //call to minimum fall damage distance?
 eldenring.exe+44DFC8 - 48 8B CB              - mov rcx,rbx
 eldenring.exe+44DFCB - E8 50070000           - call eldenring.exe+44E720

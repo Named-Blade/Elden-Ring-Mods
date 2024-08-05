@@ -8,7 +8,8 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 {
 	std::string section = "attribute mod";
 	readConfig(
-		std::forward_as_tuple(outOfCombatStamina,section,"enable out of combat stamina loss"_s)
+		std::forward_as_tuple(outOfCombatStamina,section,"enable out of combat stamina loss"_s),
+		std::forward_as_tuple(enduranceLightningDefense,section,"enable lightning defense with endurance increase"_s)
 	);
 	
 	from::DLSY::wait_for_system(-1);
@@ -20,6 +21,8 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	hookFunc(getMaxHP,getMaxHPAob,getMaxHPOffset,getMaxHPSize);
 	hookFunc(getMaxMP,getMaxMPAob,getMaxMPOffset,getMaxMPSize);
 	hookFunc(getMaxSP,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
+
+	hookFunc(calcDefense,calcDefenseAob,calcDefenseOffset,calcDefenseSize);
 
 	hookFunc(getMaxEquipLoad,getMaxEquipAob,getMaxEquipOffset,getMaxEquipSize);
 	hookFunc(getDiscovery,getDiscoveryAob,getDiscoveryOffset,getDiscoverySize);

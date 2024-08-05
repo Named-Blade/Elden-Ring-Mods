@@ -46,12 +46,7 @@ float getCalcCorrectGraph(float value, int row){
 
 int getMaxHP(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-    for (auto [attribute,valuePtr] : iterOverAttributes(attributeData)){
-        Log(attributeToString(attribute) + ": "+ std::to_string(*valuePtr));
-    }
-    float addHp = (getPlayerLevel(attributeData) - attributeData.vigor - 70) * (600.0 / (89.0*7.0));
-    float finalHp =  getCalcCorrectGraph(attributeData.vigor,100);
-	return finalHp + addHp;
+	return getCalcCorrectGraph(attributeData.vigor,100);
 }
 
 int getMaxMP(uintptr_t playerData){
@@ -62,6 +57,20 @@ int getMaxMP(uintptr_t playerData){
 int getMaxSP(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
 	return getCalcCorrectGraph(attributeData.endurance,104);
+}
+
+void calcDefense(DefenseData &defenseData, uintptr_t playerData){
+    AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
+    for (auto [attribute,valuePtr] : iterOverAttributes(attributeData)){
+        Log(attributeToString(attribute) + ": "+ std::to_string(*valuePtr));
+    }
+    int level = getPlayerLevel(attributeData);
+
+    defenseData.physical = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.strength,130);
+    defenseData.magic = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.intelligence,132);
+    defenseData.fire = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.vigor,133);
+    defenseData.lightning = getCalcCorrectGraph(level,102) + ( (enduranceLightningDefense) ? getCalcCorrectGraph(attributeData.endurance,134) : 0);
+    defenseData.holy = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.faith,135);
 }
 
 float getMaxEquipLoad(uintptr_t playerData){

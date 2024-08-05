@@ -29,6 +29,10 @@ std::string getMaxSPAob = "e8 ?? ?? ?? ?? f3 0f 2c c0 48 8b ce 41 89 46 14 e8 ??
 int getMaxSPOffset = 17;
 int getMaxSPSize = 4;
 
+std::string calcDefenseAob = "44 0f 29 50 88 4c 8b e2 0f 11 45 87 c7 45 97 00 00 00 00 0f 57 f6 e8 ?? ?? ?? ?? 48 8b 4d 77 0f 28 05 ?? ?? ?? ?? 0f 28 0d ?? ?? ?? ?? 48 c7 45 bf 00 00 00 00";
+int calcDefenseOffset = 23;
+int calcDefenseSize = 4;
+
 std::string getMaxEquipAob = "f3 41 0f 11 46 1c e8 ?? ?? ?? ?? 48 8b ce 0f 28 f0 e8 ?? ?? ?? ?? f3 0f 59 f0 44 0f b6 cb 44 0f b6 c7 4c 89 7c 24 20 f3 41 0f 10 46 1c";
 int getMaxEquipOffset = 18;
 int getMaxEquipSize = 4;
@@ -36,6 +40,14 @@ int getMaxEquipSize = 4;
 std::string getDiscoveryAob = "48 8b 48 48 e8 ?? ?? ?? ?? f3 0f 11 87 6c 0a 00 00 48 8b cf 48 8b 96 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 8f 30 05 00 00 4c 8b bc 24 f0 00 00 00";
 int getDiscoveryOffset = 28;
 int getDiscoverySize = 4;
+
+struct DefenseData{
+    float physical;
+    float magic;
+    float fire;
+    float lightning;
+    float holy;
+};
 
 int attributeDataOffset = 0x288;
 struct AttributeData{
@@ -54,3 +66,4 @@ std::string outOfcombatStaminaAob = "ba b4 00 00 00 48 8d 0d ?? ?? ?? ?? e8 ?? ?
 int outOfcombatStaminaOffset = 31;
 
 bool outOfCombatStamina = true;
+bool enduranceLightningDefense = true;
