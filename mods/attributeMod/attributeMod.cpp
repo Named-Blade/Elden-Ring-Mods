@@ -15,14 +15,14 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	MH_STATUS status = MH_Initialize();
 	Log("MinHook Status: ",MH_StatusToString(status));
 
-	hookFunc(getCalcCorrectGraphHook,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,&getCalcCorrectGraph);
+	hookFunc(getCalcCorrectGraph,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,&getCalcCorrectGraphOriginal);
 
-	hookFunc(getMaxHPHook,getMaxHPAob,getMaxHPOffset,getMaxHPSize);
-	hookFunc(getMaxMPHook,getMaxMPAob,getMaxMPOffset,getMaxMPSize);
-	hookFunc(getMaxSPHook,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
+	hookFunc(getMaxHP,getMaxHPAob,getMaxHPOffset,getMaxHPSize);
+	hookFunc(getMaxMP,getMaxMPAob,getMaxMPOffset,getMaxMPSize);
+	hookFunc(getMaxSP,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
 
-	hookFunc(getMaxEquipLoadHook,getMaxEquipAob,getMaxEquipOffset,getMaxEquipSize);
-	hookFunc(getDiscoveryHook,getDiscoveryAob,getDiscoveryOffset,getDiscoverySize);
+	hookFunc(getMaxEquipLoad,getMaxEquipAob,getMaxEquipOffset,getMaxEquipSize);
+	hookFunc(getDiscovery,getDiscoveryAob,getDiscoveryOffset,getDiscoverySize);
 
 	MH_STATUS applyStatus = MH_ApplyQueued();
 	Log("Apply Status: ",MH_StatusToString(applyStatus));

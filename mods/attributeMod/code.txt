@@ -195,3 +195,16 @@ eldenring.exe+6591E0 - 89 87 700A0000        - mov [rdi+00000A70],eax
 
 48 8b 48 48 e8 ?? ?? ?? ?? f3 0f 11 87 6c 0a 00 00 48 8b cf 48 8b 96 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 8f 30 05 00 00 4c 8b bc 24 f0 00 00 00
 +28
+
+//call to minimum fall damage distance?
+eldenring.exe+44DFC8 - 48 8B CB              - mov rcx,rbx
+eldenring.exe+44DFCB - E8 50070000           - call eldenring.exe+44E720
+eldenring.exe+44DFD0 - 84 C0                 - test al,al
+eldenring.exe+44DFD2 - 0F84 33010000         - je eldenring.exe+44E10B
+eldenring.exe+44DFD8 - 0F28 C6               - movaps xmm0,xmm6
+eldenring.exe+44DFDB - E8 10FB2300           - call eldenring.exe+68DAF0 <-- this one (16.0)
+eldenring.exe+44DFE0 - 84 C0                 - test al,al
+eldenring.exe+44DFE2 - 0F85 23010000         - jne eldenring.exe+44E10B
+eldenring.exe+44DFE8 - 48 89 6C 24 70        - mov [rsp+70],rbp
+eldenring.exe+44DFED - 0F28 C6               - movaps xmm0,xmm6
+eldenring.exe+44DFF0 - 48 89 74 24 78        - mov [rsp+78],rsi

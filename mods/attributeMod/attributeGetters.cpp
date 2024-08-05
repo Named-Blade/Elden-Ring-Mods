@@ -39,37 +39,37 @@ int getPlayerLevel(AttributeData attributeData){
         attributeData.arcane;
 }
 
-float getCalcCorrectGraphHook(float value, int row){
-    return getCalcCorrectGraph(value,row);
+float getCalcCorrectGraph(float value, int row){
+    return getCalcCorrectGraphOriginal(value,row);
 }
 
 
-int getMaxHPHook(uintptr_t playerData){
+int getMaxHP(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
     for (auto [attribute,valuePtr] : iterOverAttributes(attributeData)){
         Log(attributeToString(attribute) + ": "+ std::to_string(*valuePtr));
     }
     float addHp = (getPlayerLevel(attributeData) - attributeData.vigor - 70) * (600.0 / (89.0*7.0));
-    float finalHp =  getCalcCorrectGraphHook(attributeData.vigor,100);
+    float finalHp =  getCalcCorrectGraph(attributeData.vigor,100);
 	return finalHp + addHp;
 }
 
-int getMaxMPHook(uintptr_t playerData){
+int getMaxMP(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-	return getCalcCorrectGraphHook(attributeData.mind,101);
+	return getCalcCorrectGraph(attributeData.mind,101);
 }
 
-int getMaxSPHook(uintptr_t playerData){
+int getMaxSP(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-	return getCalcCorrectGraphHook(attributeData.endurance,104);
+	return getCalcCorrectGraph(attributeData.endurance,104);
 }
 
-float getMaxEquipLoadHook(uintptr_t playerData){
+float getMaxEquipLoad(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-	return getCalcCorrectGraphHook(attributeData.endurance,220);
+	return getCalcCorrectGraph(attributeData.endurance,220);
 }
 
-int getDiscoveryHook(uintptr_t playerData){
+int getDiscovery(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-	return getCalcCorrectGraphHook(attributeData.arcane,140)*100;
+	return getCalcCorrectGraph(attributeData.arcane,140)*100;
 }

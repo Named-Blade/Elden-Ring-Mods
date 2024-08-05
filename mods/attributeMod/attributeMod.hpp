@@ -15,7 +15,7 @@ int getCalcCorrectGraphSize = 4;
 
 typedef float (*getCalcCorrectGraphType)(float, int);
 float getCalcCorrectGraphDummy(float v, int r) {return 0;}
-getCalcCorrectGraphType getCalcCorrectGraph = &getCalcCorrectGraphDummy;
+getCalcCorrectGraphType getCalcCorrectGraphOriginal = &getCalcCorrectGraphDummy;
 
 std::string getMaxHPAob = "41 89 4e 08 8b 4e 1c 41 89 4e 10 48 8b ce e8 ?? ?? ?? ?? 8b c8 49 8b d4 e8 ?? ?? ?? ?? f3 0f 2c c8 41 89 4e 0c 48 8b ce";
 int getMaxHPOffset = 15;
