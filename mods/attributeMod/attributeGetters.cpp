@@ -46,7 +46,9 @@ float getCalcCorrectGraph(float value, int row){
 
 int getMaxHP(uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-	return getCalcCorrectGraph(attributeData.vigor,100);
+    int level = getPlayerLevel(attributeData);
+    float addHp = hpBonusOnLevel ? (level - attributeData.vigor - 70) * (600.0/(89.0*7.0)): 0;
+	return getCalcCorrectGraph(attributeData.vigor,100) + addHp;
 }
 
 int getMaxMP(uintptr_t playerData){
@@ -61,16 +63,29 @@ int getMaxSP(uintptr_t playerData){
 
 void calcDefense(DefenseData &defenseData, uintptr_t playerData){
     AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
-    for (auto [attribute,valuePtr] : iterOverAttributes(attributeData)){
-        Log(attributeToString(attribute) + ": "+ std::to_string(*valuePtr));
-    }
+    
     int level = getPlayerLevel(attributeData);
-
     defenseData.physical = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.strength,130);
     defenseData.magic = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.intelligence,132);
     defenseData.fire = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.vigor,133);
     defenseData.lightning = getCalcCorrectGraph(level,102) + ( (enduranceLightningDefense) ? getCalcCorrectGraph(attributeData.endurance,134) : 0);
     defenseData.holy = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.faith,135);
+}
+
+void calcResist(ResistanceData &resistanceData, uintptr_t playerData){
+    AttributeData attributeData = *(AttributeData*)(playerData+attributeDataOffset);
+    
+    int level = getPlayerLevel(attributeData);
+    resistanceData.poison = getCalcCorrectGraph(level,110) + getCalcCorrectGraph(attributeData.vigor,120);
+    resistanceData.scarletRot = getCalcCorrectGraph(level,111) + getCalcCorrectGraph(attributeData.vigor,121);
+
+    resistanceData.hemorrhage = getCalcCorrectGraph(level,112) + getCalcCorrectGraph(attributeData.endurance,122);
+    resistanceData.frostbite = getCalcCorrectGraph(level,113) + getCalcCorrectGraph(attributeData.endurance,123);
+
+    resistanceData.sleep = getCalcCorrectGraph(level,114) + getCalcCorrectGraph(attributeData.mind,124);
+    resistanceData.madness = getCalcCorrectGraph(level,115) + getCalcCorrectGraph(attributeData.mind,125);
+
+    resistanceData.death = getCalcCorrectGraph(level,116) + getCalcCorrectGraph(attributeData.arcane,126);
 }
 
 float getMaxEquipLoad(uintptr_t playerData){

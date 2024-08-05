@@ -33,6 +33,10 @@ std::string calcDefenseAob = "44 0f 29 50 88 4c 8b e2 0f 11 45 87 c7 45 97 00 00
 int calcDefenseOffset = 23;
 int calcDefenseSize = 4;
 
+std::string calcResistAob = "48 8d 48 98 0f 11 40 98 48 c7 40 a8 00 00 00 00 c7 40 b0 00 00 00 00 e8 ?? ?? ?? ?? 45 0f 28 d1 48 85 db 74 1a 44 0f b6 8c 24 b8 00 00 00 4c 8b c5";
+int calcResistOffset = 24;
+int calcResistSize = 4;
+
 std::string getMaxEquipAob = "f3 41 0f 11 46 1c e8 ?? ?? ?? ?? 48 8b ce 0f 28 f0 e8 ?? ?? ?? ?? f3 0f 59 f0 44 0f b6 cb 44 0f b6 c7 4c 89 7c 24 20 f3 41 0f 10 46 1c";
 int getMaxEquipOffset = 18;
 int getMaxEquipSize = 4;
@@ -47,6 +51,16 @@ struct DefenseData{
     float fire;
     float lightning;
     float holy;
+};
+
+struct ResistanceData{
+    float poison;
+    float scarletRot;
+    float hemorrhage;
+    float death;
+    float frostbite;
+    float sleep;
+    float madness;
 };
 
 int attributeDataOffset = 0x288;
@@ -67,3 +81,4 @@ int outOfcombatStaminaOffset = 31;
 
 bool outOfCombatStamina = true;
 bool enduranceLightningDefense = true;
+bool hpBonusOnLevel = true;
