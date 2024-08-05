@@ -241,7 +241,56 @@ eldenring.exe+6832F3 - 85 C9                 - test ecx,ecx
 
 44 0f 28 de 45 33 c9 48 8d 54 24 78 4c 8b c7 49 8b cf e8 ?? ?? ?? ?? 0f b6 4f 44 44 0f 28 e8 44 0f 28 d6 8b d1 85 c9
 +19     
-            
+
+//func to get spell scaling, return in rdx [int, faith, str, dex]
+//(chrIns*, return*, uint32_t weaponId)
+eldenring.exe+652280 - 48 89 5C 24 08        - mov [rsp+08],rbx
+eldenring.exe+652285 - 48 89 74 24 10        - mov [rsp+10],rsi
+eldenring.exe+65228A - 57                    - push rdi
+eldenring.exe+65228B - 48 83 EC 20           - sub rsp,20
+eldenring.exe+65228F - 48 8B D9              - mov rbx,rcx
+eldenring.exe+652292 - 41 8B F8              - mov edi,r8d
+eldenring.exe+652295 - 48 8B CA              - mov rcx,rdx
+eldenring.exe+652298 - 48 8B F2              - mov rsi,rdx
+eldenring.exe+65229B - E8 30C9EAFF           - call eldenring.exe+4FEBD0
+eldenring.exe+6522A0 - 48 8B 03              - mov rax,[rbx]
+eldenring.exe+6522A3 - 48 8B CB              - mov rcx,rbx
+eldenring.exe+6522A6 - FF 90 68010000        - call qword ptr [rax+00000168]
+eldenring.exe+6522AC - 48 8B C8              - mov rcx,rax
+eldenring.exe+6522AF - 8B D7                 - mov edx,edi
+eldenring.exe+6522B1 - E8 4A4F0300           - call eldenring.exe+687200
+eldenring.exe+6522B6 - F3 0F11 06            - movss [rsi],xmm0
+eldenring.exe+6522BA - 48 8B CB              - mov rcx,rbx
+eldenring.exe+6522BD - 48 8B 03              - mov rax,[rbx]
+eldenring.exe+6522C0 - FF 90 68010000        - call qword ptr [rax+00000168]
+eldenring.exe+6522C6 - 48 8B C8              - mov rcx,rax
+eldenring.exe+6522C9 - 8B D7                 - mov edx,edi
+eldenring.exe+6522CB - E8 B0450300           - call eldenring.exe+686880
+eldenring.exe+6522D0 - F3 0F11 46 04         - movss [rsi+04],xmm0
+eldenring.exe+6522D5 - 48 8B CB              - mov rcx,rbx
+eldenring.exe+6522D8 - 48 8B 03              - mov rax,[rbx]
+eldenring.exe+6522DB - FF 90 68010000        - call qword ptr [rax+00000168]
+eldenring.exe+6522E1 - 48 8B C8              - mov rcx,rax
+eldenring.exe+6522E4 - 8B D7                 - mov edx,edi
+eldenring.exe+6522E6 - E8 45590300           - call eldenring.exe+687C30
+eldenring.exe+6522EB - F3 0F11 46 08         - movss [rsi+08],xmm0
+eldenring.exe+6522F0 - 48 8B CB              - mov rcx,rbx
+eldenring.exe+6522F3 - 48 8B 03              - mov rax,[rbx]
+eldenring.exe+6522F6 - FF 90 68010000        - call qword ptr [rax+00000168]
+eldenring.exe+6522FC - 48 8B C8              - mov rcx,rax
+eldenring.exe+6522FF - 8B D7                 - mov edx,edi
+eldenring.exe+652301 - E8 DA330300           - call eldenring.exe+6856E0
+eldenring.exe+652306 - 48 8B 5C 24 30        - mov rbx,[rsp+30]
+eldenring.exe+65230B - 48 8B C6              - mov rax,rsi
+eldenring.exe+65230E - F3 0F11 46 0C         - movss [rsi+0C],xmm0
+eldenring.exe+652313 - 48 8B 74 24 38        - mov rsi,[rsp+38]
+eldenring.exe+652318 - 48 83 C4 20           - add rsp,20
+eldenring.exe+65231C - 5F                    - pop rdi
+eldenring.exe+65231D - C3                    - ret 
+
+48 8b d9 41 8b f8 48 8b ca 48 8b f2 e8 ?? ?? ?? ?? 48 8b 03 48 8b cb ff 90 68 01 00 00 48 8b c8 8b d7 e8 ?? ?? ?? ?? f3 0f 11 06 48 8b cb 48 8b 03 ff 90 68 01 00 00
+-15   
+	 
 //call to minimum fall damage distance?
 eldenring.exe+44DFC8 - 48 8B CB              - mov rcx,rbx
 eldenring.exe+44DFCB - E8 50070000           - call eldenring.exe+44E720

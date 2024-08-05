@@ -662,7 +662,7 @@ namespace ModUtils
 
 
 	template <typename T>
-	void _hookFunc(void* hook, std::string aob, int offset, int size, T** trampoline){
+	void _hookCall(void* hook, std::string aob, int offset, int size, T** trampoline){
 		uintptr_t address = AobScan(aob);
 		if (address != 0){
 			void* funcAddress = (void*)getAddressFromMemory(address,offset,size);
@@ -673,10 +673,29 @@ namespace ModUtils
 		}
 	}
 	template <typename T>
-	void hookFunc(void* hook, std::string aob, int offset, int size, T** trampoline){
-		_hookFunc(hook,aob,offset,size,trampoline);
+	void hookCall(void* hook, std::string aob, int offset, int size, T** trampoline){
+		_hookCall(hook,aob,offset,size,trampoline);
 	}
-	void hookFunc(void* hook, std::string aob, int offset, int size){
-		_hookFunc(hook,aob,offset,size,(void**)nullptr);
+	void hookCall(void* hook, std::string aob, int offset, int size){
+		_hookCall(hook,aob,offset,size,(void**)nullptr);
+	}
+
+	template <typename T>
+	void _hookFunc(void* hook, std::string aob, int offset, T** trampoline){
+		uintptr_t address = AobScan(aob);
+		if (address != 0){
+			void* funcAddress = (void*)(address+offset);
+			MH_STATUS hookStatus = MH_CreateHook(funcAddress, hook,(void**)trampoline);
+			Log("Hook ",funcAddress," Status: ",MH_StatusToString(hookStatus));
+			MH_STATUS queueStatus = MH_QueueEnableHook(funcAddress);
+			Log("Queue ",funcAddress," Status: ",MH_StatusToString(queueStatus));
+		}
+	}
+	template <typename T>
+	void hookFunc(void* hook, std::string aob, int offset, T** trampoline){
+		_hookFunc(hook,aob,offset,trampoline);
+	}
+	void hookFunc(void* hook, std::string aob, int offset){
+		_hookFunc(hook,aob,offset,(void**)nullptr);
 	}
 }

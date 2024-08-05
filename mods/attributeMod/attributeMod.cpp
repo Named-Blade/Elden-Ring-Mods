@@ -17,19 +17,20 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	MH_STATUS status = MH_Initialize();
 	Log("MinHook Status: ",MH_StatusToString(status));
 
-	hookFunc(getCalcCorrectGraph,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,&getCalcCorrectGraphOriginal);
+	hookCall(getCalcCorrectGraph,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,&getCalcCorrectGraphOriginal);
 
-	hookFunc(getMaxHP,getMaxHPAob,getMaxHPOffset,getMaxHPSize);
-	hookFunc(getMaxMP,getMaxMPAob,getMaxMPOffset,getMaxMPSize);
-	hookFunc(getMaxSP,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
+	hookCall(getMaxHP,getMaxHPAob,getMaxHPOffset,getMaxHPSize);
+	hookCall(getMaxMP,getMaxMPAob,getMaxMPOffset,getMaxMPSize);
+	hookCall(getMaxSP,getMaxSPAob,getMaxSPOffset,getMaxSPSize);
 
-	hookFunc(calcDamageScale,calcDamageScaleAob,calcDamageScaleOffset,calcDamageScaleSize,&calcDamageScaleOriginal);
+	hookCall(calcDamageScale,calcDamageScaleAob,calcDamageScaleOffset,calcDamageScaleSize,&calcDamageScaleOriginal);
+	hookFunc(calcSpellScale,calcSpellScaleAob,calcSpellScaleOffset,&calcSpellScaleOriginal);
 
-	hookFunc(calcDefense,calcDefenseAob,calcDefenseOffset,calcDefenseSize);
-	hookFunc(calcResist,calcResistAob,calcResistOffset,calcResistSize);
+	hookCall(calcDefense,calcDefenseAob,calcDefenseOffset,calcDefenseSize);
+	hookCall(calcResist,calcResistAob,calcResistOffset,calcResistSize);
 
-	hookFunc(getMaxEquipLoad,getMaxEquipAob,getMaxEquipOffset,getMaxEquipSize);
-	hookFunc(getDiscovery,getDiscoveryAob,getDiscoveryOffset,getDiscoverySize);
+	hookCall(getMaxEquipLoad,getMaxEquipAob,getMaxEquipOffset,getMaxEquipSize);
+	hookCall(getDiscovery,getDiscoveryAob,getDiscoveryOffset,getDiscoverySize);
 
 	MH_STATUS applyStatus = MH_ApplyQueued();
 	Log("Apply Status: ",MH_StatusToString(applyStatus));

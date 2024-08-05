@@ -68,6 +68,20 @@ typedef float (*calcDamageScaleType)(getWeaponResult*, PlayerData*, uint64_t, Da
 float calcDamageScaleDummy(getWeaponResult* _1, PlayerData* _2, uint64_t _4,DamageType _3) {return 0;}
 calcDamageScaleType calcDamageScaleOriginal = &calcDamageScaleDummy;
 
+std::string calcSpellScaleAob = "48 8b d9 41 8b f8 48 8b ca 48 8b f2 e8 ?? ?? ?? ?? 48 8b 03 48 8b cb ff 90 68 01 00 00 48 8b c8 8b d7 e8 ?? ?? ?? ?? f3 0f 11 06 48 8b cb 48 8b 03 ff 90 68 01 00 00";
+int calcSpellScaleOffset = -15;
+
+struct spellScale{
+    float intelligence;
+    float faith;
+    float strength;
+    float dexterity;
+};
+
+typedef void (*calcSpellScaleType)(uintptr_t,spellScale &,uint32_t);
+void calcSpellScaleDummy(uintptr_t chrIns, spellScale &scaling, uint32_t weaponId) {}
+calcSpellScaleType calcSpellScaleOriginal = &calcSpellScaleDummy;
+
 std::string calcDefenseAob = "44 0f 29 50 88 4c 8b e2 0f 11 45 87 c7 45 97 00 00 00 00 0f 57 f6 e8 ?? ?? ?? ?? 48 8b 4d 77 0f 28 05 ?? ?? ?? ?? 0f 28 0d ?? ?? ?? ?? 48 c7 45 bf 00 00 00 00";
 int calcDefenseOffset = 23;
 int calcDefenseSize = 4;

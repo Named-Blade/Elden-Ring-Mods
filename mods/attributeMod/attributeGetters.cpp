@@ -65,6 +65,10 @@ float calcDamageScale(getWeaponResult* weapon, PlayerData* playerData, uint64_t 
     return calcDamageScaleOriginal(weapon,playerData,unk,damageType);
 }
 
+void calcSpellScale(uintptr_t chrIns, spellScale &scaling, uint32_t weaponId){
+    calcSpellScaleOriginal(chrIns,scaling,weaponId);
+}
+
 void calcDefense(DefenseData &defenseData, PlayerData* playerData){
     AttributeData attributeData = (*playerData).attributeData;
     
