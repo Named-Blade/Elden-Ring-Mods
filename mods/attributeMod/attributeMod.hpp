@@ -9,6 +9,24 @@
 
 using namespace ModUtils;
 
+const int attributeDataOffset = 0x288;
+struct AttributeData{
+    int vigor;
+    int mind;
+    int endurance;
+    int forbiddenMysteryStat;
+    int strength;
+    int dexterity;
+    int intelligence;
+    int faith;
+    int arcane;
+};
+struct PlayerData{
+    char8_t _1[attributeDataOffset];
+    AttributeData attributeData;
+};
+
+
 std::string getCalcCorrectGraphAob = "66 0f 6e 83 88 02 00 00 0f 5b c0 ba 64 00 00 00 e8 ?? ?? ?? ?? f3 0f 2c c0 48 83 c4 50 5b c3";
 int getCalcCorrectGraphOffset = 17;
 int getCalcCorrectGraphSize = 4;
@@ -46,8 +64,8 @@ struct getWeaponResult{
 	int _4;
 };
 
-typedef float (*calcDamageScaleType)(getWeaponResult*, uintptr_t, uint64_t, DamageType);
-float calcDamageScaleDummy(getWeaponResult* _1, uintptr_t _2, uint64_t _4,DamageType _3) {return 0;}
+typedef float (*calcDamageScaleType)(getWeaponResult*, PlayerData*, uint64_t, DamageType);
+float calcDamageScaleDummy(getWeaponResult* _1, PlayerData* _2, uint64_t _4,DamageType _3) {return 0;}
 calcDamageScaleType calcDamageScaleOriginal = &calcDamageScaleDummy;
 
 std::string calcDefenseAob = "44 0f 29 50 88 4c 8b e2 0f 11 45 87 c7 45 97 00 00 00 00 0f 57 f6 e8 ?? ?? ?? ?? 48 8b 4d 77 0f 28 05 ?? ?? ?? ?? 0f 28 0d ?? ?? ?? ?? 48 c7 45 bf 00 00 00 00";
@@ -83,19 +101,6 @@ int getMaxEquipSize = 4;
 std::string getDiscoveryAob = "48 8b 48 48 e8 ?? ?? ?? ?? f3 0f 11 87 6c 0a 00 00 48 8b cf 48 8b 96 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 8f 30 05 00 00 4c 8b bc 24 f0 00 00 00";
 int getDiscoveryOffset = 28;
 int getDiscoverySize = 4;
-
-int attributeDataOffset = 0x288;
-struct AttributeData{
-    int vigor;
-    int mind;
-    int endurance;
-    int forbiddenMysteryStat;
-    int strength;
-    int dexterity;
-    int intelligence;
-    int faith;
-    int arcane;
-};
 
 std::string outOfcombatStaminaAob = "ba b4 00 00 00 48 8d 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 48 8b 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe";
 int outOfcombatStaminaOffset = 31;
