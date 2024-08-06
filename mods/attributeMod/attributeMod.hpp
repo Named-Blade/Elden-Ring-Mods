@@ -6,6 +6,7 @@
 
 #include <ModUtils.hpp>
 #include <config.hpp>
+#pragma pack(push, 1)
 
 using namespace ModUtils;
 
@@ -25,6 +26,12 @@ struct PlayerData{
     char8_t _1[attributeDataOffset];
     AttributeData attributeData;
 };
+
+typedef PlayerData& (*getPlayerDataType)(uintptr_t);
+PlayerData& getPlayerData(uintptr_t chrIns){
+    getPlayerDataType getPlayerDataFunc = *(getPlayerDataType*)((*(uintptr_t*)chrIns) + 0x168);
+    return getPlayerDataFunc(chrIns);
+}
 
 
 std::string getCalcCorrectGraphAob = "66 0f 6e 83 88 02 00 00 0f 5b c0 ba 64 00 00 00 e8 ?? ?? ?? ?? f3 0f 2c c0 48 83 c4 50 5b c3";
@@ -64,8 +71,8 @@ struct getWeaponResult{
 	int _4;
 };
 
-typedef float (*calcDamageScaleType)(getWeaponResult*, PlayerData*, uint64_t, DamageType);
-float calcDamageScaleDummy(getWeaponResult* _1, PlayerData* _2, uint64_t _4,DamageType _3) {return 0;}
+typedef float (*calcDamageScaleType)(PlayerData&, getWeaponResult&, uint64_t, DamageType);
+float calcDamageScaleDummy(PlayerData &_1, getWeaponResult&_2, uint64_t _4,DamageType _3) {return 0;}
 calcDamageScaleType calcDamageScaleOriginal = &calcDamageScaleDummy;
 
 std::string calcSpellScaleAob = "48 8b d9 41 8b f8 48 8b ca 48 8b f2 e8 ?? ?? ?? ?? 48 8b 03 48 8b cb ff 90 68 01 00 00 48 8b c8 8b d7 e8 ?? ?? ?? ?? f3 0f 11 06 48 8b cb 48 8b 03 ff 90 68 01 00 00";
@@ -122,3 +129,5 @@ int outOfcombatStaminaOffset = 31;
 bool outOfCombatStamina = true;
 bool enduranceLightningDefense = true;
 bool hpBonusOnLevel = true;
+
+#pragma pack(pop)
