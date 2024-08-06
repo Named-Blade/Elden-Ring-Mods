@@ -37,6 +37,24 @@ void performPatch(const std::string& aob,
 	}
 }
 
+from::paramdef::EQUIP_PARAM_GOODS_ST displayGoods;
+bool initDisplay = false;
+
+void getGoods(GetGoodsResult &result, uint32_t id){
+	if (id == 67350){
+		getGoodsOriginal(result,2912);
+		result.id = 67350;
+		if (!initDisplay) {
+			displayGoods = *(result.row);
+			displayGoods.maxNum = 9999;
+			initDisplay = true;
+		}
+		result.row = &displayGoods;
+	} else {
+		getGoodsOriginal(result,id);
+	}
+}
+
 unsigned int getCurrentCycle(){
 	std::vector<uintptr_t> ptrs = {gameDataManPtr,0x0,ngCycleOffset};
 	return ptrChain<unsigned int>(ptrs,0);
@@ -92,6 +110,8 @@ void base() {
 	
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);
+	MH_STATUS status = MH_Initialize();
+	Log("MinHook Status: ",MH_StatusToString(status));
 	
 	//uncap max health
 	performPatch(healthCapAob,"49 0f 4e c0","49 8b c0 90",healthCapOffset);
@@ -144,6 +164,11 @@ void base() {
 	from::unique_ptr<set_ng_cycle_task> ng_cycle_task =
 		from::make_unique<set_ng_cycle_task>();
 	ng_cycle_task->register_task(from::CS::CSTaskGroup::MenuMan);
+
+	hookCall(getGoods,getGoodsAob,getGoodsOffset,4,&getGoodsOriginal);
+
+	MH_STATUS applyStatus = MH_ApplyQueued();
+	Log("Apply Status: ",MH_StatusToString(applyStatus));
 	
 	Sleep(INFINITE);
 }

@@ -46,6 +46,20 @@ int nextLoopCountOffset2 = 16;
 from::paramdef::CLEAR_COUNT_CORRECT_PARAM_ST cycleIncrease{};
 from::paramdef::CLEAR_COUNT_CORRECT_PARAM_ST originalMax{};
 
+std::string getGoodsAob = "8b 12 48 8d 4d c0 83 cf ff 89 75 c4 89 7d c0 48 89 75 c8 e8 ?? ?? ?? ?? 48 8b 45 c8 48 85 c0 74 03 8b 78 74 8b c7 eb 32";
+int getGoodsOffset = 20;
+
+#pragma pack(push, 1)
+struct GetGoodsResult{
+    uint32_t id;
+    char8_t _1[0x4];
+    from::paramdef::EQUIP_PARAM_GOODS_ST *row;
+};
+#pragma pack(pop)
+
+typedef void (*getGoodsType) (GetGoodsResult&,uint32_t);
+getGoodsType getGoodsOriginal;
+
 //not modifying poise(SuperArmorDamageRate) as that would lead to infinite poise, which isn't very fun
 #define CLEAR_COUNT_CORRECT_PARAM_FIELDS \
     X(MaxHpRate) \
