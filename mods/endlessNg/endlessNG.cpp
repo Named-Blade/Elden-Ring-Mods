@@ -32,6 +32,45 @@ void setCurrentCycle(int cycleNum){
 	*cycle = cycleNum;
 }
 
+from::paramdef::EQUIP_PARAM_GOODS_ST displayGoods;
+bool initDisplay = false;
+
+void getGoods(GetGoodsResult &result, uint32_t id){
+	if (id == 67350){
+		getGoodsOriginal(result,2912);
+		result.id = 67350;
+		if (!initDisplay) {
+			displayGoods = *(result.row);
+			displayGoods.maxNum = 9999;
+			initDisplay = true;
+		}
+		result.row = &displayGoods;
+	} else {
+		getGoodsOriginal(result,id);
+	}
+}
+
+const wchar_t * getMessage(uintptr_t messageRepository, uint32_t _1,uint32_t msgBnd, uint32_t msgId){
+	if (msgId == 67350 && msgBnd == 10){
+		return L"Modify Intensity By:";
+	}
+	if (msgBnd == 33){
+		if (msgId == 22021100){
+			return L"Increase Intensity (Current: <?loopCount?>)";
+		}
+		if (msgId == 22021101){
+			return L"Decrease Intensity (Current: <?loopCount?>)";
+		}
+		if (msgId == 22021102){
+			return L"Current Intensity: <?loopCount?>";
+		}
+		if (msgId == 22021103){
+			return L"Intensity Updated";
+		}
+	}
+	return getMessageOriginal(messageRepository,_1,msgBnd,msgId);
+}
+
 struct set_ng_cycle_task: public from::CS::CSEzTask {
 	void eztask_execute(from::FD4::FD4TaskData* data) override {
 		
@@ -77,6 +116,8 @@ void base() {
 	
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);
+	MH_STATUS status = MH_Initialize();
+	Log("MinHook Status: ",MH_StatusToString(status));
 	
 	//uncap max health
 	performPatch(healthCapAob,"49 0f 4e c0","49 8b c0 90",healthCapOffset);
@@ -129,6 +170,12 @@ void base() {
 	from::unique_ptr<set_ng_cycle_task> ng_cycle_task =
 		from::make_unique<set_ng_cycle_task>();
 	ng_cycle_task->register_task(from::CS::CSTaskGroup::MenuMan);
+
+	hookCall(getMessage,getMessageAob,getMessageOffset,4,&getMessageOriginal);
+	hookCall(getGoods,getGoodsAob,getGoodsOffset,4,&getGoodsOriginal);
+
+	MH_STATUS applyStatus = MH_ApplyQueued();
+	Log("Apply Status: ",MH_StatusToString(applyStatus));
 	
 	Sleep(INFINITE);
 }

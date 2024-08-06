@@ -85,3 +85,37 @@ eldenring.exe+AFEDC6 - 81 F9 0F270000        - cmp ecx,0000270F
 eldenring.exe+AFEDCC - 48 8D 45 77           - lea rax,[rbp+77]
 eldenring.exe+AFEDD0 - 48 8D 55 E7           - lea rdx,[rbp-19]
 eldenring.exe+AFEDD4 - 48 0F4E C2            - cmovle rax,rdx
+
+//call to get equipParamGoods
+eldenring.exe+D48B84 - 8B 12                 - mov edx,[rdx]
+eldenring.exe+D48B86 - 48 8D 4D C0           - lea rcx,[rbp-40]
+eldenring.exe+D48B8A - 83 CF FF              - or edi,-01
+eldenring.exe+D48B8D - 89 75 C4              - mov [rbp-3C],esi
+eldenring.exe+D48B90 - 89 7D C0              - mov [rbp-40],edi
+eldenring.exe+D48B93 - 48 89 75 C8           - mov [rbp-38],rsi
+eldenring.exe+D48B97 - E8 7408FFFF           - call eldenring.exe+D39410 <-- this one
+eldenring.exe+D48B9C - 48 8B 45 C8           - mov rax,[rbp-38]
+eldenring.exe+D48BA0 - 48 85 C0              - test rax,rax
+eldenring.exe+D48BA3 - 74 03                 - je eldenring.exe+D48BA8
+eldenring.exe+D48BA5 - 8B 78 74              - mov edi,[rax+74]
+eldenring.exe+D48BA8 - 8B C7                 - mov eax,edi
+eldenring.exe+D48BAA - EB 32                 - jmp eldenring.exe+D48BDE
+
+8b 12 48 8d 4d c0 83 cf ff 89 75 c4 89 7d c0 48 89 75 c8 e8 ?? ?? ?? ?? 48 8b 45 c8 48 85 c0 74 03 8b 78 74 8b c7 eb 32
++20
+
+//call to getMessageById
+eldenring.exe+D107FE - 75 24                 - jne eldenring.exe+D10824
+eldenring.exe+D10800 - 44 8B CB              - mov r9d,ebx
+eldenring.exe+D10803 - 33 D2                 - xor edx,edx
+eldenring.exe+D10805 - 41 B8 9C010000        - mov r8d,0000019C
+eldenring.exe+D1080B - 48 8B CF              - mov rcx,rdi
+eldenring.exe+D1080E - E8 9DC29501           - call eldenring.exe+266CAB0 <--- this one
+eldenring.exe+D10813 - 48 85 C0              - test rax,rax
+eldenring.exe+D10816 - 48 8D 0D 6B9BE901     - lea rcx,[eldenring.exe+2BAA388]
+eldenring.exe+D1081D - 48 0F45 C8            - cmovne rcx,rax
+eldenring.exe+D10821 - 48 8B C1              - mov rax,rcx
+eldenring.exe+D10824 - 48 8B 5C 24 30        - mov rbx,[rsp+30]
+
+75 24 44 8b cb 33 d2 41 b8 9c 01 00 00 48 8b cf e8 ?? ?? ?? ?? 48 85 c0 48 8d 0d ?? ?? ?? ?? 48 0f 45 c8 48 8b c1 48 8b 5c 24 30
++17
