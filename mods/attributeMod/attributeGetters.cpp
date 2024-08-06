@@ -58,7 +58,6 @@ int getMaxMP(PlayerParam &playerParam){
 
 int getMaxSP(PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
-    Log(attribute.endurance,": ",getCalcCorrectGraphActual(attribute.endurance,104));
 	return getCalcCorrectGraphActual(attribute.endurance,104);
 }
 

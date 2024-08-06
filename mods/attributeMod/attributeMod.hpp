@@ -11,15 +11,15 @@
 using namespace ModUtils;
 
 struct AttributeData{
-    int vigor;
-    int mind;
-    int endurance;
-    int forbiddenMysteryStat;
-    int strength;
-    int dexterity;
-    int intelligence;
-    int faith;
-    int arcane;
+    int32_t vigor;
+    int32_t mind;
+    int32_t endurance;
+    int32_t forbiddenMysteryStat;
+    int32_t strength;
+    int32_t dexterity;
+    int32_t intelligence;
+    int32_t faith;
+    int32_t arcane;
 };
 struct PlayerParam{
     char8_t _1[0x10];
@@ -71,15 +71,15 @@ int calcDamageScaleSize = 4;
 
 enum DamageType {physical,magic,fire,lightning,holy};
 struct getWeaponResult{
-	unsigned int id;
-	int _1;
+	uint32_t id;
+	char8_t _1[0x4];
 	from::paramdef::EQUIP_PARAM_WEAPON_ST *row;
-	unsigned int baseId;
-	int _2;
-	unsigned int reinforceId;
-	int _3;
+	uint32_t baseId;
+	char8_t _2[0x4];
+	uint32_t reinforceId;
+	char8_t _3[0x4];
 	from::paramdef::REINFORCE_PARAM_WEAPON_ST *reinforceRow;
-	int _4;
+	char8_t _4[0x4];
 };
 
 typedef float (*calcDamageScaleType)(PlayerParam&, getWeaponResult&, uint64_t, DamageType);
