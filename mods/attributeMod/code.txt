@@ -290,6 +290,17 @@ eldenring.exe+65231D - C3                    - ret
 
 48 8b d9 41 8b f8 48 8b ca 48 8b f2 e8 ?? ?? ?? ?? 48 8b 03 48 8b cb ff 90 68 01 00 00 48 8b c8 8b d7 e8 ?? ?? ?? ?? f3 0f 11 06 48 8b cb 48 8b 03 ff 90 68 01 00 00
 -15   
+
+eldenring.exe+65C6B6 - E8 65910200           - call eldenring.exe+685820
+eldenring.exe+65C6BB - 48 8D 55 00           - lea rdx,[rbp+00]
+eldenring.exe+65C6BF - 48 8D 4D 98           - lea rcx,[rbp-68]
+eldenring.exe+65C6C3 - E8 E8660200           - call eldenring.exe+682DB0
+eldenring.exe+65C6C8 - 0F57 C0               - xorps xmm0,xmm0
+eldenring.exe+65C6CB - 44 89 65 90           - mov [rbp-70],r12d
+eldenring.exe+65C6CF - 48 8D 55 00           - lea rdx,[rbp+00]
+eldenring.exe+65C6D3 - 48 8D 8D 10010000     - lea rcx,[rbp+00000110]
+
+
 	 
 //call to minimum fall damage distance?
 eldenring.exe+44DFC8 - 48 8B CB              - mov rcx,rbx

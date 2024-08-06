@@ -31,8 +31,8 @@ struct PlayerParam{
     int32_t maxFocusBase;
     char8_t _2[0x4];
     int32_t stamina;
-    int32_t maxstamina;
-    int32_t maxstaminaBase;
+    int32_t maxStamina;
+    int32_t maxStaminaBase;
     char8_t _3[0x250];
     AttributeData attributeData;
 };
@@ -139,5 +139,8 @@ int outOfcombatStaminaOffset = 31;
 bool outOfCombatStamina = true;
 bool enduranceLightningDefense = true;
 bool hpBonusOnLevel = true;
+bool staminaDamageScaling = true;
+float minStaminaDamage = 0.9;
+float maxStaminaDamage = 1.1;
 
 #pragma pack(pop)

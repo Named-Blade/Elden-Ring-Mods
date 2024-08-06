@@ -15,28 +15,28 @@ std::string attributeToString(Attribute attribute){
     };
     return attributeMap.at(attribute);
 }
-std::vector<std::tuple<Attribute,int*>> iterOverAttributes(AttributeData &attributeData){
+std::vector<std::tuple<Attribute,int*>> iterOverAttributes(AttributeData &attribute){
     return std::vector<std::tuple<Attribute,int*>>{
-        std::tuple<Attribute,int*>{Attribute::vigor,&attributeData.vigor},
-        std::tuple<Attribute,int*>{Attribute::mind,&attributeData.mind},
-        std::tuple<Attribute,int*>{Attribute::endurance,&attributeData.endurance},
-        std::tuple<Attribute,int*>{Attribute::strength,&attributeData.strength},
-        std::tuple<Attribute,int*>{Attribute::dexterity,&attributeData.dexterity},
-        std::tuple<Attribute,int*>{Attribute::intelligence,&attributeData.intelligence},
-        std::tuple<Attribute,int*>{Attribute::faith,&attributeData.faith},
-        std::tuple<Attribute,int*>{Attribute::arcane,&attributeData.arcane}
+        std::tuple<Attribute,int*>{Attribute::vigor,&attribute.vigor},
+        std::tuple<Attribute,int*>{Attribute::mind,&attribute.mind},
+        std::tuple<Attribute,int*>{Attribute::endurance,&attribute.endurance},
+        std::tuple<Attribute,int*>{Attribute::strength,&attribute.strength},
+        std::tuple<Attribute,int*>{Attribute::dexterity,&attribute.dexterity},
+        std::tuple<Attribute,int*>{Attribute::intelligence,&attribute.intelligence},
+        std::tuple<Attribute,int*>{Attribute::faith,&attribute.faith},
+        std::tuple<Attribute,int*>{Attribute::arcane,&attribute.arcane}
     };
 }
 
-int getPlayerLevel(AttributeData attributeData){
-    return attributeData.vigor +
-        attributeData.mind +
-        attributeData.endurance +
-        attributeData.strength +
-        attributeData.dexterity +
-        attributeData.intelligence +
-        attributeData.faith +
-        attributeData.arcane;
+int getPlayerLevel(AttributeData attribute){
+    return attribute.vigor +
+        attribute.mind +
+        attribute.endurance +
+        attribute.strength +
+        attribute.dexterity +
+        attribute.intelligence +
+        attribute.faith +
+        attribute.arcane;
 }
 
 float getCalcCorrectGraph(float value, int row){
@@ -45,67 +45,67 @@ float getCalcCorrectGraph(float value, int row){
 
 
 int getMaxHP(PlayerParam &playerParam){
-    AttributeData attributeData = playerParam.attributeData;
-    int level = getPlayerLevel(attributeData);
-    float addHp = hpBonusOnLevel ? (level - attributeData.vigor - 70) * (600.0/(89.0*7.0)): 0;
-	return getCalcCorrectGraph(attributeData.vigor,100) + addHp;
+    AttributeData attribute = playerParam.attributeData;
+    int level = getPlayerLevel(attribute);
+    float addHp = hpBonusOnLevel ? (level - attribute.vigor - 70) * (600.0/(89.0*7.0)): 0;
+	return getCalcCorrectGraph(attribute.vigor,100) + addHp;
 }
 
 int getMaxMP(PlayerParam &playerParam){
-    AttributeData attributeData = playerParam.attributeData;
-	return getCalcCorrectGraph(attributeData.mind,101);
+    AttributeData attribute = playerParam.attributeData;
+	return getCalcCorrectGraph(attribute.mind,101);
 }
 
 int getMaxSP(PlayerParam &playerParam){
-    AttributeData attributeData = playerParam.attributeData;
-    Log(attributeData.endurance,": ",getCalcCorrectGraph(attributeData.endurance,104));
-	return getCalcCorrectGraph(attributeData.endurance,104);
+    AttributeData attribute = playerParam.attributeData;
+    Log(attribute.endurance,": ",getCalcCorrectGraph(attribute.endurance,104));
+	return getCalcCorrectGraph(attribute.endurance,104);
 }
 
 float calcDamageScale(PlayerParam &playerParam, getWeaponResult &weapon, uint64_t unk, DamageType damageType){
-    float mult = 2 - ((float)playerParam.health/(float)playerParam.maxHealth);
+    float mult =  staminaDamageScaling ? minStaminaDamage + ((float)playerParam.stamina/(float)playerParam.maxStamina)*(maxStaminaDamage - minStaminaDamage) : 1;
     return calcDamageScaleOriginal(playerParam,weapon,unk,damageType) * mult;
 }
 
 void calcSpellScale(uintptr_t chrIns, spellScale &scaling, uint32_t weaponId){
     PlayerParam playerParam = getPlayerParam(chrIns);
-    AttributeData attributeData = playerParam.attributeData;
+    AttributeData attribute = playerParam.attributeData;
     calcSpellScaleOriginal(chrIns,scaling,weaponId);
 }
 
-void calcDefense(DefenseData &defenseData, PlayerParam &playerParam){
-    AttributeData attributeData = playerParam.attributeData;
+void calcDefense(DefenseData &defense, PlayerParam &playerParam){
+    AttributeData attribute = playerParam.attributeData;
     
-    int level = getPlayerLevel(attributeData);
-    defenseData.physical = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.strength,130);
-    defenseData.magic = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.intelligence,132);
-    defenseData.fire = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.vigor,133);
-    defenseData.lightning = getCalcCorrectGraph(level,102) + ( (enduranceLightningDefense) ? getCalcCorrectGraph(attributeData.endurance,134) : 0);
-    defenseData.holy = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.faith,135);
+    int level = getPlayerLevel(attribute);
+    defense.physical = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.strength,130);
+    defense.magic = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.intelligence,132);
+    defense.fire = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.vigor,133);
+    defense.lightning = getCalcCorrectGraph(level,102) + ( (enduranceLightningDefense) ? getCalcCorrectGraph(attribute.endurance,134) : 0);
+    defense.holy = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.faith,135);
 }
 
-void calcResist(ResistanceData &resistanceData, PlayerParam &playerParam){
-    AttributeData attributeData = playerParam.attributeData;
+void calcResist(ResistanceData &resistance, PlayerParam &playerParam){
+    AttributeData attribute = playerParam.attributeData;
     
-    int level = getPlayerLevel(attributeData);
-    resistanceData.poison = getCalcCorrectGraph(level,110) + getCalcCorrectGraph(attributeData.vigor,120);
-    resistanceData.scarletRot = getCalcCorrectGraph(level,111) + getCalcCorrectGraph(attributeData.vigor,121);
+    int level = getPlayerLevel(attribute);
+    resistance.poison = getCalcCorrectGraph(level,110) + getCalcCorrectGraph(attribute.vigor,120);
+    resistance.scarletRot = getCalcCorrectGraph(level,111) + getCalcCorrectGraph(attribute.vigor,121);
 
-    resistanceData.hemorrhage = getCalcCorrectGraph(level,112) + getCalcCorrectGraph(attributeData.endurance,122);
-    resistanceData.frostbite = getCalcCorrectGraph(level,113) + getCalcCorrectGraph(attributeData.endurance,123);
+    resistance.hemorrhage = getCalcCorrectGraph(level,112) + getCalcCorrectGraph(attribute.endurance,122);
+    resistance.frostbite = getCalcCorrectGraph(level,113) + getCalcCorrectGraph(attribute.endurance,123);
 
-    resistanceData.sleep = getCalcCorrectGraph(level,114) + getCalcCorrectGraph(attributeData.mind,124);
-    resistanceData.madness = getCalcCorrectGraph(level,115) + getCalcCorrectGraph(attributeData.mind,125);
+    resistance.sleep = getCalcCorrectGraph(level,114) + getCalcCorrectGraph(attribute.mind,124);
+    resistance.madness = getCalcCorrectGraph(level,115) + getCalcCorrectGraph(attribute.mind,125);
 
-    resistanceData.death = getCalcCorrectGraph(level,116) + getCalcCorrectGraph(attributeData.arcane,126);
+    resistance.death = getCalcCorrectGraph(level,116) + getCalcCorrectGraph(attribute.arcane,126);
 }
 
 float getMaxEquipLoad(PlayerParam &playerParam){
-    AttributeData attributeData = playerParam.attributeData;
-	return getCalcCorrectGraph(attributeData.endurance,220);
+    AttributeData attribute = playerParam.attributeData;
+	return getCalcCorrectGraph(attribute.endurance,220);
 }
 
 int getDiscovery(PlayerParam &playerParam){
-    AttributeData attributeData = playerParam.attributeData;
-	return getCalcCorrectGraph(attributeData.arcane,140)*100;
+    AttributeData attribute = playerParam.attributeData;
+	return getCalcCorrectGraph(attribute.arcane,140)*100;
 }
