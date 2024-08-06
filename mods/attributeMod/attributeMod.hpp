@@ -139,8 +139,12 @@ int outOfcombatStaminaOffset = 31;
 bool outOfCombatStamina = true;
 bool enduranceLightningDefense = true;
 bool hpBonusOnLevel = true;
+float hpBonusPerLevel = 900.0/(89.0*7.0);
 bool staminaDamageScaling = true;
 float minStaminaDamage = 0.9;
 float maxStaminaDamage = 1.1;
+bool staminaDefenseScaling = true;
+float minStaminaDefense = 0.9;
+float maxStaminaDefense = 1.1;
 
 #pragma pack(pop)

@@ -47,7 +47,7 @@ float getCalcCorrectGraph(float value, int row){
 int getMaxHP(PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
     int level = getPlayerLevel(attribute);
-    float addHp = hpBonusOnLevel ? (level - attribute.vigor - 70) * (600.0/(89.0*7.0)): 0;
+    float addHp = hpBonusOnLevel ? (level - attribute.vigor - 70) * hpBonusPerLevel: 0;
 	return getCalcCorrectGraph(attribute.vigor,100) + addHp;
 }
 
@@ -75,13 +75,15 @@ void calcSpellScale(uintptr_t chrIns, spellScale &scaling, uint32_t weaponId){
 
 void calcDefense(DefenseData &defense, PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
+
+    float mult =  staminaDefenseScaling ? minStaminaDefense + ((float)playerParam.stamina/(float)playerParam.maxStamina)*(maxStaminaDefense - minStaminaDefense) : 1;
     
     int level = getPlayerLevel(attribute);
-    defense.physical = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.strength,130);
-    defense.magic = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.intelligence,132);
-    defense.fire = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.vigor,133);
-    defense.lightning = getCalcCorrectGraph(level,102) + ( (enduranceLightningDefense) ? getCalcCorrectGraph(attribute.endurance,134) : 0);
-    defense.holy = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.faith,135);
+    defense.physical = (getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.strength,130)) * mult;
+    defense.magic = (getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.intelligence,132)) * mult;
+    defense.fire = (getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.vigor,133)) * mult;
+    defense.lightning = (getCalcCorrectGraph(level,102) + ( (enduranceLightningDefense) ? getCalcCorrectGraph(attribute.endurance,134) : 0)) * mult;
+    defense.holy = (getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.faith,135)) * mult;
 }
 
 void calcResist(ResistanceData &resistance, PlayerParam &playerParam){

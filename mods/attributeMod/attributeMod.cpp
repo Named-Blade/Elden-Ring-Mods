@@ -10,10 +10,14 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	readConfig(
 		std::forward_as_tuple(outOfCombatStamina,section,"enable out of combat stamina loss"_s),
 		std::forward_as_tuple(enduranceLightningDefense,section,"enable lightning defense with endurance increase"_s),
-		std::forward_as_tuple(hpBonusOnLevel,section,"HP bonus from non-vigor levels"_s),
+		std::forward_as_tuple(hpBonusOnLevel,section,"enable HP bonus from non-vigor levels"_s),
+		std::forward_as_tuple(hpBonusPerLevel,section,"HP bonus per each non-vigor level"_s),
 		std::forward_as_tuple(staminaDamageScaling,section,"scale Damage based on remaining stamina"_s),
 		std::forward_as_tuple(minStaminaDamage,section,"damage mult at zero stamina"_s),
-		std::forward_as_tuple(maxStaminaDamage,section,"damage mult at full stamina"_s)
+		std::forward_as_tuple(maxStaminaDamage,section,"damage mult at full stamina"_s),
+		std::forward_as_tuple(staminaDefenseScaling,section,"scale Defense based on remaining stamina"_s),
+		std::forward_as_tuple(minStaminaDefense,section,"defense mult at zero stamina"_s),
+		std::forward_as_tuple(maxStaminaDefense,section,"defense mult at full stamina"_s)
 	);
 	
 	from::DLSY::wait_for_system(-1);
