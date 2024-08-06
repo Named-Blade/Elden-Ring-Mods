@@ -16,6 +16,7 @@
 
 #include <Pattern16.h>
 #include <MinHook.h>
+#include <MinHook.h>
 
 namespace pathTools {
 std::string RemoveExtension(const std::string& filename) {
