@@ -48,18 +48,18 @@ int getMaxHP(PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
     int level = getPlayerLevel(attribute);
     float addHp = hpBonusOnLevel ? (level - attribute.vigor - 70) * hpBonusPerLevel: 0;
-	return getCalcCorrectGraph(attribute.vigor,100) + addHp;
+	return getCalcCorrectGraphActual(attribute.vigor,100) + addHp;
 }
 
 int getMaxMP(PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
-	return getCalcCorrectGraph(attribute.mind,101);
+	return getCalcCorrectGraphActual(attribute.mind,101);
 }
 
 int getMaxSP(PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
-    Log(attribute.endurance,": ",getCalcCorrectGraph(attribute.endurance,104));
-	return getCalcCorrectGraph(attribute.endurance,104);
+    Log(attribute.endurance,": ",getCalcCorrectGraphActual(attribute.endurance,104));
+	return getCalcCorrectGraphActual(attribute.endurance,104);
 }
 
 float calcDamageScale(PlayerParam &playerParam, getWeaponResult &weapon, uint64_t unk, DamageType damageType){
@@ -79,35 +79,35 @@ void calcDefense(DefenseData &defense, PlayerParam &playerParam){
     float mult =  staminaDefenseScaling ? minStaminaDefense + ((float)playerParam.stamina/(float)playerParam.maxStamina)*(maxStaminaDefense - minStaminaDefense) : 1;
     
     int level = getPlayerLevel(attribute);
-    defense.physical = (getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.strength,130)) * mult;
-    defense.magic = (getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.intelligence,132)) * mult;
-    defense.fire = (getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.vigor,133)) * mult;
-    defense.lightning = (getCalcCorrectGraph(level,102) + ( (enduranceLightningDefense) ? getCalcCorrectGraph(attribute.endurance,134) : 0)) * mult;
-    defense.holy = (getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attribute.faith,135)) * mult;
+    defense.physical = (getCalcCorrectGraphActual(level,102) + getCalcCorrectGraphActual(attribute.strength,130)) * mult;
+    defense.magic = (getCalcCorrectGraphActual(level,102) + getCalcCorrectGraphActual(attribute.intelligence,132)) * mult;
+    defense.fire = (getCalcCorrectGraphActual(level,102) + getCalcCorrectGraphActual(attribute.vigor,133)) * mult;
+    defense.lightning = (getCalcCorrectGraphActual(level,102) + ( (enduranceLightningDefense) ? getCalcCorrectGraphActual(attribute.endurance,134) : 0)) * mult;
+    defense.holy = (getCalcCorrectGraphActual(level,102) + getCalcCorrectGraphActual(attribute.faith,135)) * mult;
 }
 
 void calcResist(ResistanceData &resistance, PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
     
     int level = getPlayerLevel(attribute);
-    resistance.poison = getCalcCorrectGraph(level,110) + getCalcCorrectGraph(attribute.vigor,120);
-    resistance.scarletRot = getCalcCorrectGraph(level,111) + getCalcCorrectGraph(attribute.vigor,121);
+    resistance.poison = getCalcCorrectGraphActual(level,110) + getCalcCorrectGraphActual(attribute.vigor,120);
+    resistance.scarletRot = getCalcCorrectGraphActual(level,111) + getCalcCorrectGraphActual(attribute.vigor,121);
 
-    resistance.hemorrhage = getCalcCorrectGraph(level,112) + getCalcCorrectGraph(attribute.endurance,122);
-    resistance.frostbite = getCalcCorrectGraph(level,113) + getCalcCorrectGraph(attribute.endurance,123);
+    resistance.hemorrhage = getCalcCorrectGraphActual(level,112) + getCalcCorrectGraphActual(attribute.endurance,122);
+    resistance.frostbite = getCalcCorrectGraphActual(level,113) + getCalcCorrectGraphActual(attribute.endurance,123);
 
-    resistance.sleep = getCalcCorrectGraph(level,114) + getCalcCorrectGraph(attribute.mind,124);
-    resistance.madness = getCalcCorrectGraph(level,115) + getCalcCorrectGraph(attribute.mind,125);
+    resistance.sleep = getCalcCorrectGraphActual(level,114) + getCalcCorrectGraphActual(attribute.mind,124);
+    resistance.madness = getCalcCorrectGraphActual(level,115) + getCalcCorrectGraphActual(attribute.mind,125);
 
-    resistance.death = getCalcCorrectGraph(level,116) + getCalcCorrectGraph(attribute.arcane,126);
+    resistance.death = getCalcCorrectGraphActual(level,116) + getCalcCorrectGraphActual(attribute.arcane,126);
 }
 
 float getMaxEquipLoad(PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
-	return getCalcCorrectGraph(attribute.endurance,220);
+	return getCalcCorrectGraphActual(attribute.endurance,220);
 }
 
 int getDiscovery(PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
-	return getCalcCorrectGraph(attribute.arcane,140)*100;
+	return getCalcCorrectGraphActual(attribute.arcane,140)*100;
 }

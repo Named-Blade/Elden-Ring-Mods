@@ -25,6 +25,7 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	Log("MinHook Status: ",MH_StatusToString(status));
 
 	hookCall(getCalcCorrectGraph,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,&getCalcCorrectGraphOriginal);
+	getCalcCorrectGraphActual = (getCalcCorrectGraphType)getAddressFromMemory(AobScan(getCalcCorrectGraphAob),getCalcCorrectGraphOffset,getCalcCorrectGraphSize);
 
 	hookCall(getMaxHP,getMaxHPAob,getMaxHPOffset,getMaxHPSize);
 	hookCall(getMaxMP,getMaxMPAob,getMaxMPOffset,getMaxMPSize);

@@ -18,7 +18,7 @@ float getCalcCorrectGraph(float value, int rowId){
 	if (exists && value > row.stageMaxVal4){
 		float overGrow = (row.stageMaxGrowVal4 - row.stageMaxGrowVal3) / (row.stageMaxVal4 - row.stageMaxVal3);
 		float growAmount = overGrow * (value - row.stageMaxVal4);
-		return row.stageMaxVal4 + growAmount;
+		return getCalcCorrectGraphOriginal(value,rowId) + growAmount;
 	}
     return getCalcCorrectGraphOriginal(value,rowId);
 }
