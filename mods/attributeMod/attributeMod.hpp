@@ -10,7 +10,6 @@
 
 using namespace ModUtils;
 
-const int attributeDataOffset = 0x288;
 struct AttributeData{
     int vigor;
     int mind;
@@ -22,15 +21,26 @@ struct AttributeData{
     int faith;
     int arcane;
 };
-struct PlayerData{
-    char8_t _1[attributeDataOffset];
+struct PlayerParam{
+    char8_t _1[0x10];
+    int32_t health;
+    int32_t maxHealth;
+    int32_t maxHealthBase;
+    int32_t focus;
+    int32_t maxFocus;
+    int32_t maxFocusBase;
+    char8_t _2[0x4];
+    int32_t stamina;
+    int32_t maxstamina;
+    int32_t maxstaminaBase;
+    char8_t _3[0x250];
     AttributeData attributeData;
 };
 
-typedef PlayerData& (*getPlayerDataType)(uintptr_t);
-PlayerData& getPlayerData(uintptr_t chrIns){
-    getPlayerDataType getPlayerDataFunc = *(getPlayerDataType*)((*(uintptr_t*)chrIns) + 0x168);
-    return getPlayerDataFunc(chrIns);
+typedef PlayerParam& (*getPlayerParamType)(uintptr_t);
+PlayerParam& getPlayerParam(uintptr_t chrIns){
+    getPlayerParamType getPlayerParamFunc = *(getPlayerParamType*)((*(uintptr_t*)chrIns) + 0x168);
+    return getPlayerParamFunc(chrIns);
 }
 
 
@@ -71,8 +81,8 @@ struct getWeaponResult{
 	int _4;
 };
 
-typedef float (*calcDamageScaleType)(PlayerData&, getWeaponResult&, uint64_t, DamageType);
-float calcDamageScaleDummy(PlayerData &_1, getWeaponResult&_2, uint64_t _4,DamageType _3) {return 0;}
+typedef float (*calcDamageScaleType)(PlayerParam&, getWeaponResult&, uint64_t, DamageType);
+float calcDamageScaleDummy(PlayerParam &_1, getWeaponResult&_2, uint64_t _4,DamageType _3) {return 0;}
 calcDamageScaleType calcDamageScaleOriginal = &calcDamageScaleDummy;
 
 std::string calcSpellScaleAob = "48 8b d9 41 8b f8 48 8b ca 48 8b f2 e8 ?? ?? ?? ?? 48 8b 03 48 8b cb ff 90 68 01 00 00 48 8b c8 8b d7 e8 ?? ?? ?? ?? f3 0f 11 06 48 8b cb 48 8b 03 ff 90 68 01 00 00";

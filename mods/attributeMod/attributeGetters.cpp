@@ -44,35 +44,37 @@ float getCalcCorrectGraph(float value, int row){
 }
 
 
-int getMaxHP(PlayerData &playerData){
-    AttributeData attributeData = playerData.attributeData;
+int getMaxHP(PlayerParam &playerParam){
+    AttributeData attributeData = playerParam.attributeData;
     int level = getPlayerLevel(attributeData);
     float addHp = hpBonusOnLevel ? (level - attributeData.vigor - 70) * (600.0/(89.0*7.0)): 0;
 	return getCalcCorrectGraph(attributeData.vigor,100) + addHp;
 }
 
-int getMaxMP(PlayerData &playerData){
-    AttributeData attributeData = playerData.attributeData;
+int getMaxMP(PlayerParam &playerParam){
+    AttributeData attributeData = playerParam.attributeData;
 	return getCalcCorrectGraph(attributeData.mind,101);
 }
 
-int getMaxSP(PlayerData &playerData){
-    AttributeData attributeData = playerData.attributeData;
+int getMaxSP(PlayerParam &playerParam){
+    AttributeData attributeData = playerParam.attributeData;
+    Log(attributeData.endurance,": ",getCalcCorrectGraph(attributeData.endurance,104));
 	return getCalcCorrectGraph(attributeData.endurance,104);
 }
 
-float calcDamageScale(PlayerData &playerData, getWeaponResult &weapon, uint64_t unk, DamageType damageType){
-    return calcDamageScaleOriginal(playerData,weapon,unk,damageType);
+float calcDamageScale(PlayerParam &playerParam, getWeaponResult &weapon, uint64_t unk, DamageType damageType){
+    float mult = 2 - ((float)playerParam.health/(float)playerParam.maxHealth);
+    return calcDamageScaleOriginal(playerParam,weapon,unk,damageType) * mult;
 }
 
 void calcSpellScale(uintptr_t chrIns, spellScale &scaling, uint32_t weaponId){
-    PlayerData playerData = getPlayerData(chrIns);
-    AttributeData attributeData = playerData.attributeData;
+    PlayerParam playerParam = getPlayerParam(chrIns);
+    AttributeData attributeData = playerParam.attributeData;
     calcSpellScaleOriginal(chrIns,scaling,weaponId);
 }
 
-void calcDefense(DefenseData &defenseData, PlayerData &playerData){
-    AttributeData attributeData = playerData.attributeData;
+void calcDefense(DefenseData &defenseData, PlayerParam &playerParam){
+    AttributeData attributeData = playerParam.attributeData;
     
     int level = getPlayerLevel(attributeData);
     defenseData.physical = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.strength,130);
@@ -82,8 +84,8 @@ void calcDefense(DefenseData &defenseData, PlayerData &playerData){
     defenseData.holy = getCalcCorrectGraph(level,102) + getCalcCorrectGraph(attributeData.faith,135);
 }
 
-void calcResist(ResistanceData &resistanceData, PlayerData &playerData){
-    AttributeData attributeData = playerData.attributeData;
+void calcResist(ResistanceData &resistanceData, PlayerParam &playerParam){
+    AttributeData attributeData = playerParam.attributeData;
     
     int level = getPlayerLevel(attributeData);
     resistanceData.poison = getCalcCorrectGraph(level,110) + getCalcCorrectGraph(attributeData.vigor,120);
@@ -98,12 +100,12 @@ void calcResist(ResistanceData &resistanceData, PlayerData &playerData){
     resistanceData.death = getCalcCorrectGraph(level,116) + getCalcCorrectGraph(attributeData.arcane,126);
 }
 
-float getMaxEquipLoad(PlayerData &playerData){
-    AttributeData attributeData = playerData.attributeData;
+float getMaxEquipLoad(PlayerParam &playerParam){
+    AttributeData attributeData = playerParam.attributeData;
 	return getCalcCorrectGraph(attributeData.endurance,220);
 }
 
-int getDiscovery(PlayerData &playerData){
-    AttributeData attributeData = playerData.attributeData;
+int getDiscovery(PlayerParam &playerParam){
+    AttributeData attributeData = playerParam.attributeData;
 	return getCalcCorrectGraph(attributeData.arcane,140)*100;
 }
