@@ -37,6 +37,16 @@ void performPatch(const std::string& aob,
 	}
 }
 
+unsigned int getCurrentCycle(){
+	std::vector<uintptr_t> ptrs = {gameDataManPtr,0x0,ngCycleOffset};
+	return ptrChain<unsigned int>(ptrs,0);
+}
+void setCurrentCycle(int cycleNum){
+	std::vector<uintptr_t> ptrs = {gameDataManPtr,0x0};
+	unsigned int* cycle = (unsigned int*)(ptrChain<uintptr_t>(ptrs,0)+ngCycleOffset);
+	*cycle = cycleNum;
+}
+
 from::paramdef::EQUIP_PARAM_GOODS_ST displayGoods;
 bool initDisplay = false;
 
@@ -55,14 +65,25 @@ void getGoods(GetGoodsResult &result, uint32_t id){
 	}
 }
 
-unsigned int getCurrentCycle(){
-	std::vector<uintptr_t> ptrs = {gameDataManPtr,0x0,ngCycleOffset};
-	return ptrChain<unsigned int>(ptrs,0);
-}
-void setCurrentCycle(int cycleNum){
-	std::vector<uintptr_t> ptrs = {gameDataManPtr,0x0};
-	unsigned int* cycle = (unsigned int*)(ptrChain<uintptr_t>(ptrs,0)+ngCycleOffset);
-	*cycle = cycleNum;
+const wchar_t * getMessage(uintptr_t messageRepository, uint32_t _1,uint32_t msgBnd, uint32_t msgId){
+	if (msgId == 67350 && msgBnd == 10){
+		return L"Modify Intensity By:";
+	}
+	if (msgBnd == 33){
+		if (msgId == 22021100){
+			return L"Increase Intensity (Current: <?loopCount?>)";
+		}
+		if (msgId == 22021101){
+			return L"Decrease Intensity (Current: <?loopCount?>)";
+		}
+		if (msgId == 22021102){
+			return L"Current Intensity: <?loopCount?>";
+		}
+		if (msgId == 22021103){
+			return L"Intensity Updated";
+		}
+	}
+	return getMessageOriginal(messageRepository,_1,msgBnd,msgId);
 }
 
 struct set_ng_cycle_task: public from::CS::CSEzTask {
@@ -165,6 +186,7 @@ void base() {
 		from::make_unique<set_ng_cycle_task>();
 	ng_cycle_task->register_task(from::CS::CSTaskGroup::MenuMan);
 
+	hookCall(getMessage,getMessageAob,getMessageOffset,4,&getMessageOriginal);
 	hookCall(getGoods,getGoodsAob,getGoodsOffset,4,&getGoodsOriginal);
 
 	MH_STATUS applyStatus = MH_ApplyQueued();
