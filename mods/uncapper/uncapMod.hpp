@@ -17,6 +17,14 @@ int level_cap = INT_MAX;
 int levelMaxGrow = 0;
 bool levelMaxFound = false;
 
+std::string getCalcCorrectGraphAob = "66 0f 6e 83 88 02 00 00 0f 5b c0 ba 64 00 00 00 e8 ?? ?? ?? ?? f3 0f 2c c0 48 83 c4 50 5b c3";
+int getCalcCorrectGraphOffset = 17;
+int getCalcCorrectGraphSize = 4;
+
+typedef float (*getCalcCorrectGraphType)(float, int);
+float getCalcCorrectGraphDummy(float v, int r) {return 0;}
+getCalcCorrectGraphType getCalcCorrectGraphOriginal = &getCalcCorrectGraphDummy;
+
 extern "C"
 {
 	uintptr_t return_addresses [16];

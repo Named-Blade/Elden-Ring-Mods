@@ -29,6 +29,8 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	);
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);
+	MH_STATUS status = MH_Initialize();
+	Log("MinHook Status: ",MH_StatusToString(status));
 	
 	Log("Starting uncapper mod");
 
@@ -92,12 +94,13 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	
 	//add scaling above 99
 	if (adjustGraph){
+		hookCall(getCalcCorrectGraph,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,&getCalcCorrectGraphOriginal);
 		for (auto [id, row] : from::param::CalcCorrectGraph) {
 			
-			float max3 = row.stageMaxVal3;
+			//float max3 = row.stageMaxVal3;
 			float max4 = row.stageMaxVal4;
 			
-			float grow3 = row.stageMaxGrowVal3;
+			//float grow3 = row.stageMaxGrowVal3;
 			float grow4 = row.stageMaxGrowVal4;
 			
 			//adjust two handed scaling
@@ -110,18 +113,20 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 				max4 = 100.0;
 			}
 			
-			float maxStep = max4 - max3;
-			float growSize = grow4 - grow3;
-			float growStep = growSize / maxStep;
+			//float maxStep = max4 - max3;
+			//float growSize = grow4 - grow3;
+			//float growStep = growSize / maxStep;
 			
-			if (grow3 < grow4){
-				row.adjPt_maxGrowVal4 = 1.0;
-				row.stageMaxVal4 = 999999.0;
-				row.stageMaxGrowVal4 = (row.stageMaxVal4 - row.stageMaxVal3) * growStep;
-			}
+			//if (grow3 < grow4){
+			//	row.adjPt_maxGrowVal4 = 1.0;
+			//	row.stageMaxVal4 = 999999.0;
+			//	row.stageMaxGrowVal4 = (row.stageMaxVal4 - row.stageMaxVal3) * growStep;
+			//}
 			
 		}
 	}
+	MH_STATUS applyStatus = MH_ApplyQueued();
+	Log("Apply Status: ",MH_StatusToString(applyStatus));
 	
 	initLevels();
 	return 0;

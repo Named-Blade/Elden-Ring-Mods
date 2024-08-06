@@ -13,6 +13,16 @@ int getStatCap(Stat stat){
 	
 }
 
+float getCalcCorrectGraph(float value, int rowId){
+	auto [row, exists] = from::param::CalcCorrectGraph[rowId];
+	if (exists && value > row.stageMaxVal4){
+		float overGrow = (row.stageMaxGrowVal4 - row.stageMaxGrowVal3) / (row.stageMaxVal4 - row.stageMaxVal3);
+		float growAmount = overGrow * (value - row.stageMaxVal4);
+		return row.stageMaxVal4 + growAmount;
+	}
+    return getCalcCorrectGraphOriginal(value,rowId);
+}
+
 void initLevels(){
 	if (ds2LevelCosts){
 		while (ds2LevelCost(levelMaxGrow) <= 999999999 && levelMaxGrow <= 99999){
