@@ -68,7 +68,12 @@ eldenring.exe+65646C - E9 AF170300           - jmp eldenring.exe+687C20
 eldenring.exe+656471 - 48 89 44 24 20        - mov [rsp+20],rax
 eldenring.exe+656476 - 48 89 7C 24 F8        - mov [rsp-08],rdi
 
+40 53 48 83 ec 20 48 8b d9 48 8b 89 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 83 90 01 00 00 f3 0f 10 15 ?? ?? ?? ?? f3 0f 58 d0 48 8b 08 8b 91 58 01 00 00 8b 89 54 01 00 00 48 83 c4 20
++17
++32
+
 //calculate stamina mult based on weight
+//remove it and do it elsewhere
 eldenring.exe+660478 - 41 83 EF 03           - sub r15d,03
 eldenring.exe+66047C - 74 1A                 - je eldenring.exe+660498
 eldenring.exe+66047E - 41 83 FF 01           - cmp r15d,01
@@ -85,6 +90,9 @@ eldenring.exe+6604AB - 44 0FB6 F0            - movzx r14d,al
 eldenring.exe+6604AF - 48 8B 46 58           - mov rax,[rsi+58]
 eldenring.exe+6604B3 - 44 89 B0 8C010000     - mov [rax+0000018C],r14d
 eldenring.exe+6604BA - F3 0F11 86 E8000000   - movss [rsi+000000E8],xmm0
+
+41 83 ef 03 74 1a 41 83 ff 01 74 0a f3 0f 10 05 ?? ?? ?? ?? eb 12 f3 0f 10 05 ?? ?? ?? ?? eb 08 f3 0f 10 05 ?? ?? ?? ?? 0f b6 05 ?? ?? ?? ?? 84 c0 74 04 44 0f b6 f0 48 8b 46 58     
++4
 
 //stamina loss disable out of combat
 eldenring.exe+5100AB - BA B4000000           - mov edx,000000B4

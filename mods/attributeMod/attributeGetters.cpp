@@ -110,3 +110,16 @@ int getDiscovery(PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
 	return getCalcCorrectGraphActual(attribute.arcane,140)*100;
 }
+
+void calcStaminaRegen(HookContext* context, void* calcStaminaRegenFunc){
+    calcStaminaRegenType calcStaminaRegenOrigin = (calcStaminaRegenType)calcStaminaRegenFunc;
+
+    uintptr_t chrIns = context->rbx;
+    auto spEffects = context->rcx;
+
+    float& staminaRegen = context->imm0[0];
+    staminaRegen = 0.0;
+
+    staminaRegen += calcStaminaRegenOrigin(spEffects);
+    staminaRegen += 45.0;
+}

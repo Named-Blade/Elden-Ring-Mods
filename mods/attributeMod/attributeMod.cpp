@@ -23,6 +23,7 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	from::DLSY::wait_for_system(-1);
 	MH_STATUS status = MH_Initialize();
 	Log("MinHook Status: ",MH_StatusToString(status));
+	CallHook::initialize();
 
 	hookCall(getCalcCorrectGraph,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,&getCalcCorrectGraphOriginal);
 	getCalcCorrectGraphActual = (getCalcCorrectGraphType)getAddressFromMemory(AobScan(getCalcCorrectGraphAob),getCalcCorrectGraphOffset,getCalcCorrectGraphSize);
@@ -45,6 +46,16 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	
 	if (outOfCombatStamina) {
 		performPatch(outOfcombatStaminaAob,"0f 94 c2","b2 00 90",outOfcombatStaminaOffset);
+	}
+
+	performPatch(staminaEquipAob,"74 1a","eb 06",staminaEquipOffset);
+	{
+		uintptr_t addressBase = AobScan(calcStaminaRegenAob);
+		if (addressBase != 0){
+			auto hook1 = new CallHookTemplate<OverrideHookV>(reinterpret_cast<void *>(addressBase + calcStaminaRegenOffset - 1), calcStaminaRegen);
+			float* defaultRegenOld = (float *)getAddressFromMemory(addressBase,calcStaminaRegenDefaultOffset,4);
+			*defaultRegenOld = 0.0;
+		}
 	}
 	
 	return 0;

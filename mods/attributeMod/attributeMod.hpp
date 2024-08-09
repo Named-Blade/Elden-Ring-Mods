@@ -3,6 +3,7 @@
 
 #include <dantelion2/system.hpp>
 #include <param/param.hpp>
+#include <CallHook.h>
 
 #include <ModUtils.hpp>
 #include <config.hpp>
@@ -136,6 +137,15 @@ int getDiscoverySize = 4;
 
 std::string outOfcombatStaminaAob = "ba b4 00 00 00 48 8d 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 48 8b 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe";
 int outOfcombatStaminaOffset = 31;
+
+std::string staminaEquipAob = "41 83 ef 03 74 1a 41 83 ff 01 74 0a f3 0f 10 05 ?? ?? ?? ?? eb 12 f3 0f 10 05 ?? ?? ?? ?? eb 08 f3 0f 10 05 ?? ?? ?? ?? 0f b6 05 ?? ?? ?? ?? 84 c0 74 04 44 0f b6 f0 48 8b 46 58";
+int staminaEquipOffset = 4;
+
+std::string calcStaminaRegenAob = "40 53 48 83 ec 20 48 8b d9 48 8b 89 78 01 00 00 e8 ?? ?? ?? ?? 48 8b 83 90 01 00 00 f3 0f 10 15 ?? ?? ?? ?? f3 0f 58 d0 48 8b 08 8b 91 58 01 00 00 8b 89 54 01 00 00 48 83 c4 20";
+int calcStaminaRegenOffset = 17;
+int calcStaminaRegenDefaultOffset = 32;
+typedef float (*calcStaminaRegenType)(uintptr_t);
+
 
 bool outOfCombatStamina = true;
 bool enduranceLightningDefense = true;
