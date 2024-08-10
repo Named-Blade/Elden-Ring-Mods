@@ -3,7 +3,6 @@
 
 
 int getLevelCap(){
-	setEventFlagRange(levelCapRange,32,150);
 	if(useEventFlags && levelCapRange != 0){
 		int levelCap = getEventFlagRange(levelCapRange,32);
 		if (levelCap != 0){
