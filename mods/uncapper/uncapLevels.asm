@@ -4,7 +4,9 @@ return_address qword 1
 extern jump_address: qword
 extern jump_address_uncapped_level: qword
 stat_cap dword 1
+level_capped qword 1
 extern getStatCap: qword
+extern getLevelCap: qword
 
 .code
 	
@@ -89,7 +91,25 @@ extern getStatCap: qword
 		mov ecx,[r15+200];this is cursed
 		call rax
 		mov stat_cap,eax
+
+		mov rax,OFFSET getLevelCap
+		call rax
+		mov rcx,[R15+104]
+		mov rcx,[rcx+440]
+		mov ecx,[rcx+7048];really extremely cursed
+
+		cmp ecx,eax
+		setge al
+		movzx rcx, al
+		mov level_capped,rax
+
 		call_after
+
+		push rax
+		mov rax,level_capped
+		cmp rax,1
+		pop rax
+		je stat_capped
 	
 		cmp ebx,stat_cap
 		jg stat_capped
