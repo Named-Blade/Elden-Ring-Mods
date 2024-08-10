@@ -9,6 +9,7 @@ extern getStatCap: qword
 .code
 	
 	call_before Macro
+		pushfq
 		push rax
 		push rcx
 		push rdx
@@ -16,9 +17,51 @@ extern getStatCap: qword
 		push r9
 		push r10
 		push r11
+		push r15
+
+		mov r15, rsp
+		and rsp, -16
+
+		sub rsp, 32 * 16
+		movaps [rsp + 32 * 15], xmm15
+		movaps [rsp + 32 * 14], xmm14
+		movaps [rsp + 32 * 13], xmm13
+		movaps [rsp + 32 * 12], xmm12
+		movaps [rsp + 32 * 11], xmm11
+		movaps [rsp + 32 * 10], xmm10
+		movaps [rsp + 32 * 9], xmm9
+		movaps [rsp + 32 * 8], xmm8
+		movaps [rsp + 32 * 7], xmm7
+		movaps [rsp + 32 * 6], xmm6
+		movaps [rsp + 32 * 5], xmm5
+		movaps [rsp + 32 * 4], xmm4
+		movaps [rsp + 32 * 3], xmm3
+		movaps [rsp + 32 * 2], xmm2
+		movaps [rsp + 32 * 1], xmm1
+		movaps [rsp + 32 * 0], xmm0
 	endm
 	
 	call_after Macro
+		movaps xmm0, [rsp + 32 * 0]
+		movaps xmm1, [rsp + 32 * 1]
+		movaps xmm2, [rsp + 32 * 2]
+		movaps xmm3, [rsp + 32 * 3]
+		movaps xmm4, [rsp + 32 * 4]
+		movaps xmm5, [rsp + 32 * 5]
+		movaps xmm6, [rsp + 32 * 6]
+		movaps xmm7, [rsp + 32 * 7]
+		movaps xmm8, [rsp + 32 * 8]
+		movaps xmm9, [rsp + 32 * 9]
+		movaps xmm10, [rsp + 32 * 10]
+		movaps xmm11, [rsp + 32 * 11]
+		movaps xmm12, [rsp + 32 * 12]
+		movaps xmm13, [rsp + 32 * 13]
+		movaps xmm14, [rsp + 32 * 14]
+		movaps xmm15, [rsp + 32 * 15]
+
+		mov rsp,r15
+
+		pop r15
 		pop r11
 		pop r10
 		pop r9
@@ -26,6 +69,7 @@ extern getStatCap: qword
 		pop rdx
 		pop rcx
 		pop rax
+		popfq
 	endm
 	
 	get_address proc
@@ -42,7 +86,7 @@ extern getStatCap: qword
 	
 		call_before
 		mov rax,OFFSET getStatCap
-		mov ecx,0
+		mov ecx,[r15+200];this is cursed
 		call rax
 		mov stat_cap,eax
 		call_after

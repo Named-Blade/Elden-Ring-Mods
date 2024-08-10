@@ -9,7 +9,10 @@ int getLevelCap(){
 // the return value of this function is the current stat cap
 //stat is equal to the current stat
 int getStatCap(Stat stat){
-	return stat_caps[0];
+	if (stat < 8){
+		return stat_caps[stat];
+	}
+	return 0;
 	
 }
 

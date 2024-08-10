@@ -1,5 +1,37 @@
 on app v1.12.3 steam depot 1245624 manifest 8273892924347236421
 
+//call to level up function incl UI logic
+//(CS::EditProperty,uiMagic,stat to level)
+eldenring.exe+975A4B - FF 50 28              - call qword ptr [rax+28]
+eldenring.exe+975A4E - 48 8B C8              - mov rcx,rax
+eldenring.exe+975A51 - 4C 8B C6              - mov r8,rsi
+eldenring.exe+975A54 - 0F28 CE               - movaps xmm1,xmm6
+eldenring.exe+975A57 - E8 3455EFFF           - call eldenring.exe+86AF90 <-- this one
+eldenring.exe+975A5C - FF C3                 - inc ebx
+eldenring.exe+975A5E - 48 8B 07              - mov rax,[rdi]
+eldenring.exe+975A61 - 48 8B CF              - mov rcx,rdi
+eldenring.exe+975A64 - FF 50 08              - call qword ptr [rax+08]
+
+ff 50 28 48 8b c8 4c 8b c6 0f 28 ce e8 ?? ?? ?? ?? ff c3 48 8b 07 48 8b cf ff 50 08  
++13
+
+//call to Control to modify stat by x
+//(PlayerLevelUpSlider,uiMagic)
+eldenring.exe+9703C8 - 48 8B 81 30020000     - mov rax,[rcx+00000230]
+eldenring.exe+9703CF - 49 8B D0              - mov rdx,r8
+eldenring.exe+9703D2 - 49 8B F0              - mov rsi,r8
+eldenring.exe+9703D5 - 48 8B F9              - mov rdi,rcx
+eldenring.exe+9703D8 - 8B 18                 - mov ebx,[rax]
+eldenring.exe+9703DA - E8 61220000           - call eldenring.exe+972640 <-- this one
+eldenring.exe+9703DF - 48 8B 8F E8010000     - mov rcx,[rdi+000001E8]
+eldenring.exe+9703E6 - 03 C3                 - add eax,ebx
+eldenring.exe+9703E8 - 89 44 24 60           - mov [rsp+60],eax
+eldenring.exe+9703EC - 89 5C 24 78           - mov [rsp+78],ebx
+eldenring.exe+9703F0 - 48 85 C9              - test rcx,rcx
+
+48 8b 81 30 02 00 00 49 8b d0 49 8b f0 48 8b f9 8b 18 e8 ?? ?? ?? ?? 48 8b 8f e8 01 00 00 03 c3 89 44 24 60 89 5c 24 78 48 85 c9
++19
+
 //???
 eldenring.exe+7C35DB - E8 208BECFF           - call eldenring.exe+68C100
 eldenring.exe+7C35E0 - 03 45 C7              - add eax,[rbp-39]
