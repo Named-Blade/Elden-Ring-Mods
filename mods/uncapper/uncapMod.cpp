@@ -25,6 +25,7 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	std::string flagSection = "event flags";
 	readConfig(
 		std::forward_as_tuple(rune_cost_cap,section,"rune level cost cap"_s),
+		std::forward_as_tuple(overLevelScaling,section,"scaling above max"_s),
 		std::forward_as_tuple(level_cap,section,"Level cap"_s),
 		std::forward_as_tuple(stat_caps[0],section,"Vigor cap"_s),
 		std::forward_as_tuple(stat_caps[1],section,"Mind cap"_s),

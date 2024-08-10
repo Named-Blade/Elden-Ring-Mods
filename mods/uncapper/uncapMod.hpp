@@ -47,6 +47,7 @@ extern "C"
 int rune_cost_cap = 500'000;
 bool adjustGraph = true;
 bool ds2LevelCosts = true;
+float overLevelScaling = 0.25;
 
 bool useEventFlags = false;
 uint32_t levelCapRange = 0;

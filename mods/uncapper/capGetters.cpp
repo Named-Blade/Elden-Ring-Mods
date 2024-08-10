@@ -58,10 +58,13 @@ int getStatCap(Stat stat){
 
 float getCalcCorrectGraph(float value, int rowId){
 	auto [row, exists] = from::param::CalcCorrectGraph[rowId];
-	if (exists && value > row.stageMaxVal4){
-		float overGrow = (row.stageMaxGrowVal4 - row.stageMaxGrowVal3) / (row.stageMaxVal4 - row.stageMaxVal3);
+	if (exists && (
+			(row.stageMaxVal4 > row.stageMaxVal0 && value > row.stageMaxVal4) ||
+			(row.stageMaxVal4 <= row.stageMaxVal0 && value < row.stageMaxVal4)
+		) ){
+		float overGrow = ((row.stageMaxGrowVal4 - row.stageMaxGrowVal0) / (row.stageMaxVal4 - row.stageMaxVal0)) * overLevelScaling;
 		float growAmount = overGrow * (value - row.stageMaxVal4);
-		return row.stageMaxVal4 + growAmount;
+		return getCalcCorrectGraphOriginal(value,rowId) + growAmount;
 	}
     return getCalcCorrectGraphOriginal(value,rowId);
 }
@@ -80,6 +83,9 @@ void initLevels(){
 }
 
 int levelCost(int level){
+	if (level >= getLevelCap()){
+		return 0;
+	}
 	if (!levelMaxFound){
 		initLevels();
 	}
