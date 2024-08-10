@@ -9,11 +9,13 @@ struct EventFlagMan{
 	void* ptr;
 };
 
-std::string getEventFlagValueAob = "44 8b 41 1c 44 8b da 33 d2 41 8b c3 41 f7 f0 4c 8b d1 45 33 c9 44 0f af c0 45 2b d8 4c 8b 41 38 49 8b d0 49 8b 48 08 44 38 49 19";
+std::string getEventFlagValueAob = "e9 ?? ?? ?? ?? 48 83 ec 28 8b 12 85 d2 74 0f e8 ?? ?? ?? ?? 85 c0 0f 95 c0 48 83 c4 28 c3";
+int getEventFlagValueOffset = 16;
 using eventFlagGetterType = bool(*)(EventFlagMan, unsigned int);
 eventFlagGetterType eventFlagGetter;
 
-std::string setEventFlagValueAob = "48 89 5c 24 08 44 8b 49 1c 44 8b d2 33 d2 41 8b c2 41 f7 f1 41 8b d8 4c 8b d9 4c 8b 41 38 44 0f af c8 49 8b c8 49 8b 50 08";
+std::string setEventFlagValueAob = "e8 ?? ?? ?? ?? 8b 13 48 8b ce 44 0f b6 c7 e8 ?? ?? ?? ?? 80 7c 24 60 00 74 5c 8b 03 4c 8d 4c 24 48 48 8b 9e c8 00 00 00";
+int setEventFlagValueOffset = 15;
 using eventFlagSetterType = bool(*)(EventFlagMan, unsigned int, bool);
 eventFlagSetterType eventFlagSetter;
 
@@ -30,14 +32,14 @@ void initFlagHandlers(){
 			uintptr_t funcAddress = AobScan(getEventFlagValueAob);
 			if (funcAddress != 0)
 			{
-				eventFlagGetter = reinterpret_cast<eventFlagGetterType>(funcAddress);
+				eventFlagGetter = reinterpret_cast<eventFlagGetterType>(getAddressFromMemory(funcAddress,getEventFlagValueOffset,4));
 			}
 		}
 		{
 			uintptr_t funcAddress = AobScan(setEventFlagValueAob);
 			if (funcAddress != 0)
 			{
-				eventFlagSetter = reinterpret_cast<eventFlagSetterType>(funcAddress);
+				eventFlagSetter = reinterpret_cast<eventFlagSetterType>(getAddressFromMemory(funcAddress,setEventFlagValueOffset,4));
 			}
 		}
 		{
@@ -85,7 +87,11 @@ void setEventFlagState (unsigned int flag, bool state){
 
 void setEventFlagRange(unsigned int flagStart,unsigned int size,unsigned int num){
 	for (int i = 0; i < size; i++){
-		setEventFlagState(flagStart+i,(bool)(num & 1<<i));
+		if ((num & 1<<i) > 0){
+			setEventFlagState(flagStart+i,true);
+		} else {
+			setEventFlagState(flagStart+i,false);
+		}
 	}
 	Log(getEventFlagRange(flagStart,size));
 }

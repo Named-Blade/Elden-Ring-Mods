@@ -6,6 +6,7 @@
 
 #include <ModUtils.hpp>
 #include <config.hpp>
+#include <eventFlags.hpp>
 
 using namespace ModUtils;
 
@@ -46,3 +47,14 @@ extern "C"
 int rune_cost_cap = 500'000;
 bool adjustGraph = true;
 bool ds2LevelCosts = true;
+
+bool useEventFlags = false;
+uint32_t levelCapRange = 0;
+uint32_t vigorCapRange = 0;
+uint32_t mindCapRange = 0;
+uint32_t enduranceCapRange = 0;
+uint32_t strengthCapRange = 0;
+uint32_t dexterityCapRange = 0;
+uint32_t intelligenceCapRange = 0;
+uint32_t faithCapRange = 0;
+uint32_t arcaneCapRange = 0;

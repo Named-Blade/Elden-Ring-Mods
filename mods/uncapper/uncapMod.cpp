@@ -22,10 +22,28 @@ void PerformPatch(const std::string& aob,
 DWORD WINAPI MainThread(LPVOID lpParam)
 {
 	std::string section = "uncapper";
+	std::string flagSection = "event flags";
 	readConfig(
 		std::forward_as_tuple(rune_cost_cap,section,"rune level cost cap"_s),
-		std::forward_as_tuple(adjustGraph,section,"adjust calcCorrectGraphs"_s),
-		std::forward_as_tuple(ds2LevelCosts,section,"use ds2 level cost curve"_s)
+		std::forward_as_tuple(level_cap,section,"Level cap"_s),
+		std::forward_as_tuple(stat_caps[0],section,"Vigor cap"_s),
+		std::forward_as_tuple(stat_caps[1],section,"Mind cap"_s),
+		std::forward_as_tuple(stat_caps[2],section,"Endurance cap"_s),
+		std::forward_as_tuple(stat_caps[3],section,"Strength cap"_s),
+		std::forward_as_tuple(stat_caps[4],section,"Dexterity cap"_s),
+		std::forward_as_tuple(stat_caps[5],section,"Intelligence cap"_s),
+		std::forward_as_tuple(stat_caps[6],section,"Faith cap"_s),
+		std::forward_as_tuple(stat_caps[7],section,"Arcane cap"_s),
+		std::forward_as_tuple(useEventFlags,flagSection,"use event flags"_s),
+		std::forward_as_tuple(levelCapRange,flagSection,"Level cap flag range (32)"_s),
+		std::forward_as_tuple(vigorCapRange,flagSection,"Vigor cap flag range (32)"_s),
+		std::forward_as_tuple(mindCapRange,flagSection,"Mind cap flag range (32)"_s),
+		std::forward_as_tuple(enduranceCapRange,flagSection,"Endurance cap flag range (32)"_s),
+		std::forward_as_tuple(strengthCapRange,flagSection,"Strength cap flag range (32)"_s),
+		std::forward_as_tuple(dexterityCapRange,flagSection,"Dexterity cap flag range (32)"_s),
+		std::forward_as_tuple(intelligenceCapRange,flagSection,"Intelligence cap flag range (32)"_s),
+		std::forward_as_tuple(faithCapRange,flagSection,"Faith cap flag range (32)"_s),
+		std::forward_as_tuple(arcaneCapRange,flagSection,"Arcane cap flag range (32)"_s)
 	);
 	from::DLSY::wait_for_system(-1);
 	from::CS::SoloParamRepository::wait_for_params(-1);
@@ -97,13 +115,8 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		hookCall(getCalcCorrectGraph,getCalcCorrectGraphAob,getCalcCorrectGraphOffset,getCalcCorrectGraphSize,&getCalcCorrectGraphOriginal);
 		for (auto [id, row] : from::param::CalcCorrectGraph) {
 			
-			//float max3 = row.stageMaxVal3;
-			float max4 = row.stageMaxVal4;
-			
-			//float grow3 = row.stageMaxGrowVal3;
-			float grow4 = row.stageMaxGrowVal4;
-			
-			//adjust two handed scaling
+			float &max4 = row.stageMaxVal4;
+			float &grow4 = row.stageMaxGrowVal4;
 			if (max4 == 150.0 && grow4 == 110.0){
 				max4 = 99.0;
 				grow4 = 100.0;
@@ -112,17 +125,6 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 			if (max4 == 99.0){
 				max4 = 100.0;
 			}
-			
-			//float maxStep = max4 - max3;
-			//float growSize = grow4 - grow3;
-			//float growStep = growSize / maxStep;
-			
-			//if (grow3 < grow4){
-			//	row.adjPt_maxGrowVal4 = 1.0;
-			//	row.stageMaxVal4 = 999999.0;
-			//	row.stageMaxGrowVal4 = (row.stageMaxVal4 - row.stageMaxVal3) * growStep;
-			//}
-			
 		}
 	}
 	MH_STATUS applyStatus = MH_ApplyQueued();

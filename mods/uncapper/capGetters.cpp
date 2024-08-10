@@ -1,14 +1,55 @@
 #include "uncapMod.hpp"
 #include "ds2Levels/ds2Levels.cpp"
 
-// the return vavlue of this function is the current level cap
+
 int getLevelCap(){
+	setEventFlagRange(levelCapRange,32,150);
+	if(useEventFlags && levelCapRange != 0){
+		int levelCap = getEventFlagRange(levelCapRange,32);
+		if (levelCap != 0){
+			return levelCap;
+		}
+	}
 	return level_cap;
-	
 }
-// the return value of this function is the current stat cap
-//stat is equal to the current stat
+
+int getStatCapFlag(Stat stat){
+	switch(stat){
+		case Stat::vigor:
+			if (vigorCapRange != 0) return getEventFlagRange(vigorCapRange,32);
+			break;
+		case Stat::mind:
+			if (mindCapRange != 0) return getEventFlagRange(mindCapRange,32);
+			break;
+		case Stat::endurance:
+			if (enduranceCapRange != 0) return getEventFlagRange(enduranceCapRange,32);
+			break;
+		case Stat::strength:
+			if (strengthCapRange != 0) return getEventFlagRange(strengthCapRange,32);
+			break;
+		case Stat::dexterity:
+			if (dexterityCapRange != 0) return getEventFlagRange(dexterityCapRange,32);
+			break;
+		case Stat::intelligence:
+			if (intelligenceCapRange != 0) return getEventFlagRange(intelligenceCapRange,32);
+			break;
+		case Stat::faith:
+			if (faithCapRange != 0) return getEventFlagRange(faithCapRange,32);
+			break;
+		case Stat::arcane:
+			if (arcaneCapRange != 0) return getEventFlagRange(arcaneCapRange,32);
+			break;
+	}
+	return 0;
+}
+
 int getStatCap(Stat stat){
+	if(useEventFlags){
+		int statCap = getStatCapFlag(stat);
+		if (statCap != 0){
+			return statCap;
+		}
+	}
 	if (stat < 8){
 		return stat_caps[stat];
 	}
