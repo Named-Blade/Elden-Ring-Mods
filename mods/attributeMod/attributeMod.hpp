@@ -147,10 +147,13 @@ int calcStaminaRegenDefaultOffset = 32;
 typedef float (*calcStaminaRegenType)(uintptr_t);
 
 
-bool outOfCombatStamina = true;
-bool enduranceLightningDefense = true;
 bool hpBonusOnLevel = true;
 float hpBonusPerLevel = 900.0/(89.0*7.0);
+bool enduranceLightningDefense = true;
+
+bool outOfCombatStamina = true;
+float defaultStaminaRegen = 45.0;
+
 bool staminaDamageScaling = true;
 float minStaminaDamage = 0.9;
 float maxStaminaDamage = 1.1;

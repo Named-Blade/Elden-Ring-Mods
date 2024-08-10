@@ -8,10 +8,11 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 {
 	std::string section = "attribute mod";
 	readConfig(
-		std::forward_as_tuple(outOfCombatStamina,section,"enable out of combat stamina loss"_s),
 		std::forward_as_tuple(enduranceLightningDefense,section,"enable lightning defense with endurance increase"_s),
 		std::forward_as_tuple(hpBonusOnLevel,section,"enable HP bonus from non-vigor levels"_s),
 		std::forward_as_tuple(hpBonusPerLevel,section,"HP bonus per each non-vigor level"_s),
+		std::forward_as_tuple(defaultStaminaRegen,section,"Base stamina regen per second"_s),
+		std::forward_as_tuple(outOfCombatStamina,section,"enable out of combat stamina loss"_s),
 		std::forward_as_tuple(staminaDamageScaling,section,"scale Damage based on remaining stamina"_s),
 		std::forward_as_tuple(minStaminaDamage,section,"damage mult at zero stamina"_s),
 		std::forward_as_tuple(maxStaminaDamage,section,"damage mult at full stamina"_s),

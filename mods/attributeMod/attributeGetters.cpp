@@ -113,13 +113,14 @@ int getDiscovery(PlayerParam &playerParam){
 
 void calcStaminaRegen(HookContext* context, void* calcStaminaRegenFunc){
     calcStaminaRegenType calcStaminaRegenOrigin = (calcStaminaRegenType)calcStaminaRegenFunc;
-
     uintptr_t chrIns = context->rbx;
-    auto spEffects = context->rcx;
+    uintptr_t spEffects = context->rcx;
+    PlayerParam playerParam = getPlayerParam(chrIns);
+    AttributeData attribute = playerParam.attributeData;
 
     float& staminaRegen = context->imm0[0];
     staminaRegen = 0.0;
 
     staminaRegen += calcStaminaRegenOrigin(spEffects);
-    staminaRegen += 45.0;
+    staminaRegen += defaultStaminaRegen;
 }
