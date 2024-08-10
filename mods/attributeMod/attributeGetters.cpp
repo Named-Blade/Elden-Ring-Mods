@@ -72,6 +72,19 @@ void calcSpellScale(uintptr_t chrIns, spellScale &scaling, uint32_t weaponId){
     calcSpellScaleOriginal(chrIns,scaling,weaponId);
 }
 
+float calcSorceryScaleUi(dataAndWeapon &data){
+    AttributeData attribute = data.playerParam->attributeData;
+    Log(attribute.intelligence);
+    uint32_t weaponId = data.weaponId;
+    return calcSorceryScaleUiOriginal(data);
+}
+
+float calcIncantScaleUi(dataAndWeapon &data){
+    AttributeData attribute = data.playerParam->attributeData;
+    uint32_t weaponId = data.weaponId;
+    return calcIncantScaleUiOriginal(data);
+}
+
 void calcDefense(DefenseData &defense, PlayerParam &playerParam){
     AttributeData attribute = playerParam.attributeData;
 

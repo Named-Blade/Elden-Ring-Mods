@@ -101,6 +101,23 @@ typedef void (*calcSpellScaleType)(uintptr_t,spellScale &,uint32_t);
 void calcSpellScaleDummy(uintptr_t chrIns, spellScale &scaling, uint32_t weaponId) {}
 calcSpellScaleType calcSpellScaleOriginal = &calcSpellScaleDummy;
 
+std::string calcSorceryScaleUiAob = "80 b8 05 01 00 00 80 72 39 4d 8b c7 48 8d 55 f0 48 8b cf e8 ?? ?? ?? ?? 90 48 8b c8 e8 ?? ?? ?? ??";
+int calcSorceryScaleUiOffset = 29;
+
+std::string calcIncantScaleUiAob = "0f b6 80 06 01 00 00 d0 e8 24 01 74 39 4d 8b c7 48 8d 55 f0 48 8b cf e8 ?? ?? ?? ?? 90 48 8b c8 e8 ?? ?? ?? ??";
+int calcIncantScaleUiOffset = 33;
+
+struct dataAndWeapon{
+    PlayerParam* playerParam;
+    char8_t _1[0x1];
+    uint32_t weaponId;
+};
+
+typedef float (*calcUiSpellScaleType)(dataAndWeapon&);
+float calcUiSpellScaleDummy(dataAndWeapon& data) {return 0;}
+calcUiSpellScaleType calcSorceryScaleUiOriginal = &calcUiSpellScaleDummy;
+calcUiSpellScaleType calcIncantScaleUiOriginal = &calcUiSpellScaleDummy;
+
 std::string calcDefenseAob = "44 0f 29 50 88 4c 8b e2 0f 11 45 87 c7 45 97 00 00 00 00 0f 57 f6 e8 ?? ?? ?? ?? 48 8b 4d 77 0f 28 05 ?? ?? ?? ?? 0f 28 0d ?? ?? ?? ?? 48 c7 45 bf 00 00 00 00";
 int calcDefenseOffset = 23;
 int calcDefenseSize = 4;

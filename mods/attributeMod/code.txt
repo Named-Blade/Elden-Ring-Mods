@@ -299,6 +299,36 @@ eldenring.exe+65231D - C3                    - ret
 48 8b d9 41 8b f8 48 8b ca 48 8b f2 e8 ?? ?? ?? ?? 48 8b 03 48 8b cb ff 90 68 01 00 00 48 8b c8 8b d7 e8 ?? ?? ?? ?? f3 0f 11 06 48 8b cb 48 8b 03 ff 90 68 01 00 00
 -15   
 
+//call to get sorcery scaling (UI)
+eldenring.exe+86FB9B - 80 B8 05010000 80     - cmp byte ptr [rax+00000105],-80
+eldenring.exe+86FBA2 - 72 39                 - jb eldenring.exe+86FBDD
+eldenring.exe+86FBA4 - 4D 8B C7              - mov r8,r15
+eldenring.exe+86FBA7 - 48 8D 55 F0           - lea rdx,[rbp-10]
+eldenring.exe+86FBAB - 48 8B CF              - mov rcx,rdi
+eldenring.exe+86FBAE - E8 1D230000           - call eldenring.exe+871ED0
+eldenring.exe+86FBB3 - 90                    - nop 
+eldenring.exe+86FBB4 - 48 8B C8              - mov rcx,rax
+eldenring.exe+86FBB7 - E8 F404F5FF           - call eldenring.exe+7C00B0 <-- this one
+
+80 b8 05 01 00 00 80 72 39 4d 8b c7 48 8d 55 f0 48 8b cf e8 ?? ?? ?? ?? 90 48 8b c8 e8 ?? ?? ?? ??
++29
+
+//call to get incant scaling (UI)
+eldenring.exe+86FC0F - 0FB6 80 06010000      - movzx eax,byte ptr [rax+00000106]
+eldenring.exe+86FC16 - D0 E8                 - shr al,1
+eldenring.exe+86FC18 - 24 01                 - and al,01
+eldenring.exe+86FC1A - 74 39                 - je eldenring.exe+86FC55
+eldenring.exe+86FC1C - 4D 8B C7              - mov r8,r15
+eldenring.exe+86FC1F - 48 8D 55 F0           - lea rdx,[rbp-10]
+eldenring.exe+86FC23 - 48 8B CF              - mov rcx,rdi
+eldenring.exe+86FC26 - E8 A5220000           - call eldenring.exe+871ED0
+eldenring.exe+86FC2B - 90                    - nop 
+eldenring.exe+86FC2C - 48 8B C8              - mov rcx,rax
+eldenring.exe+86FC2F - E8 1C05F5FF           - call eldenring.exe+7C0150
+
+0f b6 80 06 01 00 00 d0 e8 24 01 74 39 4d 8b c7 48 8d 55 f0 48 8b cf e8 ?? ?? ?? ?? 90 48 8b c8 e8 ?? ?? ?? ??
++33
+
 eldenring.exe+65C6B6 - E8 65910200           - call eldenring.exe+685820
 eldenring.exe+65C6BB - 48 8D 55 00           - lea rdx,[rbp+00]
 eldenring.exe+65C6BF - 48 8D 4D 98           - lea rcx,[rbp-68]

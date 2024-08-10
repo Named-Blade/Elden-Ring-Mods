@@ -36,6 +36,9 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 	hookCall(calcDamageScale,calcDamageScaleAob,calcDamageScaleOffset,calcDamageScaleSize,&calcDamageScaleOriginal);
 	hookFunc(calcSpellScale,calcSpellScaleAob,calcSpellScaleOffset,&calcSpellScaleOriginal);
 
+	hookCall(calcSorceryScaleUi,calcSorceryScaleUiAob,calcSorceryScaleUiOffset,4,&calcSorceryScaleUiOriginal);
+	hookCall(calcIncantScaleUi,calcIncantScaleUiAob,calcIncantScaleUiOffset,4,&calcIncantScaleUiOriginal);
+
 	hookCall(calcDefense,calcDefenseAob,calcDefenseOffset,calcDefenseSize);
 	hookCall(calcResist,calcResistAob,calcResistOffset,calcResistSize);
 
