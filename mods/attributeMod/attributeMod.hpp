@@ -109,7 +109,7 @@ int calcIncantScaleUiOffset = 33;
 
 struct dataAndWeapon{
     PlayerParam* playerParam;
-    char8_t _1[0x1];
+    char8_t _1[0x4];
     uint32_t weaponId;
 };
 
