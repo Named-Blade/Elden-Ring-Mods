@@ -1,0 +1,40 @@
+//call to unequip inventory slot
+eldenring.exe+789C97 - E8 E4EEABFF           - call eldenring.exe+248B80
+eldenring.exe+789C9C - 41 B0 01              - mov r8l,01
+eldenring.exe+789C9F - 8B D3                 - mov edx,ebx
+eldenring.exe+789CA1 - 48 8B CF              - mov rcx,rdi
+eldenring.exe+789CA4 - E8 67D5ABFF           - call eldenring.exe+247210
+eldenring.exe+789CA9 - 48 8B 0D F8C25D03     - mov rcx,[WorldChrMan]
+eldenring.exe+789CB0 - 48 85 C9              - test rcx,rcx
+eldenring.exe+789CB3 - 75 2E                 - jne eldenring.exe+789CE3
+eldenring.exe+789CB5 - 48 8D 0D 50115D03     - lea rcx,[eldenring.exe+3D5AE0C]
+
+//function equip inventory item
+eldenring.exe+7A3611 - E8 BA41FEFF           - call eldenring.exe+7877D0
+eldenring.exe+7A3616 - 8B 4F 08              - mov ecx,[rdi+08]
+eldenring.exe+7A3619 - 48 8D 57 10           - lea rdx,[rdi+10]
+eldenring.exe+7A361D - E8 2E43FEFF           - call eldenring.exe+787950
+eldenring.exe+7A3622 - E8 39230200           - call eldenring.exe+7C5960
+eldenring.exe+7A3627 - 44 8B 47 58           - mov r8d,[rdi+58]
+eldenring.exe+7A362B - 8B 57 08              - mov edx,[rdi+08]
+eldenring.exe+7A362E - 48 8D 48 04           - lea rcx,[rax+04]
+eldenring.exe+7A3632 - 48 8B 5C 24 30        - mov rbx,[rsp+30]
+eldenring.exe+7A3637 - 48 83 C4 20           - add rsp,20
+eldenring.exe+7A363B - 5F                    - pop rdi
+eldenring.exe+7A363C - E9 DF030200           - jmp eldenring.exe+7C3A20
+
+e8 ?? ?? ?? ?? 8b 4f 08 48 8d 57 10 e8 ?? ?? ?? ?? e8 ?? ?? ?? ?? 44 8b 47 58 8b 57 08 48 8d 48 04 48 8b 5c 24 30 48 83 c4 20 5f e9 ?? ?? ?? ??  
+-17
+
+//enable covenant slot
+eldenring.exe+8DDD1D - 0F8C 4DFFFFFF         - jl eldenring.exe+8DDC70
+eldenring.exe+8DDD23 - C6 44 24 38 18        - mov byte ptr [rsp+38],18
+eldenring.exe+8DDD28 - 48 8D 4C 24 38        - lea rcx,[rsp+38]
+eldenring.exe+8DDD2D - E8 1E70E8FF           - call eldenring.exe+764D50
+eldenring.exe+8DDD32 - 84 C0                 - test al,al
+eldenring.exe+8DDD34 - 74 11                 - je eldenring.exe+8DDD47 <-- nop this
+eldenring.exe+8DDD36 - 48 8D 4D 00           - lea rcx,[rbp+00]
+eldenring.exe+8DDD3A - E8 E190F7FF           - call eldenring.exe+856E20
+
+0f 8c ?? ?? ?? ?? c6 44 24 38 18 48 8d 4c 24 38 e8 ?? ?? ?? ?? 84 c0 74 11 48 8d 4d 00 e8 ?? ?? ?? ??
++23
