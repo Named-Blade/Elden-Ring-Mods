@@ -67,3 +67,55 @@ eldenring.exe+247987 - 5B                    - pop rbx
 
 0f b6 88 c6 00 00 00 41 0f b6 c0 03 c1 b9 04 00 00 00 3b c1 0f 47 c1 48 83 c4 20 5b  
 +14
+
+//talisman slot UI limit
+eldenring.exe+8DDD11 - FF 50 20              - call qword ptr [rax+20]
+eldenring.exe+8DDD14 - 4C 89 75 E8           - mov [rbp-18],r14
+eldenring.exe+8DDD18 - FF C7                 - inc edi
+eldenring.exe+8DDD1A - 83 FF 04              - cmp edi,04
+eldenring.exe+8DDD1D - 0F8C 4DFFFFFF         - jl eldenring.exe+8DDC70
+eldenring.exe+8DDD23 - C6 44 24 38 18        - mov byte ptr [rsp+38],18
+eldenring.exe+8DDD28 - 48 8D 4C 24 38        - lea rcx,[rsp+38]
+eldenring.exe+8DDD2D - E8 1E70E8FF           - call eldenring.exe+764D50
+eldenring.exe+8DDD32 - 84 C0                 - test al,al
+
+//item filter function
+eldenring.exe+84738E - 49 8D 43 10           - lea rax,[r11+10]
+eldenring.exe+847392 - 49 89 43 D8           - mov [r11-28],rax
+eldenring.exe+847396 - 8B 02                 - mov eax,[rdx]
+eldenring.exe+847398 - 89 44 24 78           - mov [rsp+78],eax
+eldenring.exe+84739C - 49 8D 4B 10           - lea rcx,[r11+10]
+eldenring.exe+8473A0 - E8 0BEEFFFF           - call eldenring.exe+8461B0 <-- this one
+eldenring.exe+8473A5 - 48 8D 4C 24 78        - lea rcx,[rsp+78]
+eldenring.exe+8473AA - 48 89 4C 24 40        - mov [rsp+40],rcx
+eldenring.exe+8473AF - 8B 0B                 - mov ecx,[rbx]
+eldenring.exe+8473B1 - 89 4C 24 78           - mov [rsp+78],ecx
+
+49 8d 43 10 49 89 43 d8 8b 02 89 44 24 78 49 8d 4b 10 e8 ?? ?? ?? ?? 48 8d 4c 24 78 48 89 4c 24 40 8b 0b 89 4c 24 78
++19
+
+//call that opens screen
+eldenring.exe+85D636 - 48 8B 01              - mov rax,[rcx]
+eldenring.exe+85D639 - 48 8B D7              - mov rdx,rdi
+eldenring.exe+85D63C - FF 50 10              - call qword ptr [rax+10]
+eldenring.exe+85D63F - 48 8D 8F 280E0000     - lea rcx,[rdi+00000E28]
+eldenring.exe+85D646 - 48 8B D3              - mov rdx,rbx
+
+//call to hook
+//[[R8+0x38]+0xC] is the menu type
+eldenring.exe+855514 - 66 C7 84 24 58010000 0001 - mov word ptr [rsp+00000158],0100
+eldenring.exe+85551E - C6 84 24 5A010000 01  - mov byte ptr [rsp+0000015A],01
+eldenring.exe+855526 - 48 8D 4C 24 30        - lea rcx,[rsp+30]
+eldenring.exe+85552B - 48 89 4C 24 20        - mov [rsp+20],rcx
+eldenring.exe+855530 - 4C 8D 8C 24 58010000  - lea r9,[rsp+00000158]
+eldenring.exe+855538 - 4C 8B C0              - mov r8,rax
+eldenring.exe+85553B - 48 8B D7              - mov rdx,rdi
+eldenring.exe+85553E - 48 8B CB              - mov rcx,rbx
+eldenring.exe+855541 - E8 6A800000           - call eldenring.exe+85D5B0 <-- this one
+eldenring.exe+855546 - 48 8B 9C 24 40010000  - mov rbx,[rsp+00000140]
+eldenring.exe+85554E - 48 81 C4 30010000     - add rsp,00000130
+eldenring.exe+855555 - 5F                    - pop rdi
+eldenring.exe+855556 - C3                    - ret 
+
+c6 84 24 5a 01 00 00 01 48 8d 4c 24 30 48 89 4c 24 20 4c 8d 8c 24 58 01 00 00 4c 8b c0 48 8b d7 48 8b cb e8 ?? ?? ?? ?? 48 8b 9c 24 40 01 00 00 48 81 c4 30 01 00 00 5f c3
++36

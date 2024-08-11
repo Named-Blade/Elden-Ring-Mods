@@ -27,9 +27,18 @@ const wchar_t * getMessage(uintptr_t messageRepository, uint32_t _1,uint32_t msg
 	return getMessageOriginal(messageRepository,_1,msgBnd,msgId);
 }
 
+void menuTypeHook(HookContext* context){
+    uintptr_t* data = (uintptr_t*)((context->r8)+0x38);
+    char8_t &menuType = *(char8_t*)(*data + 0xC);
+    if (menuType == 21){
+        menuType = 20;
+    }
+}
+
 DWORD WINAPI MainThread(LPVOID lpParam){
     from::DLSY::wait_for_system(-1);
     MH_STATUS status = MH_Initialize();
+    if (!CallHook::initialize()) return 0;
 	Log("MinHook Status: ",MH_StatusToString(status));
 
     {
@@ -40,10 +49,15 @@ DWORD WINAPI MainThread(LPVOID lpParam){
         }
     }
     {
+        uintptr_t address = AobScan(menuTypeAob);
+        if (address != 0){
+            auto hook1 = new CallHookTemplate<ContextHook>(reinterpret_cast<void *>(address + menuTypeOffset), menuTypeHook);
+        }
+    }
+    {
         uintptr_t address = AobScan(slotMaxAob);
         if (address != 0){
             uint32_t* slotMax = (uint32_t*)(address + slotMaxOffset);
-            Log(*slotMax);
             *slotMax = 5;
         }
     }
