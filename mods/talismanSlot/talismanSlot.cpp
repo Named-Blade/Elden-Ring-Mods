@@ -15,9 +15,25 @@ void performPatch(const std::string& aob,
     }
 }
 
+const wchar_t * getMessage(uintptr_t messageRepository, uint32_t _1,uint32_t msgBnd, uint32_t msgId){
+	if (msgId == 103090 && msgBnd == 200){
+		return L"Talisman 5";
+	}
+	
+	return getMessageOriginal(messageRepository,_1,msgBnd,msgId);
+}
+
 DWORD WINAPI MainThread(LPVOID lpParam){
     from::DLSY::wait_for_system(-1);
+    MH_STATUS status = MH_Initialize();
+	Log("MinHook Status: ",MH_StatusToString(status));
+
     performPatch(enableSlotAob,"74 11","90 90",enableSlotOffset);
+
+    hookCall(getMessage,getMessageAob,getMessageOffset,4,&getMessageOriginal);
+
+    MH_STATUS applyStatus = MH_ApplyQueued();
+	Log("Apply Status: ",MH_StatusToString(applyStatus));
     return 0;
 }
 

@@ -38,3 +38,13 @@ eldenring.exe+8DDD3A - E8 E190F7FF           - call eldenring.exe+856E20
 
 0f 8c ?? ?? ?? ?? c6 44 24 38 18 48 8d 4c 24 38 e8 ?? ?? ?? ?? 84 c0 74 11 48 8d 4d 00 e8 ?? ?? ?? ??
 +23
+
+//defines msg id
+eldenring.exe+84EDD2 - E9 E6000000           - jmp eldenring.exe+84EEBD
+eldenring.exe+84EDD7 - 41 83 F8 15           - cmp r8d,15
+eldenring.exe+84EDDB - 75 12                 - jne eldenring.exe+84EDEF
+eldenring.exe+84EDDD - BA B2920100           - mov edx,000192B2 <-- this one
+eldenring.exe+84EDE2 - 48 8B CB              - mov rcx,rbx
+eldenring.exe+84EDE5 - E8 A618F1FF           - call eldenring.exe+760690
+eldenring.exe+84EDEA - E9 CE000000           - jmp eldenring.exe+84EEBD
+eldenring.exe+84EDEF - 41 8D 40 EF           - lea eax,[r8-11]
