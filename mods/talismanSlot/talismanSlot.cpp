@@ -29,6 +29,14 @@ DWORD WINAPI MainThread(LPVOID lpParam){
 	Log("MinHook Status: ",MH_StatusToString(status));
 
     performPatch(enableSlotAob,"74 11","90 90",enableSlotOffset);
+    {
+        uintptr_t address = AobScan(slotMaxAob);
+        if (address != 0){
+            uint32_t* slotMax = (uint32_t*)(address + slotMaxOffset);
+            Log(*slotMax);
+            *slotMax = 5;
+        }
+    }
 
     hookCall(getMessage,getMessageAob,getMessageOffset,4,&getMessageOriginal);
 
