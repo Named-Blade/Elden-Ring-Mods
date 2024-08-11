@@ -15,6 +15,10 @@ void performPatch(const std::string& aob,
     }
 }
 
+bool returnTrue(char8_t flag){
+    return true;
+}
+
 const wchar_t * getMessage(uintptr_t messageRepository, uint32_t _1,uint32_t msgBnd, uint32_t msgId){
 	if (msgId == 103090 && msgBnd == 200){
 		return L"Talisman 5";
@@ -28,7 +32,13 @@ DWORD WINAPI MainThread(LPVOID lpParam){
     MH_STATUS status = MH_Initialize();
 	Log("MinHook Status: ",MH_StatusToString(status));
 
-    performPatch(enableSlotAob,"74 11","90 90",enableSlotOffset);
+    {
+        uintptr_t address = AobScan(enableSlotAob);
+        if (address != 0){
+            uintptr_t* func = (uintptr_t*)(getAddressFromMemory(getAddressFromMemory(address,enableSlotOffset,4),enableSlotOffset2,4) + 24*8 );
+            *func = (uintptr_t)&returnTrue;
+        }
+    }
     {
         uintptr_t address = AobScan(slotMaxAob);
         if (address != 0){

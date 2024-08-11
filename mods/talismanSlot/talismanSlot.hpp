@@ -11,7 +11,8 @@
 using namespace ModUtils;
 
 std::string enableSlotAob = "0f 8c ?? ?? ?? ?? c6 44 24 38 18 48 8d 4c 24 38 e8 ?? ?? ?? ?? 84 c0 74 11 48 8d 4d 00 e8 ?? ?? ?? ??";
-int enableSlotOffset = 23;
+int enableSlotOffset = 17;
+int enableSlotOffset2 = 7;
 
 std::string slotMaxAob = "0f b6 88 c6 00 00 00 41 0f b6 c0 03 c1 b9 04 00 00 00 3b c1 0f 47 c1 48 83 c4 20 5b";
 int slotMaxOffset = 14;

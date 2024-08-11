@@ -32,12 +32,18 @@ eldenring.exe+8DDD23 - C6 44 24 38 18        - mov byte ptr [rsp+38],18
 eldenring.exe+8DDD28 - 48 8D 4C 24 38        - lea rcx,[rsp+38]
 eldenring.exe+8DDD2D - E8 1E70E8FF           - call eldenring.exe+764D50
 eldenring.exe+8DDD32 - 84 C0                 - test al,al
-eldenring.exe+8DDD34 - 74 11                 - je eldenring.exe+8DDD47 <-- nop this
+eldenring.exe+8DDD34 - 74 11                 - je eldenring.exe+8DDD47
 eldenring.exe+8DDD36 - 48 8D 4D 00           - lea rcx,[rbp+00]
 eldenring.exe+8DDD3A - E8 E190F7FF           - call eldenring.exe+856E20
 
 0f 8c ?? ?? ?? ?? c6 44 24 38 18 48 8d 4c 24 38 e8 ?? ?? ?? ?? 84 c0 74 11 48 8d 4d 00 e8 ?? ?? ?? ??
-+23
++17
+
+eldenring.exe+764D50 - 48 0FBE 01            - movsx rax,byte ptr [rcx]
+eldenring.exe+764D54 - 48 8D 0D F5013D03     - lea rcx,[eldenring.exe+3B34F50]
+eldenring.exe+764D5B - 48 FF 24 C1           - jmp qword ptr [rcx+rax*8]
++7
+
 
 //defines msg id
 eldenring.exe+84EDD2 - E9 E6000000           - jmp eldenring.exe+84EEBD
