@@ -39,8 +39,21 @@ void menuTypeHook(HookContext* context){
     }
 }
 
+typedef bool (*WaitForSystemFunc)(int);
 DWORD WINAPI MainThread(LPVOID lpParam){
-    from::DLSY::wait_for_system(-1);
+    {
+        HMODULE hDll = LoadLibrary("libER.dll");
+        if (hDll != NULL) {
+            WaitForSystemFunc waitForSystem = (WaitForSystemFunc)GetProcAddress(hDll, "?wait_for_system@DLSY@from@@YA_NH@Z");
+            if (waitForSystem != NULL) {
+                waitForSystem(-1);
+            } else {
+                Sleep(5000);
+            }
+        } else {
+            Sleep(5000);
+        }
+    }
     MH_STATUS status = MH_Initialize();
     if (!CallHook::initialize()) return 0;
 	Log("MinHook Status: ",MH_StatusToString(status));

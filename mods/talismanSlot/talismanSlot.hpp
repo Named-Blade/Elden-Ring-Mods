@@ -3,7 +3,6 @@
 #include <Windows.h>
 #include <algorithm>
 
-#include <dantelion2/system.hpp>
 #include <CallHook.h>
 #include <PointerChain.h>
 
