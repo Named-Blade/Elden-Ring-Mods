@@ -68,6 +68,15 @@ eldenring.exe+247987 - 5B                    - pop rbx
 0f b6 88 c6 00 00 00 41 0f b6 c0 03 c1 b9 04 00 00 00 3b c1 0f 47 c1 48 83 c4 20 5b  
 +14
 
+//call to slot limit
+eldenring.exe+8DDC55 - 48 85 C9              - test rcx,rcx
+eldenring.exe+8DDC58 - 74 0E                 - je eldenring.exe+8DDC68
+eldenring.exe+8DDC5A - 48 81 C1 B0020000     - add rcx,000002B0
+eldenring.exe+8DDC61 - E8 DA9C96FF           - call eldenring.exe+247940 <-- this one
+eldenring.exe+8DDC66 - 8B F0                 - mov esi,eax
+eldenring.exe+8DDC68 - 41 8B FE              - mov edi,r14d
+eldenring.exe+8DDC6B - 0F1F 44 00 00         - nop dword ptr [rax+rax+00]
+
 //talisman slot UI limit
 eldenring.exe+8DDD11 - FF 50 20              - call qword ptr [rax+20]
 eldenring.exe+8DDD14 - 4C 89 75 E8           - mov [rbp-18],r14

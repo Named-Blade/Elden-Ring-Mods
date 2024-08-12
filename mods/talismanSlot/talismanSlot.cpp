@@ -15,8 +15,12 @@ void performPatch(const std::string& aob,
     }
 }
 
-bool returnTrue(char8_t flag){
-    return true;
+bool isFifthSlot(){
+    if (*talismanSlots >= 4){
+        return true;
+    } else {
+        return false;
+    }
 }
 
 const wchar_t * getMessage(uintptr_t messageRepository, uint32_t _1,uint32_t msgBnd, uint32_t msgId){
@@ -41,11 +45,19 @@ DWORD WINAPI MainThread(LPVOID lpParam){
     if (!CallHook::initialize()) return 0;
 	Log("MinHook Status: ",MH_StatusToString(status));
 
+
+    {
+		int instructionSize = 7;
+		int aobOffset = 3;
+		uintptr_t baseAddress = AobScan(gameDataManAob);
+		uintptr_t gameDataManOffset = (uintptr_t)*(int*)(baseAddress + aobOffset);
+		gameDataManPtr = baseAddress+instructionSize+gameDataManOffset;
+	}
     {
         uintptr_t address = AobScan(enableSlotAob);
         if (address != 0){
             uintptr_t* func = (uintptr_t*)(getAddressFromMemory(getAddressFromMemory(address,enableSlotOffset,4),enableSlotOffset2,4) + 24*8 );
-            *func = (uintptr_t)&returnTrue;
+            *func = (uintptr_t)&isFifthSlot;
         }
     }
     {

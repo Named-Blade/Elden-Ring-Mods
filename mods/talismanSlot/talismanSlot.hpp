@@ -5,11 +5,18 @@
 
 #include <dantelion2/system.hpp>
 #include <CallHook.h>
+#include <PointerChain.h>
 
 #include <ModUtils.hpp>
 #include <config.hpp>
 
 using namespace ModUtils;
+
+std::string gameDataManAob = "48 8b 05 ?? ?? ?? ?? 48 85 c0 74 05 48 8b 40 58 c3 c3";
+uintptr_t gameDataManPtr;
+uintptr_t playerGameDataOffset = 0x8;
+uintptr_t talismanSlotsOffset = 0xC6;
+auto talismanSlots = PointerChain::make<int8_t, true>(gameDataManPtr,0x0,playerGameDataOffset,talismanSlotsOffset);
 
 std::string enableSlotAob = "0f 8c ?? ?? ?? ?? c6 44 24 38 18 48 8d 4c 24 38 e8 ?? ?? ?? ?? 84 c0 74 11 48 8d 4d 00 e8 ?? ?? ?? ??";
 int enableSlotOffset = 17;
