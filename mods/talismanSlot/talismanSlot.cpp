@@ -16,6 +16,10 @@ void performPatch(const std::string& aob,
 }
 
 bool isFifthSlot(){
+    if (*talismanSlots >= 3 && extraSlotOnMax){
+        *talismanSlots = 4;
+    }
+
     if (*talismanSlots >= 4){
         return true;
     } else {
@@ -27,7 +31,6 @@ const wchar_t * getMessage(uintptr_t messageRepository, uint32_t _1,uint32_t msg
 	if (msgId == 103090 && msgBnd == 200){
 		return L"Talisman 5";
 	}
-	
 	return getMessageOriginal(messageRepository,_1,msgBnd,msgId);
 }
 
@@ -41,6 +44,10 @@ void menuTypeHook(HookContext* context){
 
 typedef bool (*WaitForSystemFunc)(int);
 DWORD WINAPI MainThread(LPVOID lpParam){
+    std::string section = "Talisman slot";
+    readConfig(
+        std::forward_as_tuple(extraSlotOnMax,section,"fifth slot gained with fourth slot"_s)
+    );
     {
         HMODULE hDll = LoadLibrary("libER.dll");
         if (hDll != NULL) {

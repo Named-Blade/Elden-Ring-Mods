@@ -31,3 +31,5 @@ std::string getMessageAob = "75 24 44 8b cb 33 d2 41 b8 9c 01 00 00 48 8b cf e8 
 int getMessageOffset = 17;
 typedef const wchar_t * (*getMessageType) (uintptr_t,uint32_t,uint32_t,uint32_t);
 getMessageType getMessageOriginal;
+
+bool extraSlotOnMax = true;

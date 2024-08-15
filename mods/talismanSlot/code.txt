@@ -128,3 +128,12 @@ eldenring.exe+855556 - C3                    - ret
 
 c6 84 24 5a 01 00 00 01 48 8d 4c 24 30 48 89 4c 24 20 4c 8d 8c 24 58 01 00 00 4c 8b c0 48 8b d7 48 8b cb e8 ?? ?? ?? ?? 48 8b 9c 24 40 01 00 00 48 81 c4 30 01 00 00 5f c3
 +36
+
+//incompatible talismans
+eldenring.exe+84F1C6 - 77 11                 - ja eldenring.exe+84F1D9
+eldenring.exe+84F1C8 - 48 8B D3              - mov rdx,rbx
+eldenring.exe+84F1CB - E8 7081F3FF           - call eldenring.exe+787340
+eldenring.exe+84F1D0 - 84 C0                 - test al,al
+eldenring.exe+84F1D2 - 75 05                 - jne eldenring.exe+84F1D9
+eldenring.exe+84F1D4 - 66 83 4B 04 02        - or word ptr [rbx+04],02
+eldenring.exe+84F1D9 - E8 8267F7FF           - call eldenring.exe+7C5960
