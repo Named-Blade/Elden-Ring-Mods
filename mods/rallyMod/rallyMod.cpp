@@ -48,7 +48,20 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		std::forward_as_tuple(rallyResetOnHeal,section,"reset rally time on heal"_s),
 		std::forward_as_tuple(rallyKeepOnHeal,section,"keep rally on heal"_s)
 	);
-	from::DLSY::wait_for_system(-1);
+	{
+        HMODULE hDll = LoadLibrary("libER.dll");
+        if (hDll != NULL) {
+			typedef bool (*WaitForSystemFunc)(int);
+            WaitForSystemFunc waitForSystem = (WaitForSystemFunc)GetProcAddress(hDll, "?wait_for_system@DLSY@from@@YA_NH@Z");
+            if (waitForSystem != NULL) {
+                waitForSystem(-1);
+            } else {
+                Sleep(5000);
+            }
+        } else {
+            Sleep(5000);
+        }
+    }
 	if (!CallHook::initialize()) return 0;
 	
 	uintptr_t rallyTimeAddress = AobScan(rallyTimeAob);

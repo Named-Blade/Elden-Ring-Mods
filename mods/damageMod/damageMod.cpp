@@ -138,8 +138,20 @@ DWORD WINAPI MainThread(LPVOID lpParam)
 		std::forward_as_tuple(splitDamageFix,section,"split damage fix"_s),
 		std::forward_as_tuple(heavenOrHell,section,"Heaven or Hell"_s)
 	);
-	
-	from::DLSY::wait_for_system(-1);
+	{
+        HMODULE hDll = LoadLibrary("libER.dll");
+        if (hDll != NULL) {
+			typedef bool (*WaitForSystemFunc)(int);
+            WaitForSystemFunc waitForSystem = (WaitForSystemFunc)GetProcAddress(hDll, "?wait_for_system@DLSY@from@@YA_NH@Z");
+            if (waitForSystem != NULL) {
+                waitForSystem(-1);
+            } else {
+                Sleep(5000);
+            }
+        } else {
+            Sleep(5000);
+        }
+    }
 	
 	{// hook damage calculation
 		std::string aob = "48 8b c4 48 89 58 18 4c 89 48 20 48 89 50 10 48 89 48 08 55 56 57 41 54 41 55 41 56 41 57 48 81 ec a0 00 00 00";

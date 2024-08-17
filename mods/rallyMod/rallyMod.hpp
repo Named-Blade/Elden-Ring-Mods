@@ -1,7 +1,6 @@
 #pragma once
 #include <iostream>
 
-#include <dantelion2/system.hpp>
 #include <CallHook.h>
 
 #include <ModUtils.hpp>

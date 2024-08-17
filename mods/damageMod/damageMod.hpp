@@ -3,7 +3,6 @@
 #include <cmath> 
 #include <algorithm>
 #include <iostream>
-#include <dantelion2/system.hpp>
 
 #include <ModUtils.hpp>
 #include <config.hpp>
