@@ -42,7 +42,6 @@ void menuTypeHook(HookContext* context){
     }
 }
 
-typedef bool (*WaitForSystemFunc)(int);
 DWORD WINAPI MainThread(LPVOID lpParam){
     std::string section = "Talisman slot";
     readConfig(
@@ -51,6 +50,7 @@ DWORD WINAPI MainThread(LPVOID lpParam){
     {
         HMODULE hDll = LoadLibrary("libER.dll");
         if (hDll != NULL) {
+            typedef bool (*WaitForSystemFunc)(int);
             WaitForSystemFunc waitForSystem = (WaitForSystemFunc)GetProcAddress(hDll, "?wait_for_system@DLSY@from@@YA_NH@Z");
             if (waitForSystem != NULL) {
                 waitForSystem(-1);
