@@ -1,0 +1,11 @@
+[package]
+name = "endless_ng"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fromsoftware-shared.workspace = true
+eldenring.workspace = true
+
+[lib]
+crate-type = ["cdylib"]
