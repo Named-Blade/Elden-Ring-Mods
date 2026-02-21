@@ -6,7 +6,7 @@ mod console;
 use console::init_console;
 
 use eldenring::{
-    cs::{CSTaskGroupIndex, CSTaskImp, GameDataMan, SoloParamRepository, ClearCountCorrectParam},
+    cs::{CSTaskGroupIndex, CSTaskImp, GameDataMan, SoloParam, SoloParamRepository, ClearCountCorrectParam},
     fd4::FD4TaskData,
     param::CLEAR_COUNT_CORRECT_PARAM_ST,
     util::system::wait_for_system_init,
@@ -70,6 +70,28 @@ fn compute_clear_count_cycle_increase(
     (cycle_increase, original_max)
 }
 
+//vanilla accidentaly increases physical damage on ng cycles too much by applying it multiplicatively on both the physical damage supertype and all physical damage subtypes
+fn fix_attack_rate(repo: &mut SoloParamRepository) {
+    let holder = &repo.solo_param_holders[ClearCountCorrectParam::INDEX as usize];
+    let res_cap = match holder.get_res_cap(0) {
+        Some(rc) => rc,
+        None => return,
+    };
+    let param_res = unsafe { res_cap.param_res_cap.as_ref() };
+    let data = &param_res.data;
+    let row_count = data.row_count();
+        for row_index in 0..row_count {
+        unsafe {
+            if let Some(row) =
+                repo.get_row_by_index_mut::<ClearCountCorrectParam>(row_index)
+            {
+                //the typo is how it's actually named
+                row.set_netural_attack_rate(1.0);
+            }
+        }
+    }
+}
+
 /// # Safety
 /// This is exposed this way such that libraryloader can call it. Do not call this yourself.
 #[unsafe(no_mangle)]
@@ -86,10 +108,9 @@ pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
 
         thread::sleep(time::Duration::from_secs(10));
 
-        let Ok(solo_param_repository) = (unsafe { SoloParamRepository::instance() }) else {
-            return;
-        };
+        let Ok(solo_param_repository) = (unsafe { SoloParamRepository::instance() }) else { return; };
 
+        fix_attack_rate(solo_param_repository);
         let (cycle_increase, original_max) = compute_clear_count_cycle_increase(solo_param_repository);
 
         // Retrieve games task runner and register a task at frame begin.
