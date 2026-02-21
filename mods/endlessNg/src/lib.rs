@@ -121,8 +121,10 @@ pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
                         &mut *ptr
                     };
                     for &field in ClearCountField::ALL.iter() {
-                        row1.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * (game_data_man.ng_lvl - 7) as f32);
-                        row2.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * (game_data_man.ng_lvl - 7) as f32);
+                        if field != ClearCountField::SuperArmorDamageRate {
+                            row1.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * (game_data_man.ng_lvl - 7) as f32);
+                            row2.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * (game_data_man.ng_lvl - 7) as f32);
+                        }
                     }
                 }
 

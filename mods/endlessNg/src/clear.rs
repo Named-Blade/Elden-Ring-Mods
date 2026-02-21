@@ -2,7 +2,7 @@ use eldenring::{
     param::CLEAR_COUNT_CORRECT_PARAM_ST,
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ClearCountField {
     MaxHpRate,
     MaxMpRate,
