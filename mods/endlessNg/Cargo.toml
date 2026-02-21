@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 fromsoftware-shared.workspace = true
 eldenring.workspace = true
+windows.workspace = true
 
 [lib]
 crate-type = ["cdylib"]
