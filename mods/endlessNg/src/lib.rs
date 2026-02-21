@@ -1,9 +1,10 @@
 use std::time::Duration;
+use std::mem::MaybeUninit;
 
 use eldenring::{
     cs::{CSTaskGroupIndex, CSTaskImp, GameDataMan, SoloParam, SoloParamRepository, ClearCountCorrectParam},
-    param::CLEAR_COUNT_CORRECT_PARAM_ST,
     fd4::FD4TaskData,
+    param::CLEAR_COUNT_CORRECT_PARAM_ST,
     util::system::wait_for_system_init,
 };
 use fromsoftware_shared::{FromStatic, program::Program, task::*};
@@ -27,6 +28,8 @@ impl Iterator for ClearCountCorrectParamIter {
     }
 }
 
+
+
 /// # Safety
 /// This is exposed this way such that libraryloader can call it. Do not call this yourself.
 #[unsafe(no_mangle)]
@@ -40,11 +43,30 @@ pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
         wait_for_system_init(&Program::current(), Duration::MAX)
             .expect("Timeout waiting for system init");
 
+        let Ok(solo_param_repository) = (unsafe { SoloParamRepository::instance() }) else {
+            return;
+        };
+
+        let average_val: CLEAR_COUNT_CORRECT_PARAM_ST = unsafe { MaybeUninit::zeroed().assume_init() };
+        let ng0: CLEAR_COUNT_CORRECT_PARAM_ST;
+
+        let holder = &solo_param_repository.solo_param_holders[ClearCountCorrectParam::INDEX as usize];
+        let res_cap = match holder.get_res_cap(0) { Some(r) => r, None => return, };
+        let param_file = unsafe { res_cap.param_res_cap.as_ref().data.as_ref() };
+        let row_count = param_file.row_count();
+        let iter = ClearCountCorrectParamIter { row_index: 0, row_count };
+        for row_idx in iter {
+            unsafe {
+                if let Some(row) = solo_param_repository.get_row_by_index_mut::<ClearCountCorrectParam>(row_idx) {
+                    row.set_soul_rate(100.0);
+                }
+            }
+        }
+
         // Retrieve games task runner and register a task at frame begin.
         let cs_task = unsafe { CSTaskImp::instance().unwrap() };
         cs_task.run_recurring(
             |_: &FD4TaskData| {
-                // Retrieve GameDataMan
                 let Ok(game_data_man) = (unsafe { GameDataMan::instance() }) else {
                     return;
                 };
@@ -53,19 +75,7 @@ pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
                     return;
                 };
 
-                let holder = &solo_param_repository.solo_param_holders[ClearCountCorrectParam::INDEX as usize];
-                let res_cap = match holder.get_res_cap(0) { Some(r) => r, None => return, };
-                let param_file = unsafe { res_cap.param_res_cap.as_ref().data.as_ref() };
-                let row_count = param_file.row_count();
-                let iter = ClearCountCorrectParamIter { row_index: 0, row_count };
-                for row_idx in iter {
-                    unsafe {
-                        if let Some(row) = solo_param_repository.get_row_by_index_mut::<ClearCountCorrectParam>(row_idx) {
-                            row.set_soul_rate(100.0);
-                        }
-                    }
-                }
-
+                game_data_man.ng_lvl;
 
             },
             CSTaskGroupIndex::FrameBegin,
