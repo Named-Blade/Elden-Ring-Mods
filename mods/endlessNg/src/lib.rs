@@ -96,13 +96,8 @@ pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
         let cs_task = unsafe { CSTaskImp::instance().unwrap() };
         cs_task.run_recurring(
             move |_: &FD4TaskData| { 
-                let Ok(game_data_man) = (unsafe { GameDataMan::instance() }) else {
-                    return;
-                };
-
-                let Ok(repo) = (unsafe { SoloParamRepository::instance() }) else {
-                    return;
-                };
+                let Ok(game_data_man) = (unsafe { GameDataMan::instance() }) else { return; };
+                let Ok(repo) = (unsafe { SoloParamRepository::instance() }) else { return; };
 
                 eprintln!("{:p}", &game_data_man.ng_lvl);
                 if game_data_man.ng_lvl > 6 {
