@@ -10,6 +10,7 @@ windows.workspace = true
 windows-sys.workspace = true
 pelite.workspace = true
 winhook.workspace = true
+closure-ffi.workspace = true
 
 [lib]
 crate-type = ["cdylib"]

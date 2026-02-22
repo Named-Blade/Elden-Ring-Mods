@@ -191,6 +191,7 @@ dependencies = [
 name = "endless_ng"
 version = "0.1.0"
 dependencies = [
+ "closure-ffi",
  "eldenring",
  "fromsoftware-shared",
  "pelite",

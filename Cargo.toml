@@ -24,3 +24,4 @@ windows-sys = { version = "0.48", features = [
     "Win32_System_SystemInformation"
 ]}
 pelite = "0.10"
+closure-ffi = "5.0"
