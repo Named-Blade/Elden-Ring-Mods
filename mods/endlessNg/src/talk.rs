@@ -20,23 +20,23 @@ fn is_key_down(key: VIRTUAL_KEY) -> bool {
 }
 
 // Command IDs (add these to your constants)
-const PLAYER_EQUIPMENT_QUANTITY_CHANGE: i32 = 0;
-const CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG: i32 = 0;
-const OPEN_CHOOSE_QUANTITY_DIALOG: i32 = 0;
-const GET_ITEM_HELD_NUM_LIMIT: i32 = 0;
-const GET_VALUE_FROM_NUMBER_SELECT_DIALOG: i32 = 0;
-const SET_EVENT_FLAG_VALUE: i32 = 0;
-const SET_EVENT_FLAG: i32 = 0;
-const OPEN_GENERIC_DIALOG: i32 = 0;
+const PLAYER_EQUIPMENT_QUANTITY_CHANGE: i32 = 52; // Command ID for PlayerEquipmentQuantityChange
+const CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG: i32 = 83; // Command ID for ClearQuantityValueOfChooseQuantityDialog
+const OPEN_CHOOSE_QUANTITY_DIALOG: i32 = 82; // Command ID for OpenChooseQuantityDialog
+const GET_ITEM_HELD_NUM_LIMIT: i32 = 108; // Function ID for GetItemHeldNumLimit
+const GET_VALUE_FROM_NUMBER_SELECT_DIALOG: i32 = 62; // Function ID for GetValueFromNumberSelectDialog
+const SET_EVENT_FLAG_VALUE: i32 = 147; // Command ID for SetEventFlagValue
+const SET_EVENT_FLAG: i32 = 11; // Command ID for SetEventFlag
+const OPEN_GENERIC_DIALOG: i32 = 17; // Command ID for OpenGenericDialog
 
-const ITEM_TYPE_GOODS: i32 = 3; // adjust to match ItemType.Goods
-const FLAG_STATE_ON: i32 = 1;
-const DIALOG_BOX_TYPE_CENTER_BOTTOM_1: i32 = 0;
-const DIALOG_RESULT_LEFT: i32 = 0;
-const DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS: i32 = 0;
+const ITEM_TYPE_GOODS: i32 = 3; // ItemType enum index for Goods
+const FLAG_STATE_ON: i32 = 1; // FlagState enum index for On
+const DIALOG_BOX_TYPE_CENTER_BOTTOM_1: i32 = 7; // DialogBoxType enum index for CenterBottom1
+const DIALOG_RESULT_LEFT: i32 = 1; // DialogResult enum index for Left
+const DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS: i32 = 0; // DialogBoxStyle enum index for OrnateNoOptions
 
-const CHECK_SPECIFIC_PERSON_MENU_IS_OPEN: i32 = 59;
-const CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN: i32 = 58;
+const CHECK_SPECIFIC_PERSON_MENU_IS_OPEN: i32 = 59; // Function ID for CheckSpecificPersonMenuIsOpen
+const CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN: i32 = 58; // Function ID for CheckSpecificPersonGenericDialogIsOpen
 
 enum State000001000X84State {
     Idle,
