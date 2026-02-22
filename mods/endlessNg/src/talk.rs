@@ -1,7 +1,7 @@
 use eldenring::{
     cs::{
         BlockId, CSTaskGroupIndex, CSTaskImp, EzStateInvokeError, FieldInsHandle, FieldInsSelector,
-        TalkScript, WorldChrMan,
+        TalkScript, WorldChrMan, GameDataMan
     },
     ez_state::EzStateValue,
     fd4::FD4TaskData
@@ -22,13 +22,9 @@ const CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG: i32 = 83; // Command ID fo
 const OPEN_CHOOSE_QUANTITY_DIALOG: i32 = 82; // Command ID for OpenChooseQuantityDialog
 const GET_ITEM_HELD_NUM_LIMIT: i32 = 108; // Function ID for GetItemHeldNumLimit
 const GET_VALUE_FROM_NUMBER_SELECT_DIALOG: i32 = 62; // Function ID for GetValueFromNumberSelectDialog
-const SET_EVENT_FLAG_VALUE: i32 = 147; // Command ID for SetEventFlagValue
-const SET_EVENT_FLAG: i32 = 11; // Command ID for SetEventFlag
 const OPEN_GENERIC_DIALOG: i32 = 17; // Command ID for OpenGenericDialog
 
 const ITEM_TYPE_GOODS: i32 = 3; // ItemType enum index for Goods
-const FLAG_STATE_OFF: i32 = 0;
-const FLAG_STATE_ON: i32 = 1; // FlagState enum index for On
 const DIALOG_BOX_TYPE_CENTER_BOTTOM_1: i32 = 7; // DialogBoxType enum index for CenterBottom1
 const DIALOG_RESULT_LEFT: i32 = 1; // DialogResult enum index for Left
 const DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS: i32 = 0; // DialogBoxStyle enum index for OrnateNoOptions
@@ -91,7 +87,7 @@ impl<M: StateMachine> StateRunner<M> {
 }
 
 #[derive(Default, Debug)]
-enum S84State {
+enum IntensityState {
     #[default]
     Idle,
     Enter,
@@ -100,18 +96,18 @@ enum S84State {
     Done,
 }
 
-struct S84 {
-    action1: i32, // FlagState, default ON
+struct Intensity {
+    change_sign: i32, // FlagState, default ON
 }
 
-impl StateMachine for S84 {
-    type State = S84State;
+impl StateMachine for Intensity {
+    type State = IntensityState;
 
     fn step_state(
         &mut self,
-        state: S84State,
+        state: IntensityState,
         ts: &mut TalkScript,
-    ) -> Result<Transition<S84State>, EzStateInvokeError> {
+    ) -> Result<Transition<IntensityState>, EzStateInvokeError> {
         use Transition::*;
 
         // Shorthand helpers
@@ -126,11 +122,11 @@ impl StateMachine for S84 {
         }
 
         Ok(match state {
-            S84State::Idle => {
-                if is_key_down(VK_T) { Next(S84State::Enter) } else { Transition::<S84State>::Wait(S84State::Idle) }
+            IntensityState::Idle => {
+                if is_key_down(VK_T) { Next(IntensityState::Enter) } else { Transition::<IntensityState>::Wait(IntensityState::Idle) }
             }
 
-            S84State::Enter => {
+            IntensityState::Enter => {
                 let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
 
                 event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
@@ -138,22 +134,30 @@ impl StateMachine for S84 {
                 event!(CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG);
                 event!((OPEN_CHOOSE_QUANTITY_DIALOG, [i!(67350), i!(22021102)]));
 
-                Next(S84State::WaitForDialog)
+                Next(IntensityState::WaitForDialog)
             }
 
-            S84State::WaitForDialog => {
+            IntensityState::WaitForDialog => {
                 let menu_open: i32  = env!((CHECK_SPECIFIC_PERSON_MENU_IS_OPEN,          [i!(13), i!(0)])).into();
                 let dialog_open: i32 = env!((CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN, [i!(0)])).into();
 
                 if menu_open == 1 && dialog_open == 0 {
-                    return Ok(Transition::<S84State>::Wait(S84State::WaitForDialog)); // still waiting; don't advance state
+                    return Ok(Transition::<IntensityState>::Wait(IntensityState::WaitForDialog)); // still waiting; don't advance state
                 }
 
                 let value: i32 = env!(GET_VALUE_FROM_NUMBER_SELECT_DIALOG).into();
                 if value >= 0 {
-                    event!((SET_EVENT_FLAG_VALUE, [i!(1051439332), i!(32), i!(value)]));
-                    event!((SET_EVENT_FLAG, [i!(1051439331), i!(self.action1)]));
-                    event!((SET_EVENT_FLAG, [i!(1051439330), i!(FLAG_STATE_ON)]));
+                    let Ok(game_data_man) = (unsafe { GameDataMan::instance() }) else {
+                        let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
+                        event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                        return Ok(Transition::<IntensityState>::Done);
+                    };
+                    if self.change_sign == 0 {
+                        game_data_man.ng_lvl -= value as u32;
+                    }  else {
+                        game_data_man.ng_lvl += value as u32;
+                    }
+                    log!("set ng level to {}", game_data_man.ng_lvl);
                 }
 
                 let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
@@ -163,25 +167,25 @@ impl StateMachine for S84 {
                     i!(DIALOG_RESULT_LEFT), i!(DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS), i!(1),
                 ]));
 
-                Next(S84State::WaitForGenericDialog)
+                Next(IntensityState::WaitForGenericDialog)
             }
 
-            S84State::WaitForGenericDialog => {
+            IntensityState::WaitForGenericDialog => {
                 let dialog_open: i32 = env!((CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN, [i!(0)])).into();
-                if dialog_open == 1 { return Ok(Transition::<S84State>::Wait(S84State::WaitForGenericDialog)); }
-                Next(S84State::Done)
+                if dialog_open == 1 { return Ok(Transition::<IntensityState>::Wait(IntensityState::WaitForGenericDialog)); }
+                Next(IntensityState::Done)
             }
 
-            S84State::Done => Transition::<S84State>::Done,
+            IntensityState::Done => Transition::<IntensityState>::Done,
         })
     }
 }
 
-unsafe impl Send for StateRunner<S84> {}
+unsafe impl Send for StateRunner<Intensity> {}
 
 pub fn test() {
     let mut runner = Box::new(StateRunner::new(
-        S84 { action1: 0 },
+        Intensity { change_sign: 1 },
         TalkScript::new(
             BlockId::none(),
             1000,
@@ -200,7 +204,7 @@ pub fn test() {
 
                 if let Err(e) = runner.step() {
                     log!("{:?}", e);
-                    runner.state = S84State::Idle;
+                    runner.state = IntensityState::Idle;
                 }
             }
         },
