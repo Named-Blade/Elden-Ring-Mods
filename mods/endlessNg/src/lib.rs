@@ -87,14 +87,12 @@ fn fix_attack_rate(repo: &mut SoloParamRepository) {
     let data = &param_res.data;
     let row_count = data.row_count();
         for row_index in 0..row_count {
-        unsafe {
             if let Some(row) =
-                repo.get_row_by_index_mut::<ClearCountCorrectParam>(row_index)
+                unsafe { repo.get_row_by_index_mut::<ClearCountCorrectParam>(row_index) }
             {
                 //the typo is how it's actually named
                 row.set_netural_attack_rate(1.0);
             }
-        }
     }
 }
 
