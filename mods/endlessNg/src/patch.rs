@@ -1,26 +1,25 @@
 use pelite::pe64::{PeView, Pe};
+use pelite::pattern::{Atom, parse};
 use std::ffi::c_void;
 use windows::Win32::System::LibraryLoader::GetModuleHandleA;
 
-fn aob_scan(pattern: &[u8]) -> Option<*mut u8> {
+pub fn aob_scan(pattern: &[Atom]) -> Option<*mut u8> {
     unsafe {
+        // get module base
         let hmodule = GetModuleHandleA(None).ok()?;
         let base = hmodule.0 as *const u8;
 
+        // create a PE view
         let pe = PeView::module(base);
 
-        // Iterate sections to find ".text"
-        for section in pe.section_headers() {
-            if section.name().ok()? == ".text" {
-                let bytes = pe.get_section_bytes(&section).ok()?;
+        // create a scanner for this PE
+        let scanner = pe.scanner();
 
-                for i in 0..=bytes.len().saturating_sub(pattern.len()) {
-                    if &bytes[i..i + pattern.len()] == pattern {
-                        let rva = section.VirtualAddress + i as u32;
-                        return Some((base as usize + rva as usize) as *mut u8);
-                    }
-                }
-            }
+        // find first match in code section
+        let mut save = [0u32; 16]; // space for captures if needed
+        if scanner.finds_code(pattern, &mut save) {
+            let rva = save[0];
+            return Some((base as usize + rva as usize) as *mut u8);
         }
     }
 
@@ -67,7 +66,7 @@ pub fn perform_patch(
     new_bytes_str: &str,
     offset: usize,
 ) {
-    let aob = string_to_bytes(aob_str);
+    let aob = parse(aob_str).unwrap();
     let expected = string_to_bytes(expected_str);
     let new_bytes = string_to_bytes(new_bytes_str);
 
