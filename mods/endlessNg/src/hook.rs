@@ -64,8 +64,7 @@ pub fn make_installer_from_call_aob<T: FnPtr + CConv + 'static> (aob: &str, offs
 }
 
 pub fn init_hooks() -> Vec<HookHandle> {
-    let installer_get_goods = make_installer_from_call_aob::<GetGoodsType>(GET_GOODS_AOB, GET_GOODS_OFFSET, &GET_GOODS_ORIGINAL_HOLDER);
-    let hook_handle_goods = installer_get_goods.unwrap()
+    let hook_handle_goods = make_installer_from_call_aob::<GetGoodsType>(GET_GOODS_AOB, GET_GOODS_OFFSET, &GET_GOODS_ORIGINAL_HOLDER).unwrap()
     .install_mut({
         move |original| move |result, id| {
             if id == 67350{
@@ -85,15 +84,27 @@ pub fn init_hooks() -> Vec<HookHandle> {
         }
     }).unwrap();
 
-    let installer_get_message = make_installer_from_call_aob::<GetMessageType>(GET_MESSAGE_AOB, GET_MESSAGE_OFFSET, &GET_MESSAGE_ORIGINAL_HOLDER);
-    let hook_handle_message = installer_get_message.unwrap()
+    let hook_handle_message = make_installer_from_call_aob::<GetMessageType>(GET_MESSAGE_AOB, GET_MESSAGE_OFFSET, &GET_MESSAGE_ORIGINAL_HOLDER).unwrap()
     .install_mut({
         move |original| move |message_repository, _1, msg_bnd, msg_id| {
             if msg_id == 67350 && msg_bnd == 10 {
                 return w!("Modify Intensity By:").as_ptr();
-            } else {
-                return unsafe { original(message_repository, _1, msg_bnd, msg_id) };
             }
+            if msg_bnd == 33 {
+                if msg_id == 22021100{
+                    return w!("Increase Intensity (Current: <?loopCount?>)").as_ptr();
+                }
+                if msg_id == 22021101{
+                    return w!("Decrease Intensity (Current: <?loopCount?>)").as_ptr();
+                }
+                if msg_id == 22021102{
+                    return w!("Current Intensity: <?loopCount?>").as_ptr();
+                }
+                if msg_id == 22021103{
+                    return w!("Intensity Updated").as_ptr();
+                }
+            }
+            return unsafe { original(message_repository, _1, msg_bnd, msg_id) };
         }
     }).unwrap();
 
