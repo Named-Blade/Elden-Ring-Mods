@@ -30,6 +30,7 @@ const SET_EVENT_FLAG: i32 = 11; // Command ID for SetEventFlag
 const OPEN_GENERIC_DIALOG: i32 = 17; // Command ID for OpenGenericDialog
 
 const ITEM_TYPE_GOODS: i32 = 3; // ItemType enum index for Goods
+const FLAG_STATE_OFF: i32 = 0;
 const FLAG_STATE_ON: i32 = 1; // FlagState enum index for On
 const DIALOG_BOX_TYPE_CENTER_BOTTOM_1: i32 = 7; // DialogBoxType enum index for CenterBottom1
 const DIALOG_RESULT_LEFT: i32 = 1; // DialogResult enum index for Left
