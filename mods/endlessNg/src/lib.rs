@@ -149,6 +149,10 @@ impl StateMachine for Intensity {
 
         Ok(match state {
             IntensityState::Idle => {
+                let has_item: i32 = env!((DOES_PLAYER_HAVE_ITEM, [i!(ITEM_TYPE_GOODS), i!(67351)])).into();
+                if has_item == 0 {
+                    event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67351), i!(1)]));
+                }
                 if is_key_down(VK_T) {
                     self.change_sign = 0;
                     Next(IntensityState::Enter) 

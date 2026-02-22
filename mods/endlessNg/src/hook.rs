@@ -26,7 +26,8 @@ pub type GetGoodsType = unsafe extern "C" fn(
 );
 
 pub static GET_GOODS_ORIGINAL_HOLDER: OnceLock<GetGoodsType> = OnceLock::new();
-static INTENSITY_LEVEL_GOODS: OnceLock<EQUIP_PARAM_GOODS_ST> = OnceLock::new();
+pub static INTENSITY_DISPLAY_GOODS: OnceLock<EQUIP_PARAM_GOODS_ST> = OnceLock::new();
+pub static INTENSITY_CHANGE_GOODS: OnceLock<EQUIP_PARAM_GOODS_ST> = OnceLock::new();
 
 pub const GET_MESSAGE_AOB: &str = "75 24 44 8b cb 33 d2 41 b8 9c 01 00 00 48 8b cf e8 ? ? ? ? 48 85 c0 48 8d 0d ? ? ? ? 48 0f 45 c8 48 8b c1 48 8b 5c 24 30";
 pub const GET_MESSAGE_OFFSET: usize = 17;
@@ -70,13 +71,35 @@ pub fn init_hooks() -> Vec<HookHandle> {
             if id == 67350{
                 unsafe {
                     original(result, 2912);
-                    if INTENSITY_LEVEL_GOODS.get().is_none() {
+                    if INTENSITY_DISPLAY_GOODS.get().is_none() {
                         let mut goods = (*(*result).row).clone();
                         goods.set_max_num(9999);
-                        INTENSITY_LEVEL_GOODS.set(goods).unwrap();
+                        INTENSITY_DISPLAY_GOODS.set(goods).unwrap();
                     }
                     (*result).id = 67350;
-                    (*result).row = INTENSITY_LEVEL_GOODS.get().unwrap() as *const _ as *mut _;
+                    (*result).row = INTENSITY_DISPLAY_GOODS.get().unwrap() as *const _ as *mut _;
+                }
+            } else if id == 67351 {
+                unsafe {
+                    original(result, 2912);
+                    if INTENSITY_CHANGE_GOODS.get().is_none() {
+                        let mut goods = (*(*result).row).clone();
+                        goods.set_max_num(1);
+                        goods.set_is_drop(0);
+                        goods.set_is_discard(0);
+                        goods.set_is_consume(0);
+                        goods.set_is_deposit(0);
+                        goods.set_max_repository_num(0);
+                        goods.set_rarity(5);
+                        goods.set_sell_value(-1);
+                        goods.set_sort_id(349);
+                        goods.set_sort_group_id(10);
+                        let grace_memory_icon_id = 9;
+                        goods.set_icon_id(grace_memory_icon_id);
+                        INTENSITY_CHANGE_GOODS.set(goods).unwrap();
+                    }
+                    (*result).id = 67351;
+                    (*result).row = INTENSITY_CHANGE_GOODS.get().unwrap() as *const _ as *mut _;
                 }
             } else {
                 unsafe { original(result, id) };
@@ -87,20 +110,25 @@ pub fn init_hooks() -> Vec<HookHandle> {
     let hook_handle_message = make_installer_from_call_aob::<GetMessageType>(GET_MESSAGE_AOB, GET_MESSAGE_OFFSET, &GET_MESSAGE_ORIGINAL_HOLDER).unwrap()
     .install_mut({
         move |original| move |message_repository, _1, msg_bnd, msg_id| {
-            if msg_id == 67350 && msg_bnd == 10 {
-                return w!("Modify Intensity By:").as_ptr();
+            if msg_bnd == 10 {
+                if msg_id == 67350 {
+                    return w!("Modify Intensity By:").as_ptr();
+                }
+                if msg_id == 67351 {
+                    return w!("Grace Ascetic").as_ptr();
+                }
             }
             if msg_bnd == 33 {
-                if msg_id == 22021100{
+                if msg_id == 22021100 {
                     return w!("Increase Intensity (Current: <?loopCount?>)").as_ptr();
                 }
-                if msg_id == 22021101{
+                if msg_id == 22021101 {
                     return w!("Decrease Intensity (Current: <?loopCount?>)").as_ptr();
                 }
-                if msg_id == 22021102{
+                if msg_id == 22021102 {
                     return w!("Current Intensity: <?loopCount?>").as_ptr();
                 }
-                if msg_id == 22021103{
+                if msg_id == 22021103 {
                     return w!("Intensity Updated").as_ptr();
                 }
             }
