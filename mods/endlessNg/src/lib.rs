@@ -22,6 +22,8 @@ use patch::perform_patch;
 mod clear;
 use clear::{ClearCountField, ClearCountFieldAccess};
 
+mod talk;
+
 fn compute_clear_count_cycle_increase(
     repo: &mut SoloParamRepository,
 ) -> (CLEAR_COUNT_CORRECT_PARAM_ST, CLEAR_COUNT_CORRECT_PARAM_ST) {
