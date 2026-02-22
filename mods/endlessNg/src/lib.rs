@@ -32,7 +32,7 @@ use talk::*;
 mod hook;
 use hook::*;
 
-use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T};
+use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T, VK_Y};
 fn is_key_down(key: VIRTUAL_KEY) -> bool {
     let key_state = unsafe { GetKeyState(key.0 as i32) } as u16;
     key_state & 0x8000 != 0
@@ -149,7 +149,15 @@ impl StateMachine for Intensity {
 
         Ok(match state {
             IntensityState::Idle => {
-                if is_key_down(VK_T) { Next(IntensityState::Enter) } else { Transition::<IntensityState>::Wait(IntensityState::Idle) }
+                if is_key_down(VK_T) {
+                    self.change_sign = 0;
+                    Next(IntensityState::Enter) 
+                } else if is_key_down(VK_Y) {
+                    self.change_sign = 1;
+                    Next(IntensityState::Enter) 
+                } else { 
+                    Transition::<IntensityState>::Wait(IntensityState::Idle) 
+                }
             }
 
             IntensityState::Enter => {
@@ -179,9 +187,9 @@ impl StateMachine for Intensity {
                         return Ok(Transition::<IntensityState>::Done);
                     };
                     if self.change_sign == 0 {
-                        game_data_man.ng_lvl -= value as u32;
+                        game_data_man.ng_lvl = game_data_man.ng_lvl.saturating_sub(value as u32);
                     }  else {
-                        game_data_man.ng_lvl += value as u32;
+                        game_data_man.ng_lvl = game_data_man.ng_lvl.saturating_add(value as u32);
                     }
                     log!("set ng level to {}", game_data_man.ng_lvl);
                 }
