@@ -11,6 +11,14 @@ use eldenring::{
 };
 use fromsoftware_shared::{FromStatic, program::Program, task::*};
 
+use crate::log;
+
+use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T};
+fn is_key_down(key: VIRTUAL_KEY) -> bool {
+    let key_state = unsafe { GetKeyState(key.0 as i32) } as u16;
+    key_state & 0x8000 != 0
+}
+
 // Command IDs (add these to your constants)
 const PLAYER_EQUIPMENT_QUANTITY_CHANGE: i32 = 0;
 const CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG: i32 = 0;
@@ -31,6 +39,7 @@ const CHECK_SPECIFIC_PERSON_MENU_IS_OPEN: i32 = 59;
 const CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN: i32 = 58;
 
 enum State000001000X84State {
+    Idle,
     Enter,
     WaitForDialog,
     WaitForGenericDialog,
@@ -48,7 +57,16 @@ impl State000001000X84 {
         let ts = &mut self.talk_script;
 
         self.state = match self.state {
+            State000001000X84State::Idle => {
+                log!("Running state Idle");
+                if is_key_down(VK_T) {
+                    State000001000X84State::Enter
+                } else {
+                    State000001000X84State::Idle
+                }
+            }
             State000001000X84State::Enter => {
+                log!("Running state Enter");
                 // Get item held num limit
                 let limit: i32 = ts.env((
                     GET_ITEM_HELD_NUM_LIMIT,
@@ -88,6 +106,7 @@ impl State000001000X84 {
             }
 
             State000001000X84State::WaitForDialog => {
+                log!("Running state WaitForDialog");
                 // assert not (CheckSpecificPersonMenuIsOpen(13, 0) == true
                 //             and not CheckSpecificPersonGenericDialogIsOpen(0))
                 let menu_open: i32 = ts.env((
@@ -171,6 +190,7 @@ impl State000001000X84 {
             }
 
             State000001000X84State::WaitForGenericDialog => {
+                log!("Running state WaitForGenericDialog");
                 // assert not CheckSpecificPersonGenericDialogIsOpen(0)
                 let dialog_open: i32 = ts.env((
                     CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN,
@@ -185,10 +205,46 @@ impl State000001000X84 {
             }
 
             State000001000X84State::Done => {
+                log!("Running state Done");
                 return Ok(true); // return 1
             }
         };
 
         Ok(false)
     }
+}
+
+unsafe impl Send for State000001000X84 {}
+
+pub fn test() {
+    let mut demo = Box::new(State000001000X84 {
+        talk_script: TalkScript::new(
+            BlockId::none(),
+            1000,
+            FieldInsHandle {
+                block_id: BlockId::none(),
+                selector: FieldInsSelector(0),
+            },
+        ),
+        state: State000001000X84State::Idle,
+        action1: 0
+    });
+
+    let cs_task = unsafe { CSTaskImp::instance().unwrap() };
+    cs_task.run_recurring(
+        move |_: &FD4TaskData| {
+            if let Ok(world_chr_man) = unsafe { WorldChrMan::instance() }
+                && let Some(ref mut main_player) = world_chr_man.main_player
+            {
+                demo.talk_script.npc_talk.base.field_ins_handle =
+                    main_player.chr_ins.field_ins_handle;
+
+                if let Err(e) = demo.step() {
+                    log!("{:?}", e);
+                    demo.state = State000001000X84State::Idle;
+                }
+            }
+        },
+        CSTaskGroupIndex::FrameBegin,
+    );
 }

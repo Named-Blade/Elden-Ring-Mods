@@ -23,6 +23,7 @@ mod clear;
 use clear::{ClearCountField, ClearCountFieldAccess};
 
 mod talk;
+use talk::test;
 
 fn compute_clear_count_cycle_increase(
     repo: &mut SoloParamRepository,
@@ -162,6 +163,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             },
             CSTaskGroupIndex::FrameBegin,
         );
+
+        test();
     });
 
     true

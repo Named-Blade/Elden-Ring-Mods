@@ -66,7 +66,7 @@ pub fn log(message: &str) {
 
     let timestamp = get_timestamp();
     let mod_name = dll_path.file_stem().unwrap().to_str().unwrap();
-    let _ = writeln!(file, "[{mod_name} {timestamp}] {message}");
+    //let _ = writeln!(file, "[{mod_name} {timestamp}] {message}");
     eprintln!("[{mod_name} {timestamp}] {message}");
 }
 
