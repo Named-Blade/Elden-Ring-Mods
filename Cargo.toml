@@ -5,6 +5,7 @@ members = ["mods/endlessNg"]
 [workspace.dependencies]
 eldenring = { git = "https://github.com/vswarte/fromsoftware-rs", version = "0.12.0" }
 fromsoftware-shared = { git = "https://github.com/vswarte/fromsoftware-rs", version = "0.12.0" }
+winhook = { git = "https://github.com/Dasaav-dsv/WinHook", version = "0.1.2" }
 windows = {version =  "0.62.2", features=[
     "Win32_System_Memory", 
     "Win32_Foundation",

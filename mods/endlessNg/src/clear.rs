@@ -71,6 +71,7 @@ impl ClearCountField {
         Self::SleepDamageRate,
         Self::MadnessDamageRate,
     ];
+    #[allow(dead_code)]
     pub fn name(&self) -> &'static str {
         match self {
             ClearCountField::MaxHpRate => "max_hp_rate",
