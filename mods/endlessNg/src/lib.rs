@@ -3,9 +3,13 @@ use std::{thread, time};
 use std::mem::MaybeUninit;
 
 use eldenring::{
-    cs::{CSTaskGroupIndex, CSTaskImp, GameDataMan, SoloParam, SoloParamRepository, ClearCountCorrectParam},
+    cs::{
+        BlockId, CSTaskGroupIndex, CSTaskImp, GameDataMan, WorldChrMan, SoloParam, SoloParamRepository, ClearCountCorrectParam,
+        EzStateInvokeError, FieldInsHandle, FieldInsSelector, TalkScript,
+    },
     fd4::FD4TaskData,
     param::CLEAR_COUNT_CORRECT_PARAM_ST,
+    ez_state::EzStateValue,
     util::system::wait_for_system_init,
 };
 use fromsoftware_shared::{FromStatic, program::Program, task::*};
@@ -23,7 +27,13 @@ mod clear;
 use clear::{ClearCountField, ClearCountFieldAccess};
 
 mod talk;
-use talk::test;
+use talk::*;
+
+use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T};
+fn is_key_down(key: VIRTUAL_KEY) -> bool {
+    let key_state = unsafe { GetKeyState(key.0 as i32) } as u16;
+    key_state & 0x8000 != 0
+}
 
 fn compute_clear_count_cycle_increase(
     repo: &mut SoloParamRepository,
@@ -99,6 +109,103 @@ fn fix_attack_rate(repo: &mut SoloParamRepository) {
     }
 }
 
+#[derive(Default, Debug)]
+enum IntensityState {
+    #[default]
+    Idle,
+    Enter,
+    WaitForDialog,
+    WaitForGenericDialog,
+    Done,
+}
+
+struct Intensity {
+    change_sign: i32, // FlagState, default ON
+}
+
+impl StateMachine for Intensity {
+    type State = IntensityState;
+
+    fn step_state(
+        &mut self,
+        state: IntensityState,
+        ts: &mut TalkScript,
+    ) -> Result<Transition<IntensityState>, EzStateInvokeError> {
+        use Transition::*;
+
+        // Shorthand helpers
+        macro_rules! env {
+            ($cmd:expr) => { ts.env($cmd)? };
+        }
+        macro_rules! event {
+            ($cmd:expr) => { ts.event($cmd)?; };
+        }
+        macro_rules! i {
+            ($v:expr) => { EzStateValue::Int32($v) };
+        }
+
+        Ok(match state {
+            IntensityState::Idle => {
+                if is_key_down(VK_T) { Next(IntensityState::Enter) } else { Transition::<IntensityState>::Wait(IntensityState::Idle) }
+            }
+
+            IntensityState::Enter => {
+                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
+
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(limit)]));
+                event!(CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG);
+                event!((OPEN_CHOOSE_QUANTITY_DIALOG, [i!(67350), i!(22021102)]));
+
+                Next(IntensityState::WaitForDialog)
+            }
+
+            IntensityState::WaitForDialog => {
+                let menu_open: i32  = env!((CHECK_SPECIFIC_PERSON_MENU_IS_OPEN,          [i!(13), i!(0)])).into();
+                let dialog_open: i32 = env!((CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN, [i!(0)])).into();
+
+                if menu_open == 1 && dialog_open == 0 {
+                    return Ok(Transition::<IntensityState>::Wait(IntensityState::WaitForDialog)); // still waiting; don't advance state
+                }
+
+                let value: i32 = env!(GET_VALUE_FROM_NUMBER_SELECT_DIALOG).into();
+                if value >= 0 {
+                    let Ok(game_data_man) = (unsafe { GameDataMan::instance() }) else {
+                        let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
+                        event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                        return Ok(Transition::<IntensityState>::Done);
+                    };
+                    if self.change_sign == 0 {
+                        game_data_man.ng_lvl -= value as u32;
+                    }  else {
+                        game_data_man.ng_lvl += value as u32;
+                    }
+                    log!("set ng level to {}", game_data_man.ng_lvl);
+                }
+
+                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                event!((OPEN_GENERIC_DIALOG, [
+                    i!(DIALOG_BOX_TYPE_CENTER_BOTTOM_1), i!(22021103),
+                    i!(DIALOG_RESULT_LEFT), i!(DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS), i!(1),
+                ]));
+
+                Next(IntensityState::WaitForGenericDialog)
+            }
+
+            IntensityState::WaitForGenericDialog => {
+                let dialog_open: i32 = env!((CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN, [i!(0)])).into();
+                if dialog_open == 1 { return Ok(Transition::<IntensityState>::Wait(IntensityState::WaitForGenericDialog)); }
+                Next(IntensityState::Done)
+            }
+
+            IntensityState::Done => Transition::<IntensityState>::Done,
+        })
+    }
+}
+
+unsafe impl Send for StateRunner<Intensity> {}
+
 /// # Safety
 /// This is exposed this way such that libraryloader can call it. Do not call this yourself.
 #[unsafe(no_mangle)]
@@ -130,6 +237,15 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         fix_attack_rate(solo_param_repository);
         let (cycle_increase, original_max) = compute_clear_count_cycle_increase(solo_param_repository);
 
+        let mut runner = Box::new(StateRunner::new(
+            Intensity { change_sign: 1 },
+            TalkScript::new(
+                BlockId::none(),
+                1000,
+                FieldInsHandle { block_id: BlockId::none(), selector: FieldInsSelector(0) },
+            ),
+        ));
+
         // Retrieve games task runner and register a task at frame begin.
         let cs_task = unsafe { CSTaskImp::instance().unwrap() };
         cs_task.run_recurring(
@@ -160,11 +276,21 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                     }
                 }
 
+                if let Ok(world_chr_man) = unsafe { WorldChrMan::instance() }
+                && let Some(ref mut main_player) = world_chr_man.main_player
+                {
+                    runner.talk_script.npc_talk.base.field_ins_handle =
+                        main_player.chr_ins.field_ins_handle;
+
+                    if let Err(e) = runner.step() {
+                        log!("{:?}", e);
+                        runner.state = IntensityState::Idle;
+                    }
+                }
+
             },
             CSTaskGroupIndex::FrameBegin,
         );
-
-        test();
     });
 
     true
