@@ -18,7 +18,7 @@ mod console;
 use console::init_console;
 
 mod log;
-use log::{set_dll_hmodule, log};
+use log::*;
 
 mod patch;
 use patch::perform_patch;
@@ -228,7 +228,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         thread::sleep(time::Duration::from_secs(10));
 
-        init_hooks();
+        let hook_handle = init_hooks();
 
         //remove health cap
         let health_cap_aob = "eb 14 81 fa ff ff 07 00 48 8d 44 24 18 4c 8d 44 24 10 49 0f 4e c0 8b 10 89 91 3c 01 00 00";
@@ -296,6 +296,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             },
             CSTaskGroupIndex::FrameBegin,
         );
+
+        thread::park();
     });
 
     true

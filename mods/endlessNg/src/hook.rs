@@ -4,7 +4,7 @@ use core::ffi::c_void;
 use eldenring::{
     param::EQUIP_PARAM_GOODS_ST
 };
-use winhook::HookInstaller;
+use winhook::{HookHandle, HookInstaller};
 use pelite::pattern::parse;
 use crate::patch::*;
 use crate::log;
@@ -26,14 +26,36 @@ type GetGoodsType = unsafe extern "C" fn(
 
 pub static GET_GOODS_ORIGINAL_HOLDER: OnceLock<GetGoodsType> = OnceLock::new();
 
-pub fn init_hooks() {
-    let Some(address) = aob_scan(&parse(GET_GOODS_AOB).unwrap()) else {return;};
+pub fn init_hooks() -> Option<HookHandle> {
+    let Some(address) = aob_scan(&parse(GET_GOODS_AOB).unwrap()) else {return None};
     unsafe {
         let address = address.wrapping_add(GET_GOODS_OFFSET);
         let address = (address as isize)
             .wrapping_add(mem::size_of::<i32>() as isize)
             .wrapping_add(*(address as *mut i32) as isize)
             as *mut GetGoodsType;
-        GET_GOODS_ORIGINAL_HOLDER.set(*address).ok();
+        let func: GetGoodsType = std::mem::transmute(address);
+        GET_GOODS_ORIGINAL_HOLDER.set(func).ok();
     }
+
+    let Some(get_goods_original) = GET_GOODS_ORIGINAL_HOLDER.get() else {return None};
+    let hook_handle = HookInstaller::<GetGoodsType>::for_function(*get_goods_original)
+    .install_mut({
+        move |original| move |result, id| {
+            if id == 67350{
+                unsafe { 
+                    original(result, 2912);
+                    (*(*result).row).set_max_num(9999);
+                }
+            }
+            else {
+                unsafe { original(result, id) };
+            }
+        }
+    })
+    .unwrap();
+
+    unsafe {hook_handle.enable(true)};
+
+    return Some(hook_handle);
 }
