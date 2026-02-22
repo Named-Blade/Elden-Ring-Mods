@@ -1,15 +1,12 @@
-use std::time::Duration;
-
 use eldenring::{
     cs::{
         BlockId, CSTaskGroupIndex, CSTaskImp, EzStateInvokeError, FieldInsHandle, FieldInsSelector,
-        MenuType, TalkScript, WorldChrMan,
+        TalkScript, WorldChrMan,
     },
     ez_state::EzStateValue,
-    fd4::FD4TaskData,
-    util::system::wait_for_system_init,
+    fd4::FD4TaskData
 };
-use fromsoftware_shared::{FromStatic, program::Program, task::*};
+use fromsoftware_shared::{FromStatic, task::*};
 
 use crate::log;
 
@@ -38,8 +35,6 @@ const DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS: i32 = 0; // DialogBoxStyle enum index 
 
 const CHECK_SPECIFIC_PERSON_MENU_IS_OPEN: i32 = 59; // Function ID for CheckSpecificPersonMenuIsOpen
 const CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN: i32 = 58; // Function ID for CheckSpecificPersonGenericDialogIsOpen
-
-use std::marker::PhantomData;
 
 /// A trait for defining state machine states with associated data.
 pub trait StateMachine: Sized {
@@ -117,7 +112,6 @@ impl StateMachine for S84 {
         state: S84State,
         ts: &mut TalkScript,
     ) -> Result<Transition<S84State>, EzStateInvokeError> {
-        use S84State::*;
         use Transition::*;
 
         // Shorthand helpers
