@@ -3,6 +3,8 @@ use pelite::pattern::{Atom, parse};
 use std::ffi::c_void;
 use windows::Win32::System::LibraryLoader::GetModuleHandleA;
 
+use crate::log;
+
 pub fn aob_scan(pattern: &[Atom]) -> Option<*mut u8> {
     unsafe {
         // get module base
@@ -37,7 +39,7 @@ unsafe fn replace_expected_bytes(
     let existing = unsafe {std::slice::from_raw_parts(address, expected.len())};
 
     if existing != expected {
-        eprintln!("Bytes do not match!");
+        log!("Bytes do not match!");
         return false;
     }
 
@@ -74,12 +76,12 @@ pub fn perform_patch(
         unsafe {
             let patch_addr = addr.add(offset);
             if replace_expected_bytes(patch_addr, &expected, &new_bytes) {
-                eprintln!("Patch applied at {:p}", patch_addr);
+                log!("Patch applied at {:p}", patch_addr);
             } else {
-                eprintln!("Patch failed (verification mismatch) at {:p}", patch_addr);
+                log!("Patch failed (verification mismatch) at {:p}", patch_addr);
             }
         }
     } else {
-        eprintln!("Signature not found");
+        log!("Signature not found");
     }
 }

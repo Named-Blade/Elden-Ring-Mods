@@ -13,6 +13,9 @@ use fromsoftware_shared::{FromStatic, program::Program, task::*};
 mod console;
 use console::init_console;
 
+mod log;
+use log::{set_dll_hmodule, log};
+
 mod patch;
 use patch::perform_patch;
 
@@ -98,12 +101,15 @@ fn fix_attack_rate(repo: &mut SoloParamRepository) {
 /// # Safety
 /// This is exposed this way such that libraryloader can call it. Do not call this yourself.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
+pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
     // Exit early if we're not attaching a DLL
     if reason != 1 {
         return true;
     }
+
+    unsafe{set_dll_hmodule(hmodule)};
     init_console();
+    log!("mod started");
 
     std::thread::spawn(move || {
         wait_for_system_init(&Program::current(), Duration::MAX)

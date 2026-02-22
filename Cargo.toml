@@ -5,6 +5,20 @@ members = ["mods/endlessNg"]
 [workspace.dependencies]
 eldenring = { git = "https://github.com/vswarte/fromsoftware-rs", version = "0.12.0" }
 fromsoftware-shared = { git = "https://github.com/vswarte/fromsoftware-rs", version = "0.12.0" }
-windows = {version =  "0.62.2", features=["Win32_System_Memory", "Win32_System_LibraryLoader", "Win32_UI_Input_XboxController"]}
-windows-sys = { version = "0.48", features = ["Win32_Foundation", "Win32_System_Console", "Win32_Storage_FileSystem"] }
+windows = {version =  "0.62.2", features=[
+    "Win32_System_Memory", 
+    "Win32_Foundation",
+    "Win32_System_LibraryLoader",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Console",
+    "Win32_System_SystemServices",
+    "Win32_UI_Input_XboxController"
+]}
+windows-sys = { version = "0.48", features = [
+    "Win32_Foundation", 
+    "Win32_System_Console", 
+    "Win32_Storage_FileSystem", 
+    "Win32_System_LibraryLoader",
+    "Win32_System_SystemInformation"
+]}
 pelite = "0.10"
