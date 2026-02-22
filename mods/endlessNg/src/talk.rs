@@ -39,7 +39,65 @@ const DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS: i32 = 0; // DialogBoxStyle enum index 
 const CHECK_SPECIFIC_PERSON_MENU_IS_OPEN: i32 = 59; // Function ID for CheckSpecificPersonMenuIsOpen
 const CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN: i32 = 58; // Function ID for CheckSpecificPersonGenericDialogIsOpen
 
-enum State000001000X84State {
+use std::marker::PhantomData;
+
+/// A trait for defining state machine states with associated data.
+pub trait StateMachine: Sized {
+    type State: Default;
+    
+    fn step_state(
+        &mut self,
+        state: Self::State,
+        ts: &mut TalkScript,
+    ) -> Result<Transition<Self::State>, EzStateInvokeError>;
+}
+
+/// What the state machine should do after a state runs.
+pub enum Transition<S> {
+    /// Move to a new state (or stay on the same one)
+    Next(S),
+    /// Finished — return true
+    Done,
+    /// Not finished yet — return false without changing state
+    Wait(S)
+}
+
+/// Generic runner wrapping any StateMachine implementation.
+pub struct StateRunner<M: StateMachine> {
+    pub data: M,
+    pub talk_script: TalkScript,
+    pub state: M::State,
+}
+
+impl<M: StateMachine> StateRunner<M> {
+    pub fn new(data: M, talk_script: TalkScript) -> Self {
+        Self {
+            data,
+            talk_script,
+            state: M::State::default(),
+        }
+    }
+
+    pub fn step(&mut self) -> Result<bool, EzStateInvokeError> {
+        let state = std::mem::take(&mut self.state);
+
+        match self.data.step_state(state, &mut self.talk_script)? {
+            Transition::Next(next) => {
+                self.state = next;
+                Ok(false)
+            }
+            Transition::Done => Ok(true),
+            Transition::Wait(current) => {  // <-- return the state back
+                self.state = current;
+                Ok(false)
+            }
+        }
+    }
+}
+
+#[derive(Default, Debug)]
+enum S84State {
+    #[default]
     Idle,
     Enter,
     WaitForDialog,
@@ -47,189 +105,95 @@ enum State000001000X84State {
     Done,
 }
 
-struct State000001000X84 {
-    talk_script: TalkScript,
-    state: State000001000X84State,
+struct S84 {
     action1: i32, // FlagState, default ON
 }
 
-impl State000001000X84 {
-    pub fn step(&mut self) -> Result<bool, EzStateInvokeError> {
-        let ts = &mut self.talk_script;
+impl StateMachine for S84 {
+    type State = S84State;
 
-        self.state = match self.state {
-            State000001000X84State::Idle => {
-                log!("Running state Idle");
-                if is_key_down(VK_T) {
-                    State000001000X84State::Enter
-                } else {
-                    State000001000X84State::Idle
-                }
-            }
-            State000001000X84State::Enter => {
-                log!("Running state Enter");
-                // Get item held num limit
-                let limit: i32 = ts.env((
-                    GET_ITEM_HELD_NUM_LIMIT,
-                    [EzStateValue::Int32(ITEM_TYPE_GOODS), EzStateValue::Int32(67350)],
-                ))?.into();
+    fn step_state(
+        &mut self,
+        state: S84State,
+        ts: &mut TalkScript,
+    ) -> Result<Transition<S84State>, EzStateInvokeError> {
+        use S84State::*;
+        use Transition::*;
 
-                // PlayerEquipmentQuantityChange(ItemType.Goods, 67350, -GetItemHeldNumLimit(...))
-                ts.event((
-                    PLAYER_EQUIPMENT_QUANTITY_CHANGE,
-                    [
-                        EzStateValue::Int32(ITEM_TYPE_GOODS),
-                        EzStateValue::Int32(67350),
-                        EzStateValue::Int32(-limit),
-                    ],
-                ))?;
+        // Shorthand helpers
+        macro_rules! env {
+            ($cmd:expr) => { ts.env($cmd)? };
+        }
+        macro_rules! event {
+            ($cmd:expr) => { ts.event($cmd)?; };
+        }
+        macro_rules! i {
+            ($v:expr) => { EzStateValue::Int32($v) };
+        }
 
-                // PlayerEquipmentQuantityChange(ItemType.Goods, 67350, GetItemHeldNumLimit(...))
-                ts.event((
-                    PLAYER_EQUIPMENT_QUANTITY_CHANGE,
-                    [
-                        EzStateValue::Int32(ITEM_TYPE_GOODS),
-                        EzStateValue::Int32(67350),
-                        EzStateValue::Int32(limit),
-                    ],
-                ))?;
-
-                // ClearQuantityValueOfChooseQuantityDialog()
-                ts.event(CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG)?;
-
-                // OpenChooseQuantityDialog(67350, 22021102)
-                ts.event((
-                    OPEN_CHOOSE_QUANTITY_DIALOG,
-                    [EzStateValue::Int32(67350), EzStateValue::Int32(22021102)],
-                ))?;
-
-                State000001000X84State::WaitForDialog
+        Ok(match state {
+            S84State::Idle => {
+                if is_key_down(VK_T) { Next(S84State::Enter) } else { Transition::<S84State>::Wait(S84State::Idle) }
             }
 
-            State000001000X84State::WaitForDialog => {
-                log!("Running state WaitForDialog");
-                // assert not (CheckSpecificPersonMenuIsOpen(13, 0) == true
-                //             and not CheckSpecificPersonGenericDialogIsOpen(0))
-                let menu_open: i32 = ts.env((
-                    CHECK_SPECIFIC_PERSON_MENU_IS_OPEN,
-                    [EzStateValue::Int32(13), EzStateValue::Int32(0)],
-                ))?.into();
+            S84State::Enter => {
+                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
 
-                let dialog_open: i32 = ts.env((
-                    CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN,
-                    [EzStateValue::Int32(0)],
-                ))?.into();
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(limit)]));
+                event!(CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG);
+                event!((OPEN_CHOOSE_QUANTITY_DIALOG, [i!(67350), i!(22021102)]));
 
-                // Keep waiting while the dialog is still open
+                Next(S84State::WaitForDialog)
+            }
+
+            S84State::WaitForDialog => {
+                let menu_open: i32  = env!((CHECK_SPECIFIC_PERSON_MENU_IS_OPEN,          [i!(13), i!(0)])).into();
+                let dialog_open: i32 = env!((CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN, [i!(0)])).into();
+
                 if menu_open == 1 && dialog_open == 0 {
-                    return Ok(false); // still waiting
+                    return Ok(Transition::<S84State>::Wait(S84State::WaitForDialog)); // still waiting; don't advance state
                 }
 
-                // GetValueFromNumberSelectDialog()
-                let value: i32 = ts.env(GET_VALUE_FROM_NUMBER_SELECT_DIALOG)?.into();
-
+                let value: i32 = env!(GET_VALUE_FROM_NUMBER_SELECT_DIALOG).into();
                 if value >= 0 {
-                    // SetEventFlagValue(1051439332, 32, value)
-                    ts.event((
-                        SET_EVENT_FLAG_VALUE,
-                        [
-                            EzStateValue::Int32(1051439332),
-                            EzStateValue::Int32(32),
-                            EzStateValue::Int32(value),
-                        ],
-                    ))?;
-
-                    // SetEventFlag(1051439331, action1)
-                    ts.event((
-                        SET_EVENT_FLAG,
-                        [
-                            EzStateValue::Int32(1051439331),
-                            EzStateValue::Int32(self.action1),
-                        ],
-                    ))?;
-
-                    // SetEventFlag(1051439330, FlagState.On)
-                    ts.event((
-                        SET_EVENT_FLAG,
-                        [
-                            EzStateValue::Int32(1051439330),
-                            EzStateValue::Int32(FLAG_STATE_ON),
-                        ],
-                    ))?;
-                }
-                // else: pass — nothing to do
-
-                // PlayerEquipmentQuantityChange(ItemType.Goods, 67350, -GetItemHeldNumLimit(...))
-                let limit: i32 = ts.env((
-                    GET_ITEM_HELD_NUM_LIMIT,
-                    [EzStateValue::Int32(ITEM_TYPE_GOODS), EzStateValue::Int32(67350)],
-                ))?.into();
-
-                ts.event((
-                    PLAYER_EQUIPMENT_QUANTITY_CHANGE,
-                    [
-                        EzStateValue::Int32(ITEM_TYPE_GOODS),
-                        EzStateValue::Int32(67350),
-                        EzStateValue::Int32(-limit),
-                    ],
-                ))?;
-
-                // OpenGenericDialog(DialogBoxType.CenterBottom1, 22021103,
-                //                   DialogResult.Left, DialogBoxStyle.OrnateNoOptions, 1)
-                ts.event((
-                    OPEN_GENERIC_DIALOG,
-                    [
-                        EzStateValue::Int32(DIALOG_BOX_TYPE_CENTER_BOTTOM_1),
-                        EzStateValue::Int32(22021103),
-                        EzStateValue::Int32(DIALOG_RESULT_LEFT),
-                        EzStateValue::Int32(DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS),
-                        EzStateValue::Int32(1),
-                    ],
-                ))?;
-
-                State000001000X84State::WaitForGenericDialog
-            }
-
-            State000001000X84State::WaitForGenericDialog => {
-                log!("Running state WaitForGenericDialog");
-                // assert not CheckSpecificPersonGenericDialogIsOpen(0)
-                let dialog_open: i32 = ts.env((
-                    CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN,
-                    [EzStateValue::Int32(0)],
-                ))?.into();
-
-                if dialog_open == 1 {
-                    return Ok(false); // still waiting
+                    event!((SET_EVENT_FLAG_VALUE, [i!(1051439332), i!(32), i!(value)]));
+                    event!((SET_EVENT_FLAG, [i!(1051439331), i!(self.action1)]));
+                    event!((SET_EVENT_FLAG, [i!(1051439330), i!(FLAG_STATE_ON)]));
                 }
 
-                State000001000X84State::Done
+                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                event!((OPEN_GENERIC_DIALOG, [
+                    i!(DIALOG_BOX_TYPE_CENTER_BOTTOM_1), i!(22021103),
+                    i!(DIALOG_RESULT_LEFT), i!(DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS), i!(1),
+                ]));
+
+                Next(S84State::WaitForGenericDialog)
             }
 
-            State000001000X84State::Done => {
-                log!("Running state Done");
-                return Ok(true); // return 1
+            S84State::WaitForGenericDialog => {
+                let dialog_open: i32 = env!((CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN, [i!(0)])).into();
+                if dialog_open == 1 { return Ok(Transition::<S84State>::Wait(S84State::WaitForGenericDialog)); }
+                Next(S84State::Done)
             }
-        };
 
-        Ok(false)
+            S84State::Done => Transition::<S84State>::Done,
+        })
     }
 }
 
-unsafe impl Send for State000001000X84 {}
+unsafe impl Send for StateRunner<S84> {}
 
 pub fn test() {
-    let mut demo = Box::new(State000001000X84 {
-        talk_script: TalkScript::new(
+    let mut runner = Box::new(StateRunner::new(
+        S84 { action1: 0 },
+        TalkScript::new(
             BlockId::none(),
             1000,
-            FieldInsHandle {
-                block_id: BlockId::none(),
-                selector: FieldInsSelector(0),
-            },
+            FieldInsHandle { block_id: BlockId::none(), selector: FieldInsSelector(0) },
         ),
-        state: State000001000X84State::Idle,
-        action1: 0
-    });
+    ));
 
     let cs_task = unsafe { CSTaskImp::instance().unwrap() };
     cs_task.run_recurring(
@@ -237,12 +201,12 @@ pub fn test() {
             if let Ok(world_chr_man) = unsafe { WorldChrMan::instance() }
                 && let Some(ref mut main_player) = world_chr_man.main_player
             {
-                demo.talk_script.npc_talk.base.field_ins_handle =
+                runner.talk_script.npc_talk.base.field_ins_handle =
                     main_player.chr_ins.field_ins_handle;
 
-                if let Err(e) = demo.step() {
+                if let Err(e) = runner.step() {
                     log!("{:?}", e);
-                    demo.state = State000001000X84State::Idle;
+                    runner.state = S84State::Idle;
                 }
             }
         },
