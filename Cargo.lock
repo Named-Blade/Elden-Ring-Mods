@@ -139,6 +139,7 @@ version = "0.1.0"
 dependencies = [
  "eldenring",
  "fromsoftware-shared",
+ "pelite",
  "windows 0.62.2",
  "windows-sys 0.48.0",
 ]

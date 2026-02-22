@@ -8,6 +8,7 @@ fromsoftware-shared.workspace = true
 eldenring.workspace = true
 windows.workspace = true
 windows-sys.workspace = true
+pelite.workspace = true
 
 [lib]
 crate-type = ["cdylib"]

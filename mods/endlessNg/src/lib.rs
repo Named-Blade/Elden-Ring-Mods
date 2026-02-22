@@ -2,9 +2,6 @@ use std::time::Duration;
 use std::{thread, time};
 use std::mem::MaybeUninit;
 
-mod console;
-use console::init_console;
-
 use eldenring::{
     cs::{CSTaskGroupIndex, CSTaskImp, GameDataMan, SoloParam, SoloParamRepository, ClearCountCorrectParam},
     fd4::FD4TaskData,
@@ -12,6 +9,12 @@ use eldenring::{
     util::system::wait_for_system_init,
 };
 use fromsoftware_shared::{FromStatic, program::Program, task::*};
+
+mod console;
+use console::init_console;
+
+mod patch;
+use patch::perform_patch;
 
 mod clear;
 use clear::{ClearCountField, ClearCountFieldAccess};
@@ -108,6 +111,13 @@ pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
 
         thread::sleep(time::Duration::from_secs(10));
 
+        //remove health cap
+        let health_cap_aob = "eb 14 81 fa ff ff 07 00 48 8d 44 24 18 4c 8d 44 24 10 49 0f 4e c0 8b 10 89 91 3c 01 00 00";
+        let health_cap_offset = 18;
+        let health_cap_expected = "49 0f 4e c0";// cmovle rax,r8;
+        let health_cap_patch = "49 8b c0 90";   // mov rax,r8; nop;
+        perform_patch(health_cap_aob,health_cap_expected,health_cap_patch,health_cap_offset);
+
         let Ok(solo_param_repository) = (unsafe { SoloParamRepository::instance() }) else { return; };
 
         fix_attack_rate(solo_param_repository);
@@ -120,7 +130,6 @@ pub unsafe extern "C" fn DllMain(_hmodule: u64, reason: u32) -> bool {
                 let Ok(game_data_man) = (unsafe { GameDataMan::instance() }) else { return; };
                 let Ok(repo) = (unsafe { SoloParamRepository::instance() }) else { return; };
 
-                eprintln!("{:p}", &game_data_man.ng_lvl);
                 if game_data_man.ng_lvl > 6 {
                     let row1_index = repo
                         .get_index_by_param_id::<ClearCountCorrectParam>(7)
