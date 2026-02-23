@@ -251,14 +251,16 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         let mut goods_data = init_goods();
 
+        let rune_item = 2912;
+
         goods_data.add_instance(
             67350,
-            2912,
+            rune_item,
             vec![(EquipParamGoodsField::MaxNum, 9999.0)]
         );
         goods_data.add_instance(
             67351,
-            2912,
+            rune_item,
             vec![
                 (EquipParamGoodsField::MaxNum, 1.0),
                 (EquipParamGoodsField::MaxRepositoryNum, 0.0),
