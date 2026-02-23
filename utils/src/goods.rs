@@ -1,5 +1,5 @@
 use eldenring::param::EQUIP_PARAM_GOODS_ST;
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::collections::HashMap;
 use winhook::HookHandle;
 
@@ -495,26 +495,22 @@ impl GoodsData {
 }
 
 pub struct GoodsContainer {
-    arc: Arc<GoodsData>
+    arc: Arc<Mutex<GoodsData>>
 }
 
 impl GoodsContainer {
     pub fn add_instance(&mut self, inst: u32, source: u32, fields: Vec<GoodsFieldsPair>) {
-        unsafe {
-            let ptr = Arc::as_ptr(&self.arc) as *mut GoodsData;
-            (*ptr).add_instance(inst, source, fields);
-        }
+        let mut data = self.arc.lock().unwrap();
+        data.add_instance(inst, source, fields);
     }
 }
 
 pub fn init_goods() -> GoodsContainer {
-    // Shared, immutable pointer for closure
-    let goods_data = Arc::new(GoodsData {
+    let goods_data = Arc::new(Mutex::new(GoodsData {
         map: HashMap::new(),
         hook: None,
-    });
+    }));
 
-    // Clone for closure use
     let closure_data = Arc::clone(&goods_data);
 
     let hook_handle_goods = make_installer_from_call_aob::<GetGoodsType>(
@@ -527,7 +523,8 @@ pub fn init_goods() -> GoodsContainer {
         move |original| {
             let closure_data = Arc::clone(&closure_data);
             move |result, id| {
-                if let Some(good_instance) = closure_data.get_instance(id) {
+                let data = closure_data.lock().unwrap();
+                if let Some(good_instance) = data.get_instance(id) {
                     unsafe {
                         if let Some(good) = good_instance.get_good() {
                             (*result).row = good as *mut EQUIP_PARAM_GOODS_ST;
@@ -548,10 +545,10 @@ pub fn init_goods() -> GoodsContainer {
     .unwrap();
 
     unsafe { hook_handle_goods.enable(true) };
-    //this is stupid
-    let raw = Arc::into_raw(goods_data) as *mut GoodsData;
-    unsafe {
-        (*raw).set_hook(hook_handle_goods);
-        return GoodsContainer{arc: Arc::from_raw(raw)};
+    {   
+        let mut data = goods_data.lock().unwrap();
+        data.hook = Some(hook_handle_goods);
     }
+
+    return GoodsContainer{arc: goods_data};
 }
