@@ -100,7 +100,7 @@ fn compute_clear_count_cycle_increase(
 }
 
 //vanilla accidentaly increases physical damage on ng cycles too much by applying it multiplicatively on both the physical damage supertype and all physical damage subtypes
-fn fix_attack_rate(repo: &mut SoloParamRepository) {
+fn fix_physical_damage_scaling(repo: &mut SoloParamRepository) {
     let holder = &repo.solo_param_holders[ClearCountCorrectParam::INDEX as usize];
     let res_cap = match holder.get_res_cap(0) {
         Some(rc) => rc,
@@ -132,6 +132,10 @@ enum IntensityState {
 
 struct Intensity {
     change_sign: i32, // FlagState, default ON
+    goods_display_id: i32,
+    goods_intensity_id: i32,
+    current_talk_id: i32,
+    update_talk_id: i32,
 }
 
 impl StateMachine for Intensity {
@@ -157,9 +161,9 @@ impl StateMachine for Intensity {
 
         Ok(match state {
             IntensityState::Idle => {
-                let has_item: i32 = env!((DOES_PLAYER_HAVE_ITEM, [i!(ITEM_TYPE_GOODS), i!(67351)])).into();
+                let has_item: i32 = env!((DOES_PLAYER_HAVE_ITEM, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id)])).into();
                 if has_item == 0 {
-                    event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67351), i!(1)]));
+                    event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id), i!(1)]));
                 }
                 if is_key_down(VK_T) {
                     self.change_sign = 0;
@@ -173,12 +177,12 @@ impl StateMachine for Intensity {
             }
 
             IntensityState::Enter => {
-                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
+                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id)])).into();
 
-                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
-                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(limit)]));
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id), i!(-limit)]));
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id), i!(limit)]));
                 event!(CLEAR_QUANTITY_VALUE_OF_CHOOSE_QUANTITY_DIALOG);
-                event!((OPEN_CHOOSE_QUANTITY_DIALOG, [i!(67350), i!(22021102)]));
+                event!((OPEN_CHOOSE_QUANTITY_DIALOG, [i!(self.goods_display_id), i!(self.current_talk_id)]));
 
                 Next(IntensityState::WaitForDialog)
             }
@@ -194,8 +198,8 @@ impl StateMachine for Intensity {
                 let value: i32 = env!(GET_VALUE_FROM_NUMBER_SELECT_DIALOG).into();
                 if value >= 0 {
                     let Ok(game_data_man) = (unsafe { GameDataMan::instance() }) else {
-                        let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
-                        event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                        let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id)])).into();
+                        event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id), i!(-limit)]));
                         return Ok(Transition::<IntensityState>::Done);
                     };
                     if self.change_sign == 0 {
@@ -206,14 +210,14 @@ impl StateMachine for Intensity {
                     log!("set ng level to {}", game_data_man.ng_lvl);
                 }
 
-                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
-                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id)])).into();
+                event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id), i!(-limit)]));
                 Next(IntensityState::DisplayIntensityDialogue)
             }
 
             IntensityState::DisplayIntensityDialogue => {
                 event!((OPEN_GENERIC_DIALOG, [
-                    i!(DIALOG_BOX_TYPE_CENTER_BOTTOM_1), i!(22021103),
+                    i!(DIALOG_BOX_TYPE_CENTER_BOTTOM_1), i!(self.update_talk_id),
                     i!(DIALOG_RESULT_LEFT), i!(DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS), i!(1),
                 ]));
                 Next(IntensityState::WaitForGenericDialog)
@@ -248,8 +252,13 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
     std::thread::spawn(move || {
 
         let _ = config::init(config::Schema::new()
-            .field("general", "log_level", "info", Some("verbosity"))
-            .field("network", "port",      8080_i64, None::<String>)
+            .field("endless_ng", "exponential", false, None::<String>)
+            .field("endless_ng", "exponent_base", 1.2_f64, None::<String>)
+            .field("endless_ng", "fix_physical_damage_scaling", true, None::<String>)
+            .field("compatibility", "goods_display_id", 67350_i64, None::<String>)
+            .field("compatibility", "goods_intensity_id", 67351_i64, None::<String>)
+            .field("compatibility", "current_talk_id", 22021102_i64, None::<String>)
+            .field("compatibility", "update_talk_id", 22021103_i64, None::<String>)
         );
 
         wait_for_system_init(&Program::current(), Duration::MAX)
@@ -260,20 +269,22 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         let mut goods_data = init_goods();
         let mut message_data = init_message();
 
+        let goods_display_id = config::get_int("compatibility", "goods_display_id").unwrap() as u32;
+        let goods_intensity_id = config::get_int("compatibility", "goods_intensity_id").unwrap() as u32;
         let rune_item = 2912;
 
-        message_data.add_message(BND_GOODS_NAME, 67350, "Modify Intensity By:");
+        message_data.add_message(BND_GOODS_NAME, goods_display_id, "Modify Intensity By:");
         goods_data.add_instance(
-            67350,
+            goods_display_id,
             rune_item,
             vec![(EquipParamGoodsField::MaxNum, 9999.0)]
         );
 
-        message_data.add_message(BND_GOODS_NAME, 67351, "Grace Ascetic");
-        message_data.add_message(BND_GOODS_INFO, 67351, "Grace Ascetic Info");
-        message_data.add_message(BND_GOODS_CAPTION, 67351, "Grace Ascetic Caption");
+        message_data.add_message(BND_GOODS_NAME, goods_intensity_id, "Grace Ascetic");
+        message_data.add_message(BND_GOODS_INFO, goods_intensity_id, "Grace Ascetic Info");
+        message_data.add_message(BND_GOODS_CAPTION, goods_intensity_id, "Grace Ascetic Caption");
         goods_data.add_instance(
-            67351,
+            goods_intensity_id,
             rune_item,
             vec![
                 (EquipParamGoodsField::MaxNum, 1.0),
@@ -289,11 +300,12 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                 (EquipParamGoodsField::IconId, 9.0)
             ]
         );
+
+        let current_talk_id = config::get_int("compatibility", "current_talk_id").unwrap() as u32;
+        let update_talk_id = config::get_int("compatibility", "update_talk_id").unwrap() as u32;
         
-        message_data.add_message(BND_TALK, 22021100, "Increase Intensity (Current: <?loopCount?>)");
-        message_data.add_message(BND_TALK, 22021101, "Decrease Intensity (Current: <?loopCount?>)");
-        message_data.add_message(BND_TALK, 22021102, "Current Intensity: <?loopCount?>");
-        message_data.add_message(BND_TALK, 22021103, "Intensity Updated to <?loopCount?>");
+        message_data.add_message(BND_TALK, current_talk_id, "Current Intensity: <?loopCount?>");
+        message_data.add_message(BND_TALK, update_talk_id, "Intensity Updated to <?loopCount?>");
 
         //remove health cap
         let health_cap_aob = "eb 14 81 fa ff ff 07 00 48 8d 44 24 18 4c 8d 44 24 10 49 0f 4e c0 8b 10 89 91 3c 01 00 00";
@@ -304,17 +316,28 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         let Ok(solo_param_repository) = (unsafe { SoloParamRepository::instance() }) else { return; };
 
-        fix_attack_rate(solo_param_repository);
+        if config::get_bool("endless_ng", "fix_physical_damage_scaling").unwrap() {
+            fix_physical_damage_scaling(solo_param_repository);
+        }
         let (cycle_increase, original_max) = compute_clear_count_cycle_increase(solo_param_repository);
 
         let mut runner = Box::new(StateRunner::new(
-            Intensity { change_sign: 1 },
+            Intensity { 
+                change_sign: 1 ,
+                goods_display_id: goods_display_id as i32,
+                goods_intensity_id: goods_intensity_id as i32,
+                current_talk_id: current_talk_id as i32,
+                update_talk_id: update_talk_id as i32,
+            },
             TalkScript::new(
                 BlockId::none(),
                 1000,
                 FieldInsHandle { block_id: BlockId::none(), selector: FieldInsSelector(0) },
             ),
         ));
+
+        let exponential = config::get_bool("endless_ng", "exponential").unwrap();
+        let exponent_base = config::get_float("endless_ng", "exponent_base").unwrap() as f32;
 
         // Retrieve games task runner and register a task at frame begin.
         let cs_task = unsafe { CSTaskImp::instance().unwrap() };
@@ -324,6 +347,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                 let Ok(repo) = (unsafe { SoloParamRepository::instance() }) else { return; };
 
                 if game_data_man.ng_lvl > 6 {
+                    let over_level = (game_data_man.ng_lvl - 7) as f32;
                     let row1_index = repo
                         .get_index_by_param_id::<ClearCountCorrectParam>(7)
                         .expect("Row 7 missing");
@@ -340,8 +364,13 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                     };
                     for &field in ClearCountField::ALL.iter() {
                         if field != ClearCountField::SuperArmorDamageRate {
-                            row1.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * (game_data_man.ng_lvl - 7) as f32);
-                            row2.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * (game_data_man.ng_lvl - 7) as f32);
+                            if exponential {
+                                row1.set_field(field, original_max.get_field(field) + exponent_base.powf(over_level));
+                                row2.set_field(field, original_max.get_field(field) + exponent_base.powf(over_level));
+                            } else {
+                                row1.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * over_level);
+                                row2.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * over_level);
+                            }
                         }
                     }
                 }
