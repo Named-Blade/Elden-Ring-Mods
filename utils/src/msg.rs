@@ -1,4 +1,4 @@
-use std::sync::{Arc, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::collections::HashMap;
 use windows::core::PCWSTR;
 use winhook::HookHandle;
@@ -53,24 +53,22 @@ impl MessageData {
 }
 
 pub struct MessageContainer {
-    arc: Arc<MessageData>
+    arc: Arc<Mutex<MessageData>>
 }
 
 impl MessageContainer {
     pub fn add_message(&mut self, msg_bnd: u32, msg_id: u32, msg: &str) {
-        unsafe {
-            let ptr = Arc::as_ptr(&self.arc) as *mut MessageData;
-            (*ptr).add_message(msg_bnd, msg_id, msg);
-        }
+        let mut data = self.arc.lock().unwrap();
+        data.add_message(msg_bnd, msg_id, msg);
     }
 }
 
 pub fn init_message() -> MessageContainer {
     // Shared, immutable pointer for closure
-    let message_data = Arc::new(MessageData {
+    let message_data = Arc::new(Mutex::new(MessageData {
         map: HashMap::new(),
         hook: None,
-    });
+    }));
 
     // Clone for closure use
     let closure_data = Arc::clone(&message_data);
@@ -85,7 +83,8 @@ pub fn init_message() -> MessageContainer {
         move |original| {
             let closure_data = Arc::clone(&closure_data);
             move |message_repository, _1, msg_bnd, msg_id| {
-                if let Some(msg) = closure_data.get_message(msg_bnd, msg_id) {
+                let data = closure_data.lock().unwrap();
+                if let Some(msg) = data.get_message(msg_bnd, msg_id) {
                     return msg;
                 } else {
                     unsafe { original(message_repository, _1, msg_bnd, msg_id) }
@@ -96,10 +95,10 @@ pub fn init_message() -> MessageContainer {
     .unwrap();
 
     unsafe { hook_handle_message.enable(true) };
-    //this is stupid
-    let raw = Arc::into_raw(message_data) as *mut MessageData;
-    unsafe {
-        (*raw).set_hook(hook_handle_message);
-        return MessageContainer{arc: Arc::from_raw(raw)};
+    {   
+        let mut data = message_data.lock().unwrap();
+        data.hook = Some(hook_handle_message);
     }
+
+    return MessageContainer{arc: message_data};
 }
