@@ -147,6 +147,7 @@ impl StateMachine for Intensity {
             IntensityState::Idle => {
                 let has_item: i32 = env!((DOES_PLAYER_HAVE_ITEM, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id)])).into();
                 if has_item == 0 {
+                    log!("Added Grace Ascetic to player");
                     event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id), i!(1)]));
                 }
                 if is_key_down(VK_T) {

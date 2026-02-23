@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use winhook::HookHandle;
 
 use crate::hook::*;
+use crate::log;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(dead_code)]
@@ -476,6 +477,7 @@ pub struct GoodsData {
 impl GoodsData {
     pub fn add_instance(&mut self, inst: u32, source: u32, fields: Vec<GoodsFieldsPair>) {
         if !self.map.contains_key(&inst) {
+            log!("added good of id {}", inst);
             self.map.insert(inst, GoodInstance{
                 good: None,
                 source: source,
@@ -532,6 +534,7 @@ pub fn init_goods() -> GoodsContainer {
                             original(result, good_instance.get_source());
                             let ptr = good_instance as *const GoodInstance;
                             (*(ptr as usize as *mut GoodInstance)).set_good(&*(*result).row);
+                            log!("instantiated good of id {}", id);
                             (*result).row = good_instance.get_good().unwrap() as *mut EQUIP_PARAM_GOODS_ST;
                         }
                         (*result).id = id;

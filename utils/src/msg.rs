@@ -4,6 +4,7 @@ use windows::core::PCWSTR;
 use winhook::HookHandle;
 
 use crate::hook::*;
+use crate::log;
 
 pub const BND_GOODS_NAME: u32 = 10;
 pub const BND_GOODS_INFO: u32 = 20;
@@ -37,6 +38,7 @@ impl MessageData {
             wide.push(0);
 
             entry.insert(msg_id, wide.into_boxed_slice());
+            log!("added msg of bnd {} and id {}", msg_bnd, msg_id);
         }
     }
 
