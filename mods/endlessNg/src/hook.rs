@@ -118,6 +118,16 @@ pub fn init_hooks() -> Vec<HookHandle> {
                     return w!("Grace Ascetic").as_ptr();
                 }
             }
+            if msg_bnd == 20 {
+                if msg_id == 67351 {
+                    return w!("Grace Ascetic Info").as_ptr();
+                }
+            }
+            if msg_bnd == 24 {
+                if msg_id == 67351 {
+                    return w!("Grace Ascetic Caption").as_ptr();
+                }
+            }
             if msg_bnd == 33 {
                 if msg_id == 22021100 {
                     return w!("Increase Intensity (Current: <?loopCount?>)").as_ptr();
