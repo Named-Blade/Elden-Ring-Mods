@@ -240,8 +240,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             .field("endless_ng", "fix_physical_damage_scaling", true, None::<String>)
             .field("compatibility", "goods_display_id", 67350_i64, None::<String>)
             .field("compatibility", "goods_intensity_id", 67351_i64, None::<String>)
-            .field("compatibility", "current_talk_id", 22021102_i64, None::<String>)
-            .field("compatibility", "update_talk_id", 22021103_i64, None::<String>)
+            .field("compatibility", "current_talk_id", 22021100_i64, None::<String>)
+            .field("compatibility", "update_talk_id", 22021101_i64, None::<String>)
         );
 
         wait_for_system_init(&Program::current(), Duration::MAX)
