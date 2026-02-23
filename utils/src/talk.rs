@@ -342,6 +342,8 @@ pub struct StateRunner<M: StateMachine> {
     pub state: M::State,
 }
 
+unsafe impl<T: StateMachine> Send for StateRunner<T> {}
+
 impl<M: StateMachine> StateRunner<M> {
     pub fn new(data: M, talk_script: TalkScript) -> Self {
         Self {

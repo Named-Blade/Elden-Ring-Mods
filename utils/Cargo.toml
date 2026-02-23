@@ -1,10 +1,9 @@
 [package]
-name = "endless_ng"
+name = "utils"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-utils = { path = "../../utils" }
 fromsoftware-shared.workspace = true
 eldenring.workspace = true
 windows.workspace = true
@@ -13,6 +12,3 @@ pelite.workspace = true
 winhook.workspace = true
 closure-ffi.workspace = true
 toml_edit.workspace = true
-
-[lib]
-crate-type = ["cdylib"]

@@ -1,13 +1,3 @@
-mod console;
-mod log;
-mod patch;
-mod clear;
-mod talk;
-mod hook;
-mod msg;
-mod goods;
-mod config;
-
 use std::time::Duration;
 use std::{thread, time};
 use std::mem::MaybeUninit;
@@ -22,6 +12,8 @@ use eldenring::{
     util::system::wait_for_system_init,
 };
 use fromsoftware_shared::{FromStatic, program::Program, task::*};
+
+use utils::*;
 
 use console::init_console;
 use log::*;
@@ -225,8 +217,6 @@ impl StateMachine for Intensity {
         })
     }
 }
-
-unsafe impl Send for StateRunner<Intensity> {}
 
 /// # Safety
 /// This is exposed this way such that libraryloader can call it. Do not call this yourself.

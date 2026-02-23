@@ -44,7 +44,7 @@ fn get_dll_path() -> Option<PathBuf> {
 #[macro_export]
 macro_rules! log {
     ($($arg:tt)*) => {
-        $crate::log(&format!($($arg)*))
+        $crate::log::log(&format!($($arg)*))
     };
 }
 
