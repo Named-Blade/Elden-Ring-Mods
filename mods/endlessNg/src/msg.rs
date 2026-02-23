@@ -5,6 +5,11 @@ use winhook::HookHandle;
 
 use crate::hook::*;
 
+pub const BND_GOODS_NAME: u32 = 10;
+pub const BND_GOODS_INFO: u32 = 20;
+pub const BND_GOODS_CAPTION: u32 = 24;
+pub const BND_TALK: u32 = 33;
+
 const GET_MESSAGE_AOB: &str = "75 24 44 8b cb 33 d2 41 b8 9c 01 00 00 48 8b cf e8 ? ? ? ? 48 85 c0 48 8d 0d ? ? ? ? 48 0f 45 c8 48 8b c1 48 8b 5c 24 30";
 const GET_MESSAGE_OFFSET: usize = 17;
 

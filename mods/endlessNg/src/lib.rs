@@ -249,14 +249,14 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         let _handles = init_hooks();
         let mut message_data = init_message();
-        message_data.add_message(10, 67350,    "Modify Intensity By:");
-        message_data.add_message(10, 67351,    "Grace Ascetic");
-        message_data.add_message(20, 67351,    "Grace Ascetic Info");
-        message_data.add_message(24, 67351,    "Grace Ascetic Caption");
-        message_data.add_message(33, 22021100, "Increase Intensity (Current: <?loopCount?>)");
-        message_data.add_message(33, 22021101, "Decrease Intensity (Current: <?loopCount?>)");
-        message_data.add_message(33, 22021102, "Current Intensity: <?loopCount?>");
-        message_data.add_message(33, 22021103, "Intensity Updated to <?loopCount?>");
+        message_data.add_message(BND_GOODS_NAME, 67350, "Modify Intensity By:");
+        message_data.add_message(BND_GOODS_NAME, 67351, "Grace Ascetic");
+        message_data.add_message(BND_GOODS_INFO, 67351, "Grace Ascetic Info");
+        message_data.add_message(BND_GOODS_CAPTION, 67351, "Grace Ascetic Caption");
+        message_data.add_message(BND_TALK, 22021100, "Increase Intensity (Current: <?loopCount?>)");
+        message_data.add_message(BND_TALK, 22021101, "Decrease Intensity (Current: <?loopCount?>)");
+        message_data.add_message(BND_TALK, 22021102, "Current Intensity: <?loopCount?>");
+        message_data.add_message(BND_TALK, 22021103, "Intensity Updated to <?loopCount?>");
 
         //remove health cap
         let health_cap_aob = "eb 14 81 fa ff ff 07 00 48 8d 44 24 18 4c 8d 44 24 10 49 0f 4e c0 8b 10 89 91 3c 01 00 00";
