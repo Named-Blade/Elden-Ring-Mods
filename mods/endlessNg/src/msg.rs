@@ -1,7 +1,6 @@
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 use std::collections::HashMap;
-use windows::core::w;
-use windows::core::{PCWSTR, HSTRING};
+use windows::core::PCWSTR;
 use winhook::HookHandle;
 
 use crate::hook::*;
@@ -19,71 +18,83 @@ type GetMessageType = unsafe extern "C" fn(
 static GET_MESSAGE_ORIGINAL_HOLDER: OnceLock<GetMessageType> = OnceLock::new();
 
 pub struct MessageData {
-    map: HashMap<u32, HashMap<u32, Box<PCWSTR>>>,
-    hook: HookHandle
+    map: HashMap<u32, HashMap<u32, Box<[u16]>>>,
+    hook: Option<HookHandle>
 }
 
 impl MessageData {
     pub fn add_message(&mut self, msg_bnd: u32, msg_id: u32, msg: &str) {
-        if !self.map.contains_key(&msg_bnd) {
-            self.map.insert(msg_bnd, HashMap::new());
+        let entry = self.map.entry(msg_bnd).or_insert_with(HashMap::new);
+
+        if !entry.contains_key(&msg_id) {
+            // Convert to UTF-16 and append null terminator
+            let mut wide: Vec<u16> = msg.encode_utf16().collect();
+            wide.push(0);
+
+            entry.insert(msg_id, wide.into_boxed_slice());
         }
-        if !self.map[&msg_bnd].contains_key(&msg_id) {
-            let h = HSTRING::from(msg);
-            let pcw: PCWSTR = PCWSTR(h.as_ptr());
-            let str_box = Box::new(pcw);
-            if let Some(bnd) = self.map.get_mut(&msg_bnd) {
-                bnd.insert(msg_id, str_box);
-            }
+    }
+
+    pub fn get_message(&self, msg_bnd: u32, msg_id: u32) -> Option<PCWSTR> {
+        self.map
+            .get(&msg_bnd)?
+            .get(&msg_id)
+            .map(|buf| PCWSTR(buf.as_ptr()))
+    }
+
+    pub fn set_hook(&mut self, hook: HookHandle) {
+        self.hook = Some(hook);
+    }
+}
+
+pub struct MessageContainer {
+    arc: Arc<MessageData>
+}
+
+impl MessageContainer {
+    pub fn add_message(&mut self, msg_bnd: u32, msg_id: u32, msg: &str) {
+        unsafe {
+            let ptr = Arc::as_ptr(&self.arc) as *mut MessageData;
+            (*ptr).add_message(msg_bnd, msg_id, msg);
         }
     }
 }
 
-pub fn init_message() -> MessageData{
-    let map:HashMap<u32, HashMap<u32, Box<PCWSTR>>> = HashMap::new();
+pub fn init_message() -> MessageContainer {
+    // Shared, immutable pointer for closure
+    let message_data = Arc::new(MessageData {
+        map: HashMap::new(),
+        hook: None,
+    });
 
-    let hook_handle_message = make_installer_from_call_aob::<GetMessageType>(GET_MESSAGE_AOB, GET_MESSAGE_OFFSET, &GET_MESSAGE_ORIGINAL_HOLDER).unwrap()
+    // Clone for closure use
+    let closure_data = Arc::clone(&message_data);
+
+    let hook_handle_message = make_installer_from_call_aob::<GetMessageType>(
+        GET_MESSAGE_AOB,
+        GET_MESSAGE_OFFSET,
+        &GET_MESSAGE_ORIGINAL_HOLDER,
+    )
+    .unwrap()
     .install_mut({
-        move |original| move |message_repository, _1, msg_bnd, msg_id| {
-            if msg_bnd == 10 {
-                if msg_id == 67350 {
-                    return w!("Modify Intensity By:");
-                }
-                if msg_id == 67351 {
-                    return w!("Grace Ascetic");
-                }
-            }
-            if msg_bnd == 20 {
-                if msg_id == 67351 {
-                    return w!("Grace Ascetic Info");
+        move |original| {
+            let closure_data = Arc::clone(&closure_data);
+            move |message_repository, _1, msg_bnd, msg_id| {
+                if let Some(msg) = closure_data.get_message(msg_bnd, msg_id) {
+                    return msg;
+                } else {
+                    unsafe { original(message_repository, _1, msg_bnd, msg_id) }
                 }
             }
-            if msg_bnd == 24 {
-                if msg_id == 67351 {
-                    return w!("Grace Ascetic Caption");
-                }
-            }
-            if msg_bnd == 33 {
-                if msg_id == 22021100 {
-                    return w!("Increase Intensity (Current: <?loopCount?>)");
-                }
-                if msg_id == 22021101 {
-                    return w!("Decrease Intensity (Current: <?loopCount?>)");
-                }
-                if msg_id == 22021102 {
-                    return w!("Current Intensity: <?loopCount?>");
-                }
-                if msg_id == 22021103 {
-                    return w!("Intensity Updated");
-                }
-            }
-            return unsafe { original(message_repository, _1, msg_bnd, msg_id) };
         }
-    }).unwrap();
+    })
+    .unwrap();
 
+    unsafe { hook_handle_message.enable(true) };
+    //this is stupid
+    let raw = Arc::into_raw(message_data) as *mut MessageData;
     unsafe {
-        hook_handle_message.enable(true);
-    };
-
-    return MessageData{map: map, hook:hook_handle_message};
+        (*raw).set_hook(hook_handle_message);
+        return MessageContainer{arc: Arc::from_raw(raw)};
+    }
 }
