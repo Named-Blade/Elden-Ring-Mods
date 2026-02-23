@@ -1,6 +1,4 @@
 use closure_ffi::traits::FnPtr;
-use windows::core::w;
-use windows_sys::core::PCWSTR;
 use std::mem;
 use std::sync::OnceLock;
 use eldenring::{
@@ -28,18 +26,6 @@ pub type GetGoodsType = unsafe extern "C" fn(
 pub static GET_GOODS_ORIGINAL_HOLDER: OnceLock<GetGoodsType> = OnceLock::new();
 pub static INTENSITY_DISPLAY_GOODS: OnceLock<EQUIP_PARAM_GOODS_ST> = OnceLock::new();
 pub static INTENSITY_CHANGE_GOODS: OnceLock<EQUIP_PARAM_GOODS_ST> = OnceLock::new();
-
-pub const GET_MESSAGE_AOB: &str = "75 24 44 8b cb 33 d2 41 b8 9c 01 00 00 48 8b cf e8 ? ? ? ? 48 85 c0 48 8d 0d ? ? ? ? 48 0f 45 c8 48 8b c1 48 8b 5c 24 30";
-pub const GET_MESSAGE_OFFSET: usize = 17;
-
-pub type GetMessageType = unsafe extern "C" fn(
-    message_repository: usize,
-    _1: u32,
-    msg_bnd: u32,
-    msg_id: u32,
-) -> PCWSTR;
-
-pub static GET_MESSAGE_ORIGINAL_HOLDER: OnceLock<GetMessageType> = OnceLock::new();
 
 pub fn get_addr_from_call (address: usize) -> usize {
     unsafe {
@@ -107,49 +93,9 @@ pub fn init_hooks() -> Vec<HookHandle> {
         }
     }).unwrap();
 
-    let hook_handle_message = make_installer_from_call_aob::<GetMessageType>(GET_MESSAGE_AOB, GET_MESSAGE_OFFSET, &GET_MESSAGE_ORIGINAL_HOLDER).unwrap()
-    .install_mut({
-        move |original| move |message_repository, _1, msg_bnd, msg_id| {
-            if msg_bnd == 10 {
-                if msg_id == 67350 {
-                    return w!("Modify Intensity By:").as_ptr();
-                }
-                if msg_id == 67351 {
-                    return w!("Grace Ascetic").as_ptr();
-                }
-            }
-            if msg_bnd == 20 {
-                if msg_id == 67351 {
-                    return w!("Grace Ascetic Info").as_ptr();
-                }
-            }
-            if msg_bnd == 24 {
-                if msg_id == 67351 {
-                    return w!("Grace Ascetic Caption").as_ptr();
-                }
-            }
-            if msg_bnd == 33 {
-                if msg_id == 22021100 {
-                    return w!("Increase Intensity (Current: <?loopCount?>)").as_ptr();
-                }
-                if msg_id == 22021101 {
-                    return w!("Decrease Intensity (Current: <?loopCount?>)").as_ptr();
-                }
-                if msg_id == 22021102 {
-                    return w!("Current Intensity: <?loopCount?>").as_ptr();
-                }
-                if msg_id == 22021103 {
-                    return w!("Intensity Updated").as_ptr();
-                }
-            }
-            return unsafe { original(message_repository, _1, msg_bnd, msg_id) };
-        }
-    }).unwrap();
-
     unsafe {
         hook_handle_goods.enable(true);
-        hook_handle_message.enable(true);
     };
 
-    return vec![hook_handle_goods, hook_handle_message];
+    return vec![hook_handle_goods];
 }

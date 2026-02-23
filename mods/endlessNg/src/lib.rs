@@ -32,6 +32,9 @@ use talk::*;
 mod hook;
 use hook::*;
 
+mod msg;
+use msg::*;
+
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T, VK_Y};
 fn is_key_down(key: VIRTUAL_KEY) -> bool {
     let key_state = unsafe { GetKeyState(key.0 as i32) } as u16;
@@ -241,6 +244,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         thread::sleep(time::Duration::from_secs(10));
 
         let _handles = init_hooks();
+        let message_data = init_message();
 
         //remove health cap
         let health_cap_aob = "eb 14 81 fa ff ff 07 00 48 8d 44 24 18 4c 8d 44 24 10 49 0f 4e c0 8b 10 89 91 3c 01 00 00";
