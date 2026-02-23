@@ -250,14 +250,20 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         thread::sleep(time::Duration::from_secs(10));
 
         let mut goods_data = init_goods();
+        let mut message_data = init_message();
 
         let rune_item = 2912;
 
+        message_data.add_message(BND_GOODS_NAME, 67350, "Modify Intensity By:");
         goods_data.add_instance(
             67350,
             rune_item,
             vec![(EquipParamGoodsField::MaxNum, 9999.0)]
         );
+
+        message_data.add_message(BND_GOODS_NAME, 67351, "Grace Ascetic");
+        message_data.add_message(BND_GOODS_INFO, 67351, "Grace Ascetic Info");
+        message_data.add_message(BND_GOODS_CAPTION, 67351, "Grace Ascetic Caption");
         goods_data.add_instance(
             67351,
             rune_item,
@@ -275,12 +281,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                 (EquipParamGoodsField::IconId, 9.0)
             ]
         );
-
-        let mut message_data = init_message();
-        message_data.add_message(BND_GOODS_NAME, 67350, "Modify Intensity By:");
-        message_data.add_message(BND_GOODS_NAME, 67351, "Grace Ascetic");
-        message_data.add_message(BND_GOODS_INFO, 67351, "Grace Ascetic Info");
-        message_data.add_message(BND_GOODS_CAPTION, 67351, "Grace Ascetic Caption");
+        
         message_data.add_message(BND_TALK, 22021100, "Increase Intensity (Current: <?loopCount?>)");
         message_data.add_message(BND_TALK, 22021101, "Decrease Intensity (Current: <?loopCount?>)");
         message_data.add_message(BND_TALK, 22021102, "Current Intensity: <?loopCount?>");
