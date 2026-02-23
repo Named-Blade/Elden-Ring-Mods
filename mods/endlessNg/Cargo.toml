@@ -11,6 +11,7 @@ windows-sys.workspace = true
 pelite.workspace = true
 winhook.workspace = true
 closure-ffi.workspace = true
+toml_edit.workspace = true
 
 [lib]
 crate-type = ["cdylib"]

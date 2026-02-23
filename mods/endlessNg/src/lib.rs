@@ -37,6 +37,8 @@ use msg::*;
 mod goods;
 use goods::*;
 
+mod config;
+
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T, VK_Y};
 fn is_key_down(key: VIRTUAL_KEY) -> bool {
     let key_state = unsafe { GetKeyState(key.0 as i32) } as u16;
@@ -244,6 +246,12 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
     log!("mod started");
 
     std::thread::spawn(move || {
+
+        let _ = config::init(config::Schema::new()
+            .field("general", "log_level", "info", Some("verbosity"))
+            .field("network", "port",      8080_i64, None::<String>)
+        );
+
         wait_for_system_init(&Program::current(), Duration::MAX)
             .expect("Timeout waiting for system init");
 

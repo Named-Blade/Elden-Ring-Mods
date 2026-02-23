@@ -25,3 +25,4 @@ windows-sys = { version = "0.48", features = [
 ]}
 pelite = "0.10"
 closure-ffi = "5.0"
+toml_edit = "0.22" 
