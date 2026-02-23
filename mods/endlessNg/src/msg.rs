@@ -28,8 +28,14 @@ impl MessageData {
         if !self.map.contains_key(&msg_bnd) {
             self.map.insert(msg_bnd, HashMap::new());
         }
-        let h = HSTRING::from(msg);
-        let pcw: PCWSTR = PCWSTR(h.as_ptr());
+        if !self.map[&msg_bnd].contains_key(&msg_id) {
+            let h = HSTRING::from(msg);
+            let pcw: PCWSTR = PCWSTR(h.as_ptr());
+            let str_box = Box::new(pcw);
+            if let Some(bnd) = self.map.get_mut(&msg_bnd) {
+                bnd.insert(msg_id, str_box);
+            }
+        }
     }
 }
 
