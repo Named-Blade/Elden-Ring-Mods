@@ -35,6 +35,9 @@ use hook::*;
 mod msg;
 use msg::*;
 
+mod goods;
+use goods::*;
+
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T, VK_Y};
 fn is_key_down(key: VIRTUAL_KEY) -> bool {
     let key_state = unsafe { GetKeyState(key.0 as i32) } as u16;
