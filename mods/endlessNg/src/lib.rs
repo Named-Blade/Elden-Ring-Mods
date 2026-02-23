@@ -121,6 +121,7 @@ enum IntensityState {
     Idle,
     Enter,
     WaitForDialog,
+    DisplayIntensityDialogue,
     WaitForGenericDialog,
     Done,
 }
@@ -203,11 +204,14 @@ impl StateMachine for Intensity {
 
                 let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(67350)])).into();
                 event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(67350), i!(-limit)]));
+                Next(IntensityState::DisplayIntensityDialogue)
+            }
+
+            IntensityState::DisplayIntensityDialogue => {
                 event!((OPEN_GENERIC_DIALOG, [
                     i!(DIALOG_BOX_TYPE_CENTER_BOTTOM_1), i!(22021103),
                     i!(DIALOG_RESULT_LEFT), i!(DIALOG_BOX_STYLE_ORNATE_NO_OPTIONS), i!(1),
                 ]));
-
                 Next(IntensityState::WaitForGenericDialog)
             }
 
@@ -252,7 +256,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         message_data.add_message(33, 22021100, "Increase Intensity (Current: <?loopCount?>)");
         message_data.add_message(33, 22021101, "Decrease Intensity (Current: <?loopCount?>)");
         message_data.add_message(33, 22021102, "Current Intensity: <?loopCount?>");
-        message_data.add_message(33, 22021103, "Intensity Updated");
+        message_data.add_message(33, 22021103, "Intensity Updated to <?loopCount?>");
 
         //remove health cap
         let health_cap_aob = "eb 14 81 fa ff ff 07 00 48 8d 44 24 18 4c 8d 44 24 10 49 0f 4e c0 8b 10 89 91 3c 01 00 00";
