@@ -1,7 +1,16 @@
+mod console;
+mod log;
+mod patch;
+mod clear;
+mod talk;
+mod hook;
+mod msg;
+mod goods;
+mod config;
+
 use std::time::Duration;
 use std::{thread, time};
 use std::mem::MaybeUninit;
-
 use eldenring::{
     cs::{
         BlockId, CSTaskGroupIndex, CSTaskImp, GameDataMan, WorldChrMan, SoloParam, SoloParamRepository, ClearCountCorrectParam,
@@ -14,30 +23,13 @@ use eldenring::{
 };
 use fromsoftware_shared::{FromStatic, program::Program, task::*};
 
-mod console;
 use console::init_console;
-
-mod log;
 use log::*;
-
-mod patch;
 use patch::perform_patch;
-
-mod clear;
 use clear::{ClearCountField, ClearCountFieldAccess};
-
-mod talk;
 use talk::*;
-
-mod hook;
-
-mod msg;
 use msg::*;
-
-mod goods;
 use goods::*;
-
-mod config;
 
 use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T, VK_Y};
 fn is_key_down(key: VIRTUAL_KEY) -> bool {
