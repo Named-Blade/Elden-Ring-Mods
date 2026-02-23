@@ -6,6 +6,7 @@ use winhook::HookHandle;
 use crate::hook::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
 pub enum EquipParamGoodsField {
     DisableParamReserve2,
     RefIdDefault,
@@ -80,10 +81,15 @@ pub enum EquipParamGoodsField {
     Reserve5,
     ItemGetTutorialFlagId,
     Reserve3,
+    IsDrop,
+    IsDiscard,
+    IsConsume,
+    IsDeposit
 }
 
+#[allow(dead_code)]
 impl EquipParamGoodsField {
-    pub const ALL: [EquipParamGoodsField; 73] = [
+    pub const ALL: [EquipParamGoodsField; 77] = [
         Self::DisableParamReserve2,
         Self::RefIdDefault,
         Self::SfxVariationId,
@@ -157,6 +163,10 @@ impl EquipParamGoodsField {
         Self::Reserve5,
         Self::ItemGetTutorialFlagId,
         Self::Reserve3,
+        Self::IsDrop,
+        Self::IsDiscard,
+        Self::IsConsume,
+        Self::IsDeposit
     ];
 
     #[allow(dead_code)]
@@ -235,17 +245,22 @@ impl EquipParamGoodsField {
             EquipParamGoodsField::Reserve5 => "reserve5",
             EquipParamGoodsField::ItemGetTutorialFlagId => "item_get_tutorial_flag_id",
             EquipParamGoodsField::Reserve3 => "reserve3",
+            EquipParamGoodsField::IsDrop => "is_drop",
+            EquipParamGoodsField::IsDiscard => "is_discard",
+            EquipParamGoodsField::IsConsume => "is_consume",
+            EquipParamGoodsField::IsDeposit => "is_deposit",
         }
     }
 }
 
 pub trait EquipParamGoodsFieldAccess {
+    #[allow(dead_code)]
     fn get_field(&self, field: EquipParamGoodsField) -> f32;
     fn set_field(&mut self, field: EquipParamGoodsField, value: f32);
 }
 
 impl EquipParamGoodsFieldAccess for EQUIP_PARAM_GOODS_ST {
-     fn get_field(&self, field: EquipParamGoodsField) -> f32 {
+    fn get_field(&self, field: EquipParamGoodsField) -> f32 {
         match field {
             EquipParamGoodsField::DisableParamReserve2 => unimplemented!("Array field"),
             EquipParamGoodsField::RefIdDefault => self.ref_id_default() as f32,
@@ -320,6 +335,10 @@ impl EquipParamGoodsFieldAccess for EQUIP_PARAM_GOODS_ST {
             EquipParamGoodsField::Reserve5 => unimplemented!("Array field"),
             EquipParamGoodsField::ItemGetTutorialFlagId => self.item_get_tutorial_flag_id() as f32,
             EquipParamGoodsField::Reserve3 => unimplemented!("Array field"),
+            EquipParamGoodsField::IsDrop => self.is_drop() as f32,
+            EquipParamGoodsField::IsConsume => self.is_consume() as f32,
+            EquipParamGoodsField::IsDiscard => self.is_discard() as f32,
+            EquipParamGoodsField::IsDeposit => self.is_deposit() as f32,
         }
     }
 
@@ -398,6 +417,10 @@ impl EquipParamGoodsFieldAccess for EQUIP_PARAM_GOODS_ST {
             EquipParamGoodsField::Reserve5 => unimplemented!("Array field"),
             EquipParamGoodsField::ItemGetTutorialFlagId => self.set_item_get_tutorial_flag_id(value as u32),
             EquipParamGoodsField::Reserve3 => unimplemented!("Array field"),
+            EquipParamGoodsField::IsDrop => self.set_is_drop(value as u8),
+            EquipParamGoodsField::IsConsume => self.set_is_consume(value as u8),
+            EquipParamGoodsField::IsDiscard => self.set_is_discard(value as u8),
+            EquipParamGoodsField::IsDeposit => self.set_is_deposit(value as u8),
         }
     }
 }
@@ -418,3 +441,117 @@ pub type GetGoodsType = unsafe extern "C" fn(
 );
 
 pub static GET_GOODS_ORIGINAL_HOLDER: OnceLock<GetGoodsType> = OnceLock::new();
+
+type GoodsFieldsPair = (EquipParamGoodsField, f32);
+pub struct GoodInstance {
+    good: Option<Box<EQUIP_PARAM_GOODS_ST>>,
+    source: u32,
+    fields: Vec<GoodsFieldsPair>
+}
+
+impl GoodInstance {
+    pub fn set_good(&mut self, good: &EQUIP_PARAM_GOODS_ST) {
+        let mut my_good: EQUIP_PARAM_GOODS_ST = good.clone();
+        for (field,value) in self.fields.iter() {
+            my_good.set_field(*field, *value);
+        }
+        self.good = Some(Box::new(my_good));
+    }
+
+    pub fn get_good(&self) -> Option<*const EQUIP_PARAM_GOODS_ST> {
+        let Some(ref good) = self.good else { return None };
+        return Some(&*(*good) as *const EQUIP_PARAM_GOODS_ST);
+    }
+
+    pub fn get_source(&self) -> u32 {
+        self.source
+    }
+}
+
+pub struct GoodsData {
+    map: HashMap<u32, GoodInstance>,
+    hook: Option<HookHandle>
+}
+
+impl GoodsData {
+    pub fn add_instance(&mut self, inst: u32, source: u32, fields: Vec<GoodsFieldsPair>) {
+        if !self.map.contains_key(&inst) {
+            self.map.insert(inst, GoodInstance{
+                good: None,
+                source: source,
+                fields: fields.clone()
+            });
+        }
+    }
+
+    pub fn get_instance(&self, inst: u32) -> Option<&GoodInstance> {
+        let Some(good) = self.map.get(&inst) else {return None};
+        return Some(good);
+    }
+
+    pub fn set_hook(&mut self, hook: HookHandle) {
+        self.hook = Some(hook);
+    }
+}
+
+pub struct GoodsContainer {
+    arc: Arc<GoodsData>
+}
+
+impl GoodsContainer {
+    pub fn add_instance(&mut self, inst: u32, source: u32, fields: Vec<GoodsFieldsPair>) {
+        unsafe {
+            let ptr = Arc::as_ptr(&self.arc) as *mut GoodsData;
+            (*ptr).add_instance(inst, source, fields);
+        }
+    }
+}
+
+pub fn init_goods() -> GoodsContainer {
+    // Shared, immutable pointer for closure
+    let goods_data = Arc::new(GoodsData {
+        map: HashMap::new(),
+        hook: None,
+    });
+
+    // Clone for closure use
+    let closure_data = Arc::clone(&goods_data);
+
+    let hook_handle_goods = make_installer_from_call_aob::<GetGoodsType>(
+        GET_GOODS_AOB,
+        GET_GOODS_OFFSET,
+        &GET_GOODS_ORIGINAL_HOLDER,
+    )
+    .unwrap()
+    .install_mut({
+        move |original| {
+            let closure_data = Arc::clone(&closure_data);
+            move |result, id| {
+                if let Some(good_instance) = closure_data.get_instance(id) {
+                    unsafe {
+                        if let Some(good) = good_instance.get_good() {
+                            (*result).row = good as *mut EQUIP_PARAM_GOODS_ST;
+                        } else {
+                            original(result, good_instance.get_source());
+                            let ptr = good_instance as *const GoodInstance;
+                            (*(ptr as usize as *mut GoodInstance)).set_good(&*(*result).row);
+                            (*result).row = good_instance.get_good().unwrap() as *mut EQUIP_PARAM_GOODS_ST;
+                        }
+                        (*result).id = id;
+                    }
+                } else {
+                    unsafe { original(result,id) };
+                }
+            }
+        }
+    })
+    .unwrap();
+
+    unsafe { hook_handle_goods.enable(true) };
+    //this is stupid
+    let raw = Arc::into_raw(goods_data) as *mut GoodsData;
+    unsafe {
+        (*raw).set_hook(hook_handle_goods);
+        return GoodsContainer{arc: Arc::from_raw(raw)};
+    }
+}

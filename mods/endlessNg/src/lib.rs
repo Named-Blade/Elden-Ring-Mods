@@ -30,7 +30,6 @@ mod talk;
 use talk::*;
 
 mod hook;
-use hook::*;
 
 mod msg;
 use msg::*;
@@ -250,7 +249,31 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         thread::sleep(time::Duration::from_secs(10));
 
-        let _handles = init_hooks();
+        let mut goods_data = init_goods();
+
+        goods_data.add_instance(
+            67350,
+            2912,
+            vec![(EquipParamGoodsField::MaxNum, 9999.0)]
+        );
+        goods_data.add_instance(
+            67351,
+            2912,
+            vec![
+                (EquipParamGoodsField::MaxNum, 1.0),
+                (EquipParamGoodsField::MaxRepositoryNum, 0.0),
+                (EquipParamGoodsField::IsDrop, 0.0),
+                (EquipParamGoodsField::IsDiscard, 0.0),
+                (EquipParamGoodsField::IsConsume, 0.0),
+                (EquipParamGoodsField::IsDeposit, 0.0),
+                (EquipParamGoodsField::Rarity, 5.0),
+                (EquipParamGoodsField::SellValue, -1.0),
+                (EquipParamGoodsField::SortId, 349.0),
+                (EquipParamGoodsField::SortGroupId, 10.0),
+                (EquipParamGoodsField::IconId, 9.0)
+            ]
+        );
+
         let mut message_data = init_message();
         message_data.add_message(BND_GOODS_NAME, 67350, "Modify Intensity By:");
         message_data.add_message(BND_GOODS_NAME, 67351, "Grace Ascetic");
