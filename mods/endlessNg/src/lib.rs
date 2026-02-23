@@ -235,10 +235,11 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
     std::thread::spawn(move || {
 
         let _ = config::init(config::Schema::new()
-            .field("endless_ng", "exponential", false, None::<String>)
-            .field("endless_ng", "exponent_base", 1.2_f64, None::<String>)
-            .field("endless_ng", "fix_physical_damage_scaling", true, None::<String>)
-            .field("compatibility", "goods_display_id", 67350_i64, None::<String>)
+            .field("endless_ng", "fix_physical_damage_scaling", true, Some("Fix mistaken double scaling of physical damage"))
+            .field("endless_ng", "scaling_factor", 1_f64, Some("strength of scaling after NG+7. 1 is the same as the existing levels above NG+1."))
+            .field("endless_ng", "exponential", false, Some("Enable exponential scaling mode"))
+            .field("endless_ng", "exponent_base", 1.2_f64, Some("base ^ (NG+lvl - 7)"))
+            .field("compatibility", "goods_display_id", 67350_i64, Some("Change these Ids if they conflict with other mods"))
             .field("compatibility", "goods_intensity_id", 67351_i64, None::<String>)
             .field("compatibility", "current_talk_id", 22021100_i64, None::<String>)
             .field("compatibility", "update_talk_id", 22021101_i64, None::<String>)
@@ -319,6 +320,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             ),
         ));
 
+        let scaling_factor = config::get_float("endless_ng", "scaling_factor").unwrap() as f32;
         let exponential = config::get_bool("endless_ng", "exponential").unwrap();
         let exponent_base = config::get_float("endless_ng", "exponent_base").unwrap() as f32;
 
@@ -351,8 +353,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                                 row1.set_field(field, original_max.get_field(field) + exponent_base.powf(over_level));
                                 row2.set_field(field, original_max.get_field(field) + exponent_base.powf(over_level));
                             } else {
-                                row1.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * over_level);
-                                row2.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * over_level);
+                                row1.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * over_level * scaling_factor);
+                                row2.set_field(field, original_max.get_field(field) + cycle_increase.get_field(field) * over_level * scaling_factor);
                             }
                         }
                     }
