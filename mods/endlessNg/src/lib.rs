@@ -196,7 +196,7 @@ impl StateMachine for Intensity {
                 }
 
                 let value: i32 = env!(GET_VALUE_FROM_NUMBER_SELECT_DIALOG).into();
-                if value >= 0 {
+                if value > 0 {
                     let Ok(game_data_man) = (unsafe { GameDataMan::instance() }) else {
                         let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id)])).into();
                         event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_display_id), i!(-limit)]));
