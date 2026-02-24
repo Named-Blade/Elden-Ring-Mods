@@ -238,7 +238,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             .field("endless_ng", "fix_physical_damage_scaling", true, Some("Fix mistaken double scaling of physical damage"))
             .field("endless_ng", "scaling_factor", 1_f64, Some("strength of scaling after NG+7. 1 is the same as the existing levels above NG+1."))
             .field("endless_ng", "exponential", false, Some("Enable exponential scaling mode"))
-            .field("endless_ng", "exponent_base", 1.2_f64, Some("base ^ (NG+lvl - 7)"))
+            .field("endless_ng", "exponent_base", 1.06_f64, Some("base ^ (NG+lvl - 7)"))
             .field("compatibility", "goods_display_id", 67350_i64, Some("Change these Ids if they conflict with other mods"))
             .field("compatibility", "goods_intensity_id", 67351_i64, None::<String>)
             .field("compatibility", "current_talk_id", 22021100_i64, None::<String>)
