@@ -119,6 +119,7 @@ struct Intensity {
     update_talk_id: i32,
     increase_talk_id: i32,
     decrease_talk_id: i32,
+    grace_ascetic: bool,
 }
 
 impl StateMachine for Intensity {
@@ -145,9 +146,13 @@ impl StateMachine for Intensity {
         Ok(match state {
             IntensityState::Idle => {
                 let has_item: i32 = env!((DOES_PLAYER_HAVE_ITEM, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id)])).into();
-                if has_item == 0 {
+                let limit: i32 = env!((GET_ITEM_HELD_NUM_LIMIT, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id)])).into();
+                if self.grace_ascetic && has_item == 0 {
                     log!("Added Grace Ascetic to player");
-                    event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id), i!(1)]));
+                    event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id), i!(limit)]));
+                } else if !self.grace_ascetic && has_item == 1 {
+                    log!("Removed Grace Ascetic from player");
+                    event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id), i!(-limit)]));
                 }
                 let has_effect: i32 = env!((DOES_PLAYER_HAVE_SP_EFFECT, [i!(self.sp_effect_trigger_id)])).into();
                 if has_effect == 1 {
@@ -256,9 +261,11 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         let _ = config::init(config::Schema::new()
             .field("endless_ng", "fix_physical_damage_scaling", true, Some("Fix mistaken double scaling of physical damage"))
-            .field("endless_ng", "scaling_factor", 1_f64, Some("strength of scaling after NG+7. 1 is the same as the existing levels above NG+1."))
+            .field("endless_ng", "grace_ascetic", true, Some("Item to modify current journey intensity"))
+            .field("endless_ng", "scaling_factor", 1_f64, Some("strength of scaling after NG+7. 1 is the same as the existing levels above NG+1"))
             .field("endless_ng", "exponential", false, Some("Enable exponential scaling mode"))
             .field("endless_ng", "exponent_base", 1.06_f64, Some("base ^ (NG+lvl - 7)"))
+            .field("loading", "wait_time", 10_i64, Some("seconds to wait before initialization. Set to a higher number if you have any issues"))
             .field("compatibility", "goods_display_id", 67350_i64, Some("Change these Ids if they conflict with other mods"))
             .field("compatibility", "goods_intensity_id", 67351_i64, None::<String>)
             .field("compatibility", "sp_effect_trigger_id", 67350_i64, None::<String>)
@@ -268,10 +275,12 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             .field("compatibility", "decrease_talk_id", 22021103_i64, None::<String>)
         );
 
+        let wait_time = config::get_int("loading", "wait_time").unwrap() as u64;
+
         wait_for_system_init(&Program::current(), Duration::MAX)
             .expect("Timeout waiting for system init");
 
-        thread::sleep(time::Duration::from_secs(10));
+        thread::sleep(time::Duration::from_secs(wait_time));
 
         let mut goods_data = init_goods();
         let mut sp_effect_data = init_sp_effect();
@@ -345,6 +354,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         }
         let (cycle_increase, original_max) = compute_clear_count_cycle_increase(solo_param_repository);
 
+        let grace_ascetic = config::get_bool("endless_ng", "grace_ascetic").unwrap();
+
         let mut runner = Box::new(StateRunner::new(
             Intensity { 
                 change_sign: 1 ,
@@ -355,6 +366,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                 update_talk_id: update_talk_id as i32,
                 increase_talk_id: increase_talk_id as i32,
                 decrease_talk_id: decrease_talk_id as i32,
+                grace_ascetic: grace_ascetic,
             },
             TalkScript::new(
                 BlockId::none(),
