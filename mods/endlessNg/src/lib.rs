@@ -300,8 +300,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         );
 
         message_data.add_message(BND_GOODS_NAME, goods_intensity_id, "Grace Ascetic");
-        message_data.add_message(BND_GOODS_INFO, goods_intensity_id, "Grace Ascetic Info");
-        message_data.add_message(BND_GOODS_CAPTION, goods_intensity_id, "Grace Ascetic Caption");
+        message_data.add_message(BND_GOODS_INFO, goods_intensity_id, "Modify the intensity of your current journey using this fragment of grace.");
+        message_data.add_message(BND_GOODS_CAPTION, goods_intensity_id, "Modify the intensity of your current journey using this fragment of grace.");
         goods_data.add_instance(
             goods_intensity_id,
             rune_item,
@@ -340,12 +340,41 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         message_data.add_message(BND_TALK, increase_talk_id, "Increase Intensity");
         message_data.add_message(BND_TALK, decrease_talk_id, "Decrease Intensity");
 
-        //remove health cap
         let health_cap_aob = "eb 14 81 fa ff ff 07 00 48 8d 44 24 18 4c 8d 44 24 10 49 0f 4e c0 8b 10 89 91 3c 01 00 00";
         let health_cap_offset = 18;
         let health_cap_expected = "49 0f 4e c0";// cmovle rax,r8;
         let health_cap_patch = "49 8b c0 90";   // mov rax,r8; nop;
         perform_patch(health_cap_aob,health_cap_expected,health_cap_patch,health_cap_offset);
+
+        let ng_load_cap_aob = "81 f9 0f 27 00 00 48 8d 45 f0 48 8d 55 f8 48 0f 4e c2";
+        let ng_load_cap_offset = 14;
+        let ng_load_cap_expected = "48 0f 4e c2";// cmovle rax,rdx;
+        let ng_load_cap_patch = "48 8b c2 90";   // mov rax,rdx; nop
+        perform_patch(ng_load_cap_aob,ng_load_cap_expected,ng_load_cap_patch,ng_load_cap_offset);
+
+        let ng_new_cap_aob = "81 f9 0f 27 00 00 48 8d 44 24 38 4c 8d 44 24 40 49 0f 4e c0 8b 00 48 8d 4c 24 30 89 82 20 01 00 00";
+        let ng_new_cap_offset = 16;
+        let ng_new_cap_expected = "49 0f 4e c0";// cmovle rax,r8;
+        let ng_new_cap_patch = "49 8b c0 90";   // mov rax,r8; nop;
+        perform_patch(ng_new_cap_aob,ng_new_cap_expected,ng_new_cap_patch,ng_new_cap_offset);
+
+        let ng_loop_count_aob = "c7 45 77 0f 27 00 00 c7 45 6f 00 00 00 00 79 06 48 8d 45 6f eb 12 81 f9 0f 27 00 00 48 8d 45 77 48 8d 55 e7 48 0f 4e c2";
+        let ng_loop_count_offset = 36;
+        let ng_loop_count_expected = "48 0f 4e c2";// cmovle rax,rdx;
+        let ng_loop_count_patch = "48 8b c2 90";   // mov rax,rdx; nop
+        perform_patch(ng_loop_count_aob,ng_loop_count_expected,ng_loop_count_patch,ng_loop_count_offset);
+
+        let ng_next_count_1_aob = "3d 0f 27 00 00 48 8d 4c 24 38 48 8d 54 24 40 48 0f 4e ca 8b 09 83 c1 01 c7 44 24 38 0f 27 00 00";
+        let ng_next_count_1_offset = 15;
+        let ng_next_count_1_expected = "48 0f 4e ca";// cmovle rcx,rdx;
+        let ng_next_count_1_patch = "48 8b ca 90";   // mov rcx,rdx; nop;
+        perform_patch(ng_next_count_1_aob,ng_next_count_1_expected,ng_next_count_1_patch,ng_next_count_1_offset);
+        
+        let ng_next_count_2_aob = "81 f9 0f 27 00 00 48 8d 44 24 38 48 8d 54 24 40 48 0f 4e c2 8b 00 48 83 c4 28 c3 90";
+        let ng_next_count_2_offset = 16;
+        let ng_next_count_2_expected = "48 0f 4e c2";// cmovle rax,rdx;
+        let ng_next_count_2_patch = "48 8b c2 90";   // mov rax,rdx; nop
+        perform_patch(ng_next_count_2_aob,ng_next_count_2_expected,ng_next_count_2_patch,ng_next_count_2_offset);
 
         let Ok(solo_param_repository) = (unsafe { SoloParamRepository::instance() }) else { return; };
 
