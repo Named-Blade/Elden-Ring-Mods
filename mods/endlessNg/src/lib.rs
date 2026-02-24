@@ -23,7 +23,7 @@ use talk::*;
 use msg::*;
 use goods::*;
 
-use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T, VK_Y};
+use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T};
 fn is_key_down(key: VIRTUAL_KEY) -> bool {
     let key_state = unsafe { GetKeyState(key.0 as i32) } as u16;
     key_state & 0x8000 != 0
@@ -107,6 +107,7 @@ fn fix_physical_damage_scaling(repo: &mut SoloParamRepository) {
 enum IntensityState {
     #[default]
     Idle,
+    WaitForChoice,
     Enter,
     WaitForDialog,
     DisplayIntensityDialogue,
@@ -120,6 +121,8 @@ struct Intensity {
     goods_intensity_id: i32,
     current_talk_id: i32,
     update_talk_id: i32,
+    increase_talk_id: i32,
+    decrease_talk_id: i32,
 }
 
 impl StateMachine for Intensity {
@@ -150,15 +153,27 @@ impl StateMachine for Intensity {
                     log!("Added Grace Ascetic to player");
                     event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id), i!(1)]));
                 }
-                if is_key_down(VK_T) {
-                    self.change_sign = 0;
-                    Next(IntensityState::Enter) 
-                } else if is_key_down(VK_Y) {
-                    self.change_sign = 1;
-                    Next(IntensityState::Enter) 
-                } else { 
+                if is_key_down(VK_T) { // replace with speffect check?
+                    event!((CLEAR_TALK_LIST_DATA, []));
+                    event!((ADD_TALK_LIST_DATA, [i!(0), i!(self.decrease_talk_id), i!(-1)]));
+                    event!((ADD_TALK_LIST_DATA, [i!(1), i!(self.increase_talk_id), i!(-1)]));
+                    event!((OPEN_CONVERSATION_CHOICES_MENU, [i!(0)]));
+                    Next(IntensityState::WaitForChoice)
+                } else {
                     Transition::<IntensityState>::Wait(IntensityState::Idle) 
                 }
+            }
+
+            IntensityState::WaitForChoice => {
+                let menu_open: i32  = env!((CHECK_SPECIFIC_PERSON_MENU_IS_OPEN,          [i!(12), i!(0)])).into();
+                let dialog_open: i32 = env!((CHECK_SPECIFIC_PERSON_GENERIC_DIALOG_IS_OPEN, [i!(0)])).into();
+
+                if menu_open == 1 && dialog_open == 0 {
+                    return Ok(Transition::<IntensityState>::Wait(IntensityState::WaitForChoice)); // still waiting; don't advance state
+                }
+                let value: i32 = env!(GET_TALK_LIST_ENTRY_RESULT).into();
+                self.change_sign = value;
+                Next(IntensityState::Enter) 
             }
 
             IntensityState::Enter => {
@@ -243,6 +258,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             .field("compatibility", "goods_intensity_id", 67351_i64, None::<String>)
             .field("compatibility", "current_talk_id", 22021100_i64, None::<String>)
             .field("compatibility", "update_talk_id", 22021101_i64, None::<String>)
+            .field("compatibility", "increase_talk_id", 22021102_i64, None::<String>)
+            .field("compatibility", "decrease_talk_id", 22021103_i64, None::<String>)
         );
 
         wait_for_system_init(&Program::current(), Duration::MAX)
@@ -287,9 +304,13 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         let current_talk_id = config::get_int("compatibility", "current_talk_id").unwrap() as u32;
         let update_talk_id = config::get_int("compatibility", "update_talk_id").unwrap() as u32;
+        let increase_talk_id = config::get_int("compatibility", "increase_talk_id").unwrap() as u32;
+        let decrease_talk_id = config::get_int("compatibility", "decrease_talk_id").unwrap() as u32;
         
         message_data.add_message(BND_TALK, current_talk_id, "Current Intensity: <?loopCount?>");
         message_data.add_message(BND_TALK, update_talk_id, "Intensity Updated to <?loopCount?>");
+        message_data.add_message(BND_TALK, increase_talk_id, "Increase Intensity");
+        message_data.add_message(BND_TALK, decrease_talk_id, "Decrease Intensity");
 
         //remove health cap
         let health_cap_aob = "eb 14 81 fa ff ff 07 00 48 8d 44 24 18 4c 8d 44 24 10 49 0f 4e c0 8b 10 89 91 3c 01 00 00";
@@ -312,6 +333,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                 goods_intensity_id: goods_intensity_id as i32,
                 current_talk_id: current_talk_id as i32,
                 update_talk_id: update_talk_id as i32,
+                increase_talk_id: increase_talk_id as i32,
+                decrease_talk_id: decrease_talk_id as i32,
             },
             TalkScript::new(
                 BlockId::none(),
