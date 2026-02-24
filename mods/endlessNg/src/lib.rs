@@ -22,12 +22,7 @@ use clear::{ClearCountField, ClearCountFieldAccess};
 use talk::*;
 use msg::*;
 use goods::*;
-
-use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VIRTUAL_KEY, VK_T};
-fn is_key_down(key: VIRTUAL_KEY) -> bool {
-    let key_state = unsafe { GetKeyState(key.0 as i32) } as u16;
-    key_state & 0x8000 != 0
-}
+use speffect::*;
 
 fn compute_clear_count_cycle_increase(
     repo: &mut SoloParamRepository,
@@ -119,6 +114,7 @@ struct Intensity {
     change_sign: i32, // FlagState, default ON
     goods_display_id: i32,
     goods_intensity_id: i32,
+    sp_effect_trigger_id: i32,
     current_talk_id: i32,
     update_talk_id: i32,
     increase_talk_id: i32,
@@ -153,7 +149,8 @@ impl StateMachine for Intensity {
                     log!("Added Grace Ascetic to player");
                     event!((PLAYER_EQUIPMENT_QUANTITY_CHANGE, [i!(ITEM_TYPE_GOODS), i!(self.goods_intensity_id), i!(1)]));
                 }
-                if is_key_down(VK_T) { // replace with speffect check?
+                let has_effect: i32 = env!((DOES_PLAYER_HAVE_SP_EFFECT, [i!(self.sp_effect_trigger_id)])).into();
+                if has_effect == 1 {
                     event!((CLEAR_TALK_LIST_DATA, []));
                     event!((ADD_TALK_LIST_DATA, [i!(0), i!(self.decrease_talk_id), i!(-1)]));
                     event!((ADD_TALK_LIST_DATA, [i!(1), i!(self.increase_talk_id), i!(-1)]));
@@ -256,6 +253,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             .field("endless_ng", "exponent_base", 1.06_f64, Some("base ^ (NG+lvl - 7)"))
             .field("compatibility", "goods_display_id", 67350_i64, Some("Change these Ids if they conflict with other mods"))
             .field("compatibility", "goods_intensity_id", 67351_i64, None::<String>)
+            .field("compatibility", "sp_effect_trigger_id", 67350_i64, None::<String>)
             .field("compatibility", "current_talk_id", 22021100_i64, None::<String>)
             .field("compatibility", "update_talk_id", 22021101_i64, None::<String>)
             .field("compatibility", "increase_talk_id", 22021102_i64, None::<String>)
@@ -268,11 +266,14 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         thread::sleep(time::Duration::from_secs(10));
 
         let mut goods_data = init_goods();
+        let mut sp_effect_data = init_sp_effect();
         let mut message_data = init_message();
 
         let goods_display_id = config::get_int("compatibility", "goods_display_id").unwrap() as u32;
         let goods_intensity_id = config::get_int("compatibility", "goods_intensity_id").unwrap() as u32;
+        let sp_effect_trigger_id = config::get_int("compatibility", "sp_effect_trigger_id").unwrap() as u32;
         let rune_item = 2912;
+        let rune_sp_effect = 3281;
 
         message_data.add_message(BND_GOODS_NAME, goods_display_id, "Modify Intensity By:");
         goods_data.add_instance(
@@ -298,7 +299,17 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                 (EquipParamGoodsField::SellValue, -1.0),
                 (EquipParamGoodsField::SortId, 349.0),
                 (EquipParamGoodsField::SortGroupId, 10.0),
-                (EquipParamGoodsField::IconId, 9.0)
+                (EquipParamGoodsField::IconId, 9.0),
+                (EquipParamGoodsField::RefIdDefault, sp_effect_trigger_id as f32),
+            ]
+        );
+
+        sp_effect_data.add_instance(
+            sp_effect_trigger_id,
+            rune_sp_effect,
+            vec![
+                (SpEffectParamField::Soul, 0.0),
+                (SpEffectParamField::EffectEndurance, 1.0),
             ]
         );
 
@@ -331,6 +342,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                 change_sign: 1 ,
                 goods_display_id: goods_display_id as i32,
                 goods_intensity_id: goods_intensity_id as i32,
+                sp_effect_trigger_id: sp_effect_trigger_id as i32,
                 current_talk_id: current_talk_id as i32,
                 update_talk_id: update_talk_id as i32,
                 increase_talk_id: increase_talk_id as i32,

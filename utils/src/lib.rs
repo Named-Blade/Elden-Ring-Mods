@@ -7,3 +7,4 @@ pub mod hook;
 pub mod msg;
 pub mod goods;
 pub mod config;
+pub mod speffect;
