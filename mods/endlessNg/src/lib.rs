@@ -152,8 +152,8 @@ impl StateMachine for Intensity {
                 let has_effect: i32 = env!((DOES_PLAYER_HAVE_SP_EFFECT, [i!(self.sp_effect_trigger_id)])).into();
                 if has_effect == 1 {
                     event!((CLEAR_TALK_LIST_DATA, []));
-                    event!((ADD_TALK_LIST_DATA, [i!(0), i!(self.decrease_talk_id), i!(-1)]));
                     event!((ADD_TALK_LIST_DATA, [i!(1), i!(self.increase_talk_id), i!(-1)]));
+                    event!((ADD_TALK_LIST_DATA, [i!(2), i!(self.decrease_talk_id), i!(-1)]));
                     event!((OPEN_CONVERSATION_CHOICES_MENU, [i!(0)]));
                     Next(IntensityState::WaitForChoice)
                 } else {
@@ -169,8 +169,16 @@ impl StateMachine for Intensity {
                     return Ok(Transition::<IntensityState>::Wait(IntensityState::WaitForChoice)); // still waiting; don't advance state
                 }
                 let value: i32 = env!(GET_TALK_LIST_ENTRY_RESULT).into();
-                self.change_sign = value;
-                Next(IntensityState::Enter) 
+                if value == 0 {
+                    Next(IntensityState::Idle) 
+                } else {
+                    if value == 1 {
+                        self.change_sign = 1;
+                    } else if value == 2 {
+                        self.change_sign = 0;
+                    }
+                    Next(IntensityState::Enter) 
+                }
             }
 
             IntensityState::Enter => {
@@ -309,7 +317,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             rune_sp_effect,
             vec![
                 (SpEffectParamField::Soul, 0.0),
-                (SpEffectParamField::EffectEndurance, 1.0),
+                (SpEffectParamField::EffectEndurance, 0.0),
             ]
         );
 
