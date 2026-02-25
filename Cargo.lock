@@ -449,6 +449,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "rally_mod"
+version = "0.1.0"
+dependencies = [
+ "closure-ffi",
+ "eldenring",
+ "fromsoftware-shared",
+ "pelite",
+ "toml_edit",
+ "utils",
+ "windows 0.62.2",
+ "windows-sys 0.48.0",
+ "winhook",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"

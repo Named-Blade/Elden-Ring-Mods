@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "utils",
     "mods/endlessNg",
+    "mods/rally_mod"
 ]
 
 [workspace.dependencies]
