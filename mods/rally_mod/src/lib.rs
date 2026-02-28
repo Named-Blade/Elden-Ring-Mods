@@ -18,8 +18,8 @@ use hook::*;
 const RALLY_UPDATE_AOB: &str = "48 8b 09 e8 ? ? ? ? 48 8b 87 90 01 00 00 48 8b 08 e8";
 const RALLY_HUPDATE_OFFSET: usize = 4;
 
-const RALLY_MODIFY_AOB: &str = "C6 44 24 28 01 33 D2 F3 0F 11 44 24 20 48 8B 09 E8 ? ? ? ? 48 8B 4B 58 33 D2 E8";
-const RALLY_MODIFY_OFFSET: usize = 17;
+const RALLY_HP_CHANGE_AOB: &str = "C6 44 24 28 01 33 D2 F3 0F 11 44 24 20 48 8B 09 E8 ? ? ? ? 48 8B 4B 58 33 D2 E8";
+const RALLY_HP_CHANGE_OFFSET: usize = 17;
 
 #[repr(C, packed)]
 pub struct RallyData {
@@ -53,7 +53,7 @@ type RallyModifyType = unsafe extern "C" fn(
 );
 
 pub static RALLY_UPDATE_ORIGINAL_HOLDER: OnceLock<RallyUpdateType> = OnceLock::new();
-pub static RALLY_MODIFY_ORIGINAL_HOLDER: OnceLock<RallyModifyType> = OnceLock::new();
+pub static RALLY_HP_CHANGE_ORIGINAL_HOLDER: OnceLock<RallyModifyType> = OnceLock::new();
 
 fn is_rally_disabled(game_man: *mut GameMan) -> bool {
     return unsafe {*((game_man as *mut GameMan as usize + 0xdb7) as *mut bool)};
@@ -81,12 +81,14 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
     std::thread::spawn(move || {
 
         let _ = config::init(config::Schema::new()
+            .field("rally_mod", "rally_time", 4_f64, None::<String>)
+            .field("rally_mod", "rally_hit_reset", true, None::<String>)
             .field("rally_mod", "exponential_decay", true, None::<String>)
-            .field("rally_mod", "half_life", 10_f64, None::<String>)
+            .field("rally_mod", "half_life", 7.5_f64, None::<String>)
             .field("rally_mod", "no_hit_regain", true, None::<String>)
             .field("rally_mod", "no_hit_time", 30_f64, None::<String>)
             .field("rally_mod", "no_hit_increase", 60_f64, None::<String>)
-            .field("rally_mod", "rally_decay", 60_f64, None::<String>)
+            .field("rally_mod", "rally_decay", 15_f64, None::<String>)
             .field("loading", "wait_time", 10_i64, None::<String>)
         );
 
@@ -97,6 +99,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         thread::sleep(time::Duration::from_secs(wait_time));
 
+        let rally_time = config::get_float("rally_mod", "rally_time").unwrap() as f32;
+        let rally_hit_reset = config::get_bool("rally_mod", "rally_hit_reset").unwrap();
         
         let exponential_decay = config::get_bool("rally_mod", "exponential_decay").unwrap();
         let half_life = config::get_float("rally_mod", "half_life").unwrap() as f32;
@@ -107,7 +111,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         let rally_decay = config::get_float("rally_mod", "rally_decay").unwrap() as f32;
 
-        let hook_rally_2 = make_installer_from_call_aob::<RallyUpdateType>(
+        let hook_rally = make_installer_from_call_aob::<RallyUpdateType>(
             RALLY_UPDATE_AOB,
             RALLY_HUPDATE_OFFSET,
             &RALLY_UPDATE_ORIGINAL_HOLDER,
@@ -181,6 +185,11 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                                 }
                             }
 
+                            if rally_hit_reset && rally_regain > 0.0 {
+                                rally_timer = rally_time;
+                                rally_cap = rally_potential
+                            }
+
                             current_hp += to_regain.ceil() as i32;
                             rally_potential -= to_regain;
                             rally_cap -= to_regain;
@@ -200,10 +209,10 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         })
         .unwrap();
 
-        let hook_rally = make_installer_from_call_aob::<RallyModifyType>(
-            RALLY_MODIFY_AOB,
-            RALLY_MODIFY_OFFSET,
-            &RALLY_MODIFY_ORIGINAL_HOLDER,
+        let hook_rally_change = make_installer_from_call_aob::<RallyModifyType>(
+            RALLY_HP_CHANGE_AOB,
+            RALLY_HP_CHANGE_OFFSET,
+            &RALLY_HP_CHANGE_ORIGINAL_HOLDER,
         )
         .unwrap()
         .install_mut({
@@ -270,8 +279,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
                                 // Refresh timer
                                 if force_timer_refresh || rally.rally_timer <= 0.0 {
-                                    rally.rally_timer =
-                                        1.0 * rally_time_multiplier;
+                                    rally.rally_timer = rally_time * rally_time_multiplier;
                                 }
                             }
                             // --- 4B. No damage / healing branch ---
@@ -294,7 +302,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         unsafe { 
             hook_rally.enable(true);
-            hook_rally_2.enable(true);
+            hook_rally_change.enable(true);
         };
 
         thread::park();
