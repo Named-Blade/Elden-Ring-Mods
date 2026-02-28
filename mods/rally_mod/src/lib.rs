@@ -1,6 +1,7 @@
 use std::time::Duration;
 use std::{thread, time};
 use std::sync::OnceLock;
+use std::f64::consts;
 use std::ptr;
 use eldenring::{
     cs::GameMan,
@@ -57,7 +58,12 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
     std::thread::spawn(move || {
 
         let _ = config::init(config::Schema::new()
-            .field("rally_mod", "rally", true, None::<String>)
+            .field("rally_mod", "exponential_decay", true, None::<String>)
+            .field("rally_mod", "half_life", 10_f64, None::<String>)
+            .field("rally_mod", "no_hit_regain", true, None::<String>)
+            .field("rally_mod", "no_hit_time", 30_f64, None::<String>)
+            .field("rally_mod", "no_hit_increase", 60_f64, None::<String>)
+            .field("rally_mod", "rally_decay", 60_f64, None::<String>)
             .field("loading", "wait_time", 10_i64, None::<String>)
         );
 
@@ -67,6 +73,16 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             .expect("Timeout waiting for system init");
 
         thread::sleep(time::Duration::from_secs(wait_time));
+
+        
+        let exponential_decay = config::get_bool("rally_mod", "exponential_decay").unwrap();
+        let half_life = config::get_float("rally_mod", "half_life").unwrap() as f32;
+
+        let no_hit_regain = config::get_bool("rally_mod", "no_hit_regain").unwrap();
+        let no_hit_time = config::get_float("rally_mod", "no_hit_time").unwrap() as f32;
+        let no_hit_increase = config::get_float("rally_mod", "no_hit_increase").unwrap() as f32;
+
+        let rally_decay = config::get_float("rally_mod", "rally_decay").unwrap() as f32;
 
         let hook_rally = make_installer_from_call_aob::<RallyUpdateType>(
             RALLY_UPDATE_AOB,
@@ -100,14 +116,25 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                             };
 
                             if rally_timer < delta_time {
-                                rally_timer = 0.0;
                                 rally_cap = 0.0;
-                            } else {
-                                rally_timer -= delta_time;
                             }
+                            rally_timer -= delta_time;
+                            
 
-                            if rally_potential > rally_cap {
-                                let change = max_hp as f32 * 1.0 * delta_time;
+                            if rally_potential >= rally_cap {
+                                let change = {
+                                    if no_hit_regain && (rally_timer < -no_hit_time) {
+                                        - (max_hp as f32 / no_hit_increase * delta_time)
+                                    } else {
+                                        if exponential_decay {
+                                            let k: f32 = 2_f32.ln() / half_life;
+                                            rally_potential - (rally_potential * (consts::E as f32).powf(-k * delta_time))
+                                        } else {
+                                            let decay = 1.0/rally_decay;
+                                            max_hp as f32 * decay * delta_time 
+                                        }
+                                    }
+                                };
                                 if (rally_potential - change) < rally_cap {
                                     rally_potential = rally_cap;
                                 } else {
@@ -115,8 +142,12 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                                 }
                             }
 
-                            let mut to_regain: f32 = 0.0;
                             let hp_to_full = (max_hp - current_hp) as f32;
+                            if rally_potential > (hp_to_full) {
+                                rally_potential = hp_to_full;
+                            }
+
+                            let mut to_regain: f32 = 0.0;
                             if rally_regain > 1.0 && current_hp > 0 {
                                 to_regain = rally_regain;
                                 if rally_potential < to_regain {
