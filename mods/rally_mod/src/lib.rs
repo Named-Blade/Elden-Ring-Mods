@@ -18,6 +18,9 @@ use hook::*;
 const RALLY_UPDATE_AOB: &str = "48 8b 09 e8 ? ? ? ? 48 8b 87 90 01 00 00 48 8b 08 e8";
 const RALLY_HUPDATE_OFFSET: usize = 4;
 
+const RALLY_MODIFY_AOB: &str = "C6 44 24 28 01 33 D2 F3 0F 11 44 24 20 48 8B 09 E8 ? ? ? ? 48 8B 4B 58 33 D2 E8";
+const RALLY_MODIFY_OFFSET: usize = 17;
+
 #[repr(C, packed)]
 pub struct RallyData {
     pub rally_potential: f32,
@@ -40,7 +43,17 @@ pub type RallyUpdateType = unsafe extern "C" fn(
     delta_time: f32,
 );
 
+type RallyModifyType = unsafe extern "C" fn(
+    chr_data: *mut CSChrDataModule,
+    new_hp: i32,
+    reset_rally_flag: u8,
+    rally_gain_multiplier: f32,
+    rally_time_multiplier: f32,
+    force_timer_refresh_flag: u8,
+);
+
 pub static RALLY_UPDATE_ORIGINAL_HOLDER: OnceLock<RallyUpdateType> = OnceLock::new();
+pub static RALLY_MODIFY_ORIGINAL_HOLDER: OnceLock<RallyModifyType> = OnceLock::new();
 
 /// # Safety
 /// This is exposed this way such that libraryloader can call it. Do not call this yourself.
@@ -84,7 +97,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         let rally_decay = config::get_float("rally_mod", "rally_decay").unwrap() as f32;
 
-        let hook_rally = make_installer_from_call_aob::<RallyUpdateType>(
+        let hook_rally_2 = make_installer_from_call_aob::<RallyUpdateType>(
             RALLY_UPDATE_AOB,
             RALLY_HUPDATE_OFFSET,
             &RALLY_UPDATE_ORIGINAL_HOLDER,
@@ -128,7 +141,8 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                                     } else {
                                         if exponential_decay {
                                             let k: f32 = 2_f32.ln() / half_life;
-                                            rally_potential - (rally_potential * (consts::E as f32).powf(-k * delta_time))
+                                            let beyond_cap = rally_potential - rally_cap;
+                                            beyond_cap - (beyond_cap * (consts::E as f32).powf(-k * delta_time))
                                         } else {
                                             let decay = 1.0/rally_decay;
                                             max_hp as f32 * decay * delta_time 
@@ -177,7 +191,102 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         })
         .unwrap();
 
-        unsafe { hook_rally.enable(true) };
+        let hook_rally = make_installer_from_call_aob::<RallyModifyType>(
+            RALLY_MODIFY_AOB,
+            RALLY_MODIFY_OFFSET,
+            &RALLY_MODIFY_ORIGINAL_HOLDER,
+        )
+        .unwrap()
+        .install_mut({
+            move |_original| {
+               move |chr_data,
+                    new_hp: i32,
+                    reset_rally_flag: u8,
+                    rally_gain_multiplier: f32,
+                    rally_time_multiplier: f32,
+                    force_timer_refresh_flag: u8| {
+
+                    let reset_rally = reset_rally_flag != 0;
+                    let force_timer_refresh = force_timer_refresh_flag != 0;
+
+                    unsafe {
+                        let data = &mut *chr_data;
+
+                        let old_hp = data.current_hp;
+                        let max_hp = data.max_hp;
+
+                        // --- 1. Clamp and assign HP ---
+                        let clamped_hp = new_hp.clamp(0, max_hp);
+                        data.current_hp = clamped_hp;
+
+                        let hp_delta = clamped_hp - old_hp;
+
+                        // --- 2. Rally only applies if special effect active ---
+                        let Ok(game_man) = GameMan::instance() else { return; };
+                        let is_rally_disabled = *((game_man as *mut GameMan as usize + 0xdb7) as *mut bool);
+                        if !is_rally_disabled
+                            && true//is_main_player(data)
+                            && true//has_special_effect_449(data)
+                        {
+                            let rally = &mut data.rally_data;
+
+                            // --- 3. Hard reset ---
+                            if reset_rally {
+                                rally.rally_cap = 0.0;
+                                rally.rally_timer = 0.0;
+                                rally.rally_regain = 0.0;
+                            }
+
+                            let missing_hp = (max_hp - clamped_hp) as f32;
+
+                            // --- 4A. Damage taken and rally gain allowed ---
+                            if hp_delta < 0 && rally_gain_multiplier > 0.0 {
+                                let damage_taken = (-hp_delta) as f32;
+                                let rally_gain = damage_taken * rally_gain_multiplier;
+
+                                rally.rally_potential += rally_gain;
+                                rally.rally_cap += rally_gain;
+
+                                // Clamp potential to missing HP
+                                rally.rally_potential =
+                                    rally.rally_potential.clamp(0.0, missing_hp);
+
+                                // Cap cannot exceed potential
+                                rally.rally_cap =
+                                    rally.rally_cap.clamp(0.0, rally.rally_potential);
+
+                                // Regain cannot exceed potential
+                                rally.rally_regain =
+                                    rally.rally_regain.clamp(0.0, rally.rally_potential);
+
+                                // Refresh timer
+                                if force_timer_refresh || rally.rally_timer <= 0.0 {
+                                    rally.rally_timer =
+                                        1.0 * rally_time_multiplier;
+                                }
+                            }
+                            // --- 4B. No damage / healing branch ---
+                            else {
+                                rally.rally_potential =
+                                    rally.rally_potential.clamp(0.0, missing_hp);
+
+                                rally.rally_cap =
+                                    rally.rally_cap.clamp(0.0, rally.rally_potential);
+
+                                rally.rally_regain =
+                                    rally.rally_regain.clamp(0.0, rally.rally_potential);
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        .unwrap();
+
+        unsafe { 
+            hook_rally.enable(true);
+            hook_rally_2.enable(true);
+        };
 
         thread::park();
     });
