@@ -293,6 +293,12 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                                 rally.rally_regain =
                                     rally.rally_regain.clamp(0.0, rally.rally_potential);
                             }
+
+                            if true && hp_delta > 0{
+                                rally.rally_potential += hp_delta as f32;
+                                rally.rally_cap += hp_delta as f32;
+                                data.current_hp -= hp_delta - 1;
+                            }
                         }
                     }
                 }
