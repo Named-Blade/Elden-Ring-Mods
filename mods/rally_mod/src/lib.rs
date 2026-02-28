@@ -21,6 +21,9 @@ const RALLY_HUPDATE_OFFSET: usize = 4;
 const RALLY_HP_CHANGE_AOB: &str = "C6 44 24 28 01 33 D2 F3 0F 11 44 24 20 48 8B 09 E8 ? ? ? ? 48 8B 4B 58 33 D2 E8";
 const RALLY_HP_CHANGE_OFFSET: usize = 17;
 
+const GLOBAL_SOUND_AOB: &str = "ba b4 00 00 00 48 8d 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 48 8b 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe";
+const GLOBAL_SOUND_OFFSET: usize = 8;
+
 #[repr(C, packed)]
 pub struct RallyData {
     pub rally_potential: f32,
