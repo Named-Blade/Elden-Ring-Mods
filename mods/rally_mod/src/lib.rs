@@ -4,7 +4,7 @@ use std::sync::OnceLock;
 use std::f64::consts;
 use std::ptr;
 use eldenring::{
-    cs::GameMan,
+    cs::{GameMan, WorldChrMan},
     util::system::wait_for_system_init,
 };
 use fromsoftware_shared::{program::Program,FromStatic};
@@ -54,6 +54,16 @@ type RallyModifyType = unsafe extern "C" fn(
 
 pub static RALLY_UPDATE_ORIGINAL_HOLDER: OnceLock<RallyUpdateType> = OnceLock::new();
 pub static RALLY_MODIFY_ORIGINAL_HOLDER: OnceLock<RallyModifyType> = OnceLock::new();
+
+fn is_rally_disabled(game_man: *mut GameMan) -> bool {
+    return unsafe {*((game_man as *mut GameMan as usize + 0xdb7) as *mut bool)};
+}
+
+fn is_main_player(world_chr_man: *const WorldChrMan, chr_data: *const CSChrDataModule) -> bool {
+    let Some(main_player)  = (unsafe { (*world_chr_man).main_player.as_ref() }) else {return false;};
+    let data: *const eldenring::cs::CSChrDataModule = chr_data as *const eldenring::cs::CSChrDataModule;
+    return main_player.as_ptr() as *mut () == unsafe{(*data).owner.as_ptr() as *mut ()};
+}
 
 /// # Safety
 /// This is exposed this way such that libraryloader can call it. Do not call this yourself.
@@ -107,8 +117,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
             move |_original| {
                 move |chr_data, delta_time| {
                     if let Ok(game_man) = unsafe {GameMan::instance()} {
-                        let is_rally_disabled = unsafe {*((game_man as *mut GameMan as usize + 0xdb7) as *mut bool)};
-                        if !is_rally_disabled {
+                        if !is_rally_disabled(game_man) {
                             let (
                                 mut current_hp,
                                 max_hp,
@@ -223,9 +232,9 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
                         // --- 2. Rally only applies if special effect active ---
                         let Ok(game_man) = GameMan::instance() else { return; };
-                        let is_rally_disabled = *((game_man as *mut GameMan as usize + 0xdb7) as *mut bool);
-                        if !is_rally_disabled
-                            && true//is_main_player(data)
+                        let Ok(world_chr_man) = WorldChrMan::instance() else { return; };
+                        if !is_rally_disabled(game_man)
+                            && is_main_player(world_chr_man, chr_data)
                             && true//has_special_effect_449(data)
                         {
                             let rally = &mut data.rally_data;
