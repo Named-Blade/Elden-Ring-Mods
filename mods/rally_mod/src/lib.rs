@@ -26,6 +26,8 @@ const RALLY_HP_CHANGE_OFFSET: usize = 17;
 const GLOBAL_SOUND_AOB: &str = "ba b4 00 00 00 48 8d 0d ? ? ? ? e8 ? ? ? ? 48 8b 0d ? ? ? ? e8 ? ? ? ? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe";
 const GLOBAL_SOUND_OFFSET: usize = 20;
 
+const STATE_INFO_RALLY: u16 = 449;
+
 #[repr(C, packed)]
 pub struct RallyData {
     pub rally_potential: f32,
@@ -59,6 +61,21 @@ type RallyModifyType = unsafe extern "C" fn(
 
 pub static RALLY_UPDATE_ORIGINAL_HOLDER: OnceLock<RallyUpdateType> = OnceLock::new();
 pub static RALLY_HP_CHANGE_ORIGINAL_HOLDER: OnceLock<RallyModifyType> = OnceLock::new();
+
+fn has_speffect_state_info(chr_data: *const CSChrDataModule, state_info: u16) -> bool{
+    let chr_data = chr_data as *const eldenring::cs::CSChrDataModule;
+    let chr = unsafe { &(*(*chr_data).owner.as_ptr()) };
+    let special_effect = chr.special_effect.as_ref();
+    for sp_effect in special_effect.entries() {
+        if let Some(param) = sp_effect.param_data {
+            let param = unsafe { param.as_ref() };
+            if param.state_info() == state_info {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 fn is_rally_disabled(game_man: *mut GameMan) -> bool {
     return unsafe {*((game_man as *mut GameMan as usize + 0xdb7) as *mut bool)};
@@ -173,8 +190,10 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
                             if rally_timer < delta_time {
                                 rally_cap = 0.0;
+                                rally_timer = 0.0;
+                            } else {
+                                rally_timer -= delta_time;
                             }
-                            rally_timer -= delta_time;
                             
 
                             if rally_potential >= rally_cap {
@@ -270,7 +289,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                         let Ok(world_chr_man) = WorldChrMan::instance() else { return; };
                         if !is_rally_disabled(game_man)
                             && is_main_player(world_chr_man, chr_data)
-                            && true//has_special_effect_449(data)
+                            && has_speffect_state_info(chr_data, STATE_INFO_RALLY)
                         {
                             let rally = &mut data.rally_data;
 
