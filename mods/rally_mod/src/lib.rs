@@ -3,6 +3,7 @@ use std::{thread, time};
 use std::sync::OnceLock;
 use std::f64::consts;
 use std::ptr;
+use pelite::pattern::parse;
 use eldenring::{
     cs::{GameMan, WorldChrMan},
     util::system::wait_for_system_init,
@@ -13,6 +14,7 @@ use utils::*;
 
 use console::*;
 use log::*;
+use patch::*;
 use hook::*;
 
 const RALLY_UPDATE_AOB: &str = "48 8b 09 e8 ? ? ? ? 48 8b 87 90 01 00 00 48 8b 08 e8";
@@ -21,8 +23,8 @@ const RALLY_HUPDATE_OFFSET: usize = 4;
 const RALLY_HP_CHANGE_AOB: &str = "C6 44 24 28 01 33 D2 F3 0F 11 44 24 20 48 8B 09 E8 ? ? ? ? 48 8B 4B 58 33 D2 E8";
 const RALLY_HP_CHANGE_OFFSET: usize = 17;
 
-const GLOBAL_SOUND_AOB: &str = "ba b4 00 00 00 48 8d 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 48 8b 0d ?? ?? ?? ?? e8 ?? ?? ?? ?? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe";
-const GLOBAL_SOUND_OFFSET: usize = 8;
+const GLOBAL_SOUND_AOB: &str = "ba b4 00 00 00 48 8d 0d ? ? ? ? e8 ? ? ? ? 48 8b 0d ? ? ? ? e8 ? ? ? ? 84 c0 0f 94 c2 eb 02 32 d2 f6 c3 01 74 07 83 e3 fe";
+const GLOBAL_SOUND_OFFSET: usize = 20;
 
 #[repr(C, packed)]
 pub struct RallyData {
@@ -68,6 +70,23 @@ fn is_main_player(world_chr_man: *const WorldChrMan, chr_data: *const CSChrDataM
     return main_player.as_ptr() as *mut () == unsafe{(*data).owner.as_ptr() as *mut ()};
 }
 
+fn is_in_combat(sound_global: Option<usize>) -> bool {
+    match sound_global {
+        Some(global) => {
+            unsafe {
+                let global = global as *const usize;
+                if global.is_null() { return false; };
+                let global = *global;
+                let bgm_controller: *const () = *((global as usize + 0x328) as *const *const ());
+                if bgm_controller.is_null() { return false; };
+                let is_in_combat: bool = *((bgm_controller as usize + 0x4) as *const bool);
+                is_in_combat
+            }
+        }
+        None => {false}
+    }
+}
+
 /// # Safety
 /// This is exposed this way such that libraryloader can call it. Do not call this yourself.
 #[unsafe(no_mangle)]
@@ -86,11 +105,9 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
         let _ = config::init(config::Schema::new()
             .field("rally_mod", "rally_time", 4_f64, None::<String>)
             .field("rally_mod", "rally_hit_reset", true, None::<String>)
+            .field("rally_mod", "rally_only_heal", true, None::<String>)
             .field("rally_mod", "exponential_decay", true, None::<String>)
             .field("rally_mod", "half_life", 7.5_f64, None::<String>)
-            .field("rally_mod", "no_hit_regain", true, None::<String>)
-            .field("rally_mod", "no_hit_time", 30_f64, None::<String>)
-            .field("rally_mod", "no_hit_increase", 60_f64, None::<String>)
             .field("rally_mod", "rally_decay", 15_f64, None::<String>)
             .field("loading", "wait_time", 10_i64, None::<String>)
         );
@@ -102,15 +119,25 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
         thread::sleep(time::Duration::from_secs(wait_time));
 
+        let sound_global: Option<usize> = {
+            let aob = parse(GLOBAL_SOUND_AOB).unwrap();
+            if let Some(address) = aob_scan(&aob) {
+                let rip = address as usize + GLOBAL_SOUND_OFFSET + 4;
+                let address = address as usize + GLOBAL_SOUND_OFFSET;
+                let value = unsafe {std::ptr::read_unaligned(address as *const u32)} as usize;
+                log!("{:p}", (value+rip) as *const ());
+                Some(value + rip)
+            } else {
+                None
+            }
+        };
+
         let rally_time = config::get_float("rally_mod", "rally_time").unwrap() as f32;
         let rally_hit_reset = config::get_bool("rally_mod", "rally_hit_reset").unwrap();
+        let rally_only_heal = config::get_bool("rally_mod", "rally_hit_reset").unwrap();
         
         let exponential_decay = config::get_bool("rally_mod", "exponential_decay").unwrap();
         let half_life = config::get_float("rally_mod", "half_life").unwrap() as f32;
-
-        let no_hit_regain = config::get_bool("rally_mod", "no_hit_regain").unwrap();
-        let no_hit_time = config::get_float("rally_mod", "no_hit_time").unwrap() as f32;
-        let no_hit_increase = config::get_float("rally_mod", "no_hit_increase").unwrap() as f32;
 
         let rally_decay = config::get_float("rally_mod", "rally_decay").unwrap() as f32;
 
@@ -152,17 +179,13 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
                             if rally_potential >= rally_cap {
                                 let change = {
-                                    if no_hit_regain && (rally_timer < -no_hit_time) {
-                                        - (max_hp as f32 / no_hit_increase * delta_time)
+                                    if exponential_decay {
+                                        let k: f32 = 2_f32.ln() / half_life;
+                                        let beyond_cap = rally_potential - rally_cap;
+                                        beyond_cap - (beyond_cap * (consts::E as f32).powf(-k * delta_time))
                                     } else {
-                                        if exponential_decay {
-                                            let k: f32 = 2_f32.ln() / half_life;
-                                            let beyond_cap = rally_potential - rally_cap;
-                                            beyond_cap - (beyond_cap * (consts::E as f32).powf(-k * delta_time))
-                                        } else {
-                                            let decay = 1.0/rally_decay;
-                                            max_hp as f32 * decay * delta_time 
-                                        }
+                                        let decay = 1.0/rally_decay;
+                                        max_hp as f32 * decay * delta_time 
                                     }
                                 };
                                 if (rally_potential - change) < rally_cap {
@@ -297,10 +320,15 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
                                     rally.rally_regain.clamp(0.0, rally.rally_potential);
                             }
 
-                            if true && hp_delta > 0{
+                            if rally_only_heal && hp_delta > 0 && is_in_combat(sound_global) {
                                 rally.rally_potential += hp_delta as f32;
                                 rally.rally_cap += hp_delta as f32;
                                 data.current_hp -= hp_delta - 1;
+
+                                let new_timer = hp_delta as f32 /200.0;
+                                if rally.rally_timer < new_timer {
+                                    rally.rally_timer = new_timer;
+                                }
                             }
                         }
                     }
