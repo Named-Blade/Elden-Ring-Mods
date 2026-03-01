@@ -322,10 +322,14 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
                             if rally_only_heal && hp_delta > 0 && is_in_combat(sound_global) {
                                 rally.rally_potential += hp_delta as f32;
-                                rally.rally_cap += hp_delta as f32;
                                 data.current_hp -= hp_delta - 1;
 
                                 let new_timer = hp_delta as f32 /200.0;
+
+                                if new_timer >= 1.0 {
+                                    rally.rally_cap = rally.rally_potential;
+                                }
+
                                 if rally.rally_timer < new_timer {
                                     rally.rally_timer = new_timer;
                                 }
