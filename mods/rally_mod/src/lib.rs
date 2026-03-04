@@ -120,13 +120,13 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
     std::thread::spawn(move || {
 
         let _ = config::init(config::Schema::new()
-            .field("rally_mod", "rally_time", 4_f64, None::<String>)
-            .field("rally_mod", "rally_hit_reset", true, None::<String>)
-            .field("rally_mod", "rally_only_heal", true, None::<String>)
-            .field("rally_mod", "exponential_decay", true, None::<String>)
-            .field("rally_mod", "half_life", 7.5_f64, None::<String>)
-            .field("rally_mod", "rally_decay", 15_f64, None::<String>)
-            .field("loading", "wait_time", 10_i64, None::<String>)
+            .field("rally_mod", "rally_time", 4_f64, Some("base time before rally decay"))
+            .field("rally_mod", "rally_hit_reset", true, Some("reset rally timer when hitting an enemy"))
+            .field("rally_mod", "rally_only_heal", true, Some("in combat, all healing instead fills rally bar"))
+            .field("rally_mod", "exponential_decay", true, Some("rally bar decays exponentially"))
+            .field("rally_mod", "half_life", 7.5_f64, Some("half_life of rally bar above cap"))
+            .field("rally_mod", "rally_decay", 15_f64, Some("seconds for rally decay to 0 starting at full health"))
+            .field("loading", "wait_time", 10_i64, Some("If you are having issues, increase this time"))
         );
 
         let wait_time = config::get_int("loading", "wait_time").unwrap() as u64;
@@ -345,7 +345,7 @@ pub unsafe extern "C" fn DllMain(hmodule: isize, reason: u32) -> bool {
 
                                 let new_timer = hp_delta as f32 /200.0;
 
-                                if new_timer >= 1.0 {
+                                if new_timer >= 0.5 {
                                     rally.rally_cap = rally.rally_potential;
                                 }
 
