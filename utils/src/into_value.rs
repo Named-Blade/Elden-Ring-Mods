@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 // Helper trait to unify numeric types
-trait IntoValue {
+pub trait IntoValue {
     fn to_i64(&self) -> i64;
     fn to_i32(&self) -> i32;
     fn to_i16(&self) -> i16;

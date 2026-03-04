@@ -5,6 +5,7 @@ use winhook::HookHandle;
 
 use crate::hook::*;
 use crate::log;
+use crate::into_value::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(dead_code)]
@@ -32,7 +33,7 @@ impl SpEffectParamField {
 pub trait SpEffectParamFieldAccess {
     #[allow(dead_code)]
     fn get_field(&self, field: SpEffectParamField) -> f32;
-    fn set_field(&mut self, field: SpEffectParamField, value: f32);
+    fn set_field(&mut self, field: SpEffectParamField, value: impl IntoValue);
 }
 
 impl SpEffectParamFieldAccess for SP_EFFECT_PARAM_ST {
@@ -43,10 +44,10 @@ impl SpEffectParamFieldAccess for SP_EFFECT_PARAM_ST {
         }
     }
 
-    fn set_field(&mut self, field: SpEffectParamField, value: f32) {
+    fn set_field(&mut self, field: SpEffectParamField, value: impl IntoValue) {
         match field {
-            SpEffectParamField::Soul => self.set_soul(value as i32),
-            SpEffectParamField::EffectEndurance => self.set_effect_endurance(value),
+            SpEffectParamField::Soul => self.set_soul(value.to_i32()),
+            SpEffectParamField::EffectEndurance => self.set_effect_endurance(value.to_f32()),
         }
     }
 }
