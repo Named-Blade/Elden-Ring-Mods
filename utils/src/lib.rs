@@ -8,3 +8,4 @@ pub mod msg;
 pub mod goods;
 pub mod config;
 pub mod speffect;
+pub mod into_value;
